@@ -39,7 +39,7 @@
             <ComboBox VerticalAlignment="Center" Name="CbDocumentsFor" SelectionChanged="CbDocumentsFor_OnSelectionChanged">
                 <ComboBoxItem Tag="RU">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Resources/Flags/russia_thin_rectangular_icon_64.png" 
+                        <Image Source="Resources/Flags/russia_thin_rectangular_icon_64.png" 
                                            Width="16" Height="16" Stretch="Fill" Margin="2"></Image>
                         <TextBlock Margin="10,2,2,2" Text="Россия" VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"></TextBlock>
                     </StackPanel>
