@@ -61,36 +61,17 @@ namespace mpFormats.Properties {
         }
         
         /// <summary>
-        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap MpFormats_16x16 {
-            get {
-                object obj = ResourceManager.GetObject("MpFormats_16x16", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap MpFormats_32x32 {
-            get {
-                object obj = ResourceManager.GetObject("MpFormats_32x32", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на &lt;?xml version=&quot;1.0&quot; encoding=&quot;windows-1251&quot;?&gt;
         ///&lt;Stamps&gt;
-        ///&lt;!--name		- название --&gt;
-        ///&lt;!--tablestylename	- имя табличного стиля--&gt;
-        ///&lt;!--document		- название нормативного документа. Имя файла документа должно быть таим же + .pdf--&gt;
-        ///&lt;!--description		- краткое описание. Включает номер приложения в ГОСТ и номер формы--&gt;
-        ///&lt;!--img			- номер изображения. Файл такой-же + .jpg--&gt;
-        ///&lt;!--fieldscoordinates	- координаты для полей (не имен!). Колонка, строка (через запятую. Значения с нуля)--&gt;
-        ///	&lt;Stamp
-        ///		name=&quot;Для листов о [остаток строки не уместился]&quot;;.
+        ///  &lt;Stamp
+        ///    DocFor=&quot;RU&quot;
+        ///		name=&quot;Для листов основных комплектов рабочих чертежей, графических документов разделов проектной документации и графических документов по инженерным изысканиям&quot;
+        ///		tablestylename=&quot;Mp_GOST_P_21.1101_F3&quot;
+        ///		document=&quot;ГОСТ Р 21.1101-2013&quot;
+        ///		description=&quot;Приложение Ж. Форма 3&quot;
+        ///		hassurenames=&quot;true&quot;
+        ///		surnames=&quot;ГИП,Нач.отд.,Вед.инж.,Проверил,Разраб.,Н.контр.,ГАП,Гл.констр.&quot;
+        ///		surnameskeys=&quot;GIP,Chief,ChiefEngineer,Checked,Au [остаток строки не уместился]&quot;;.
         /// </summary>
         internal static string Stamps {
             get {

@@ -12,30 +12,22 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/ModPlusAPI;component/Windows/WinResources/Styles.xaml"></ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="BtStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource SquareMetroButton}">
-                <Setter Property="BorderThickness" Value="1" />
-            </Style>
             <Canvas x:Key="mp_arrow_down" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-                <Path Width="28" Height="39.25" Canvas.Left="24" Canvas.Top="19.0002" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 42,19.0002L 34,19.0002L 34,43.7502L 24,33.7502L 24,44.2502L 38,58.2502L 52,44.2502L 52,33.7502L 42,43.7502L 42,19.0002 Z "/>
+                <Path Width="28" Height="39.25" Canvas.Left="24" Canvas.Top="19.0002" Stretch="Fill" Fill="Black" Data="F1 M 42,19.0002L 34,19.0002L 34,43.7502L 24,33.7502L 24,44.2502L 38,58.2502L 52,44.2502L 52,33.7502L 42,43.7502L 42,19.0002 Z "/>
             </Canvas>
             <Canvas x:Key="mp_arrow_left" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-                <Path Width="39.25" Height="28" Canvas.Left="17.75" Canvas.Top="24" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 57,42L 57,34L 32.25,34L 42.25,24L 31.75,24L 17.75,38L 31.75,52L 42.25,52L 32.25,42L 57,42 Z "/>
+                <Path Width="39.25" Height="28" Canvas.Left="17.75" Canvas.Top="24" Stretch="Fill" Fill="Black" Data="F1 M 57,42L 57,34L 32.25,34L 42.25,24L 31.75,24L 17.75,38L 31.75,52L 42.25,52L 32.25,42L 57,42 Z "/>
             </Canvas>
             <Canvas x:Key="mp_arrow_right" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-                <Path Width="39.25" Height="28" Canvas.Left="19.0002" Canvas.Top="24" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 19.0002,34L 19.0002,42L 43.7502,42L 33.7502,52L 44.2502,52L 58.2502,38L 44.2502,24L 33.7502,24L 43.7502,34L 19.0002,34 Z "/>
+                <Path Width="39.25" Height="28" Canvas.Left="19.0002" Canvas.Top="24" Stretch="Fill" Fill="Black" Data="F1 M 19.0002,34L 19.0002,42L 43.7502,42L 33.7502,52L 44.2502,52L 58.2502,38L 44.2502,24L 33.7502,24L 43.7502,34L 19.0002,34 Z "/>
             </Canvas>
             <Canvas x:Key="mp_arrow_up" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-                <Path Width="28" Height="39.25" Canvas.Left="24" Canvas.Top="17.75" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 34,57L 42,57L 42,32.25L 52,42.25L 52,31.75L 38,17.75L 24,31.75L 24,42.25L 34,32.25L 34,57 Z "/>
+                <Path Width="28" Height="39.25" Canvas.Left="24" Canvas.Top="17.75" Stretch="Fill" Fill="Black" Data="F1 M 34,57L 42,57L 42,32.25L 52,42.25L 52,31.75L 38,17.75L 24,31.75L 24,42.25L 34,32.25L 34,57 Z "/>
             </Canvas>
             <Canvas x:Key="mp_edit_box" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-                <Path Width="38.0251" Height="38.0251" Canvas.Left="19" Canvas.Top="18.9749" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 54.6818,20.1053L 55.8947,21.3182C 57.4019,22.8254 57.4019,25.2691 55.8947,26.7763L 53.7721,28.8989L 47.1011,22.2279L 49.2237,20.1053C 50.7309,18.5981 53.1746,18.5981 54.6818,20.1053 Z M 36.1848,46.4862L 29.5138,39.8152L 45.8881,23.4408L 52.5592,30.1119L 36.1848,46.4862 Z M 28.9073,42.241L 33.759,47.0927L 27.0251,48.9749L 28.9073,42.241 Z M 19,57L 19,25L 40.8063,25L 36.8063,29L 23,29L 23,53L 53,53L 53,32.6912L 57,28.6911L 57,57L 19,57 Z "/>
+                <Path Width="38.0251" Height="38.0251" Canvas.Left="19" Canvas.Top="18.9749" Stretch="Fill" Fill="Black" Data="F1 M 54.6818,20.1053L 55.8947,21.3182C 57.4019,22.8254 57.4019,25.2691 55.8947,26.7763L 53.7721,28.8989L 47.1011,22.2279L 49.2237,20.1053C 50.7309,18.5981 53.1746,18.5981 54.6818,20.1053 Z M 36.1848,46.4862L 29.5138,39.8152L 45.8881,23.4408L 52.5592,30.1119L 36.1848,46.4862 Z M 28.9073,42.241L 33.759,47.0927L 27.0251,48.9749L 28.9073,42.241 Z M 19,57L 19,25L 40.8063,25L 36.8063,29L 23,29L 23,53L 53,53L 53,32.6912L 57,28.6911L 57,57L 19,57 Z "/>
             </Canvas>
             <Canvas x:Key="appbar_folder_open" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
                 <Path Width="44" Height="26" Canvas.Left="19" Canvas.Top="24" Stretch="Fill" Fill="Black" Data="F1 M 19,50L 28,34L 63,34L 54,50L 19,50 Z M 19,28.0001L 35,28C 36,25 37.4999,24.0001 37.4999,24.0001L 48.75,24C 49.3023,24 50,24.6977 50,25.25L 50,28L 53.9999,28.0001L 53.9999,32L 27,32L 19,46.4L 19,28.0001 Z "/>
@@ -47,7 +39,7 @@
             <ComboBox VerticalAlignment="Center" Name="CbDocumentsFor" SelectionChanged="CbDocumentsFor_OnSelectionChanged">
                 <ComboBoxItem Tag="RU">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="Resources/Flags/russia_thin_rectangular_icon_64.png" 
+                        <Image Source="/Resources/Flags/russia_thin_rectangular_icon_64.png" 
                                            Width="16" Height="16" Stretch="Fill" Margin="2"></Image>
                         <TextBlock Margin="10,2,2,2" Text="Россия" VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"></TextBlock>
                     </StackPanel>
@@ -69,7 +61,7 @@
             </ComboBox>
         </controls:WindowCommands>
     </controls:MetroWindow.RightWindowCommands>
-    <Grid Margin="2">
+    <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -260,8 +252,7 @@
                           ToolTip="Использовать поля">Использовать поля</CheckBox>
                 <Button Name="BtFields" Padding="0" HorizontalAlignment="Right" Margin="2"
                         Grid.Column="4" Grid.Row="1" ToolTip="Запуск функции Поля" Click="BtFields_Click"
-                        Background="Transparent" VerticalAlignment="Center"
-                        Style="{StaticResource BtStyle}">
+                        Background="Transparent" VerticalAlignment="Center">
                     <Border CornerRadius="3" BorderBrush="Black">
                         <Image Source="Resources/MpStampFields_32x32.png" Stretch="Fill"
                                    Width="32" Height="32"></Image>
@@ -311,7 +302,7 @@
                                      Name="TbLogoFile"
                                      ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
                                      IsReadOnly="True" controls:TextBoxHelper.ClearTextButton="True" ></TextBox>
-                    <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource BtStyle}"
+                    <Button Grid.Row="2" Grid.Column="2"
                                     Name="BtGetFileForLogo" Click="BtGetFileForLogo_OnClick"
                                     Margin="1" Padding="2" ToolTip="Указать dwg-файл в качестве логотипа">
                         <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
@@ -342,8 +333,7 @@
                                     HorizontalAlignment="Center">
                         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Text="Должности" Margin="2"></TextBlock>
-                        <Button Margin="2" Name="BtAddUserSurname"
-                                    Style="{StaticResource BtStyle}" Padding="2"
+                        <Button Margin="2" Name="BtAddUserSurname" Padding="2"
                                     ToolTip="Редактировать список пользовательских должностей"
                                     Click="BtAddUserSurname_OnClick"
                                     >
@@ -363,7 +353,6 @@
                     </ListBox>
                     <Button VerticalAlignment="Center" Margin="2" IsEnabled="False" Name="BtAddSurname"
                                 Grid.Column="1" Grid.Row="1" Padding="5"
-                                Style="{StaticResource BtStyle}"
                                 ToolTip="Добавить должность в штамп"
                                 Click="BtAddSurname_Click">
                         <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
@@ -375,7 +364,6 @@
                     </Button>
                     <Button VerticalAlignment="Top" Margin="2" IsEnabled="False" Name="BtRemoveSurname"
                                 Grid.Column="1" Grid.Row="2" Padding="5"
-                                Style="{StaticResource BtStyle}"
                                 ToolTip="Удалить должность из штампа"
                                 Click="BtRemoveSurname_Click">
                         <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
@@ -404,7 +392,6 @@
 
                     <Button VerticalAlignment="Center" Margin="2" IsEnabled="False" Name="BtUpSurname"
                                 Grid.Column="3" Grid.Row="1" Padding="5"
-                                Style="{StaticResource BtStyle}"
                                 ToolTip="Поднять должность на одну строку вверх"
                                 Click="BtUpSurname_Click">
                         <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
@@ -415,9 +402,7 @@
                         </Rectangle>
                     </Button>
                     <Button VerticalAlignment="Top" Margin="2" IsEnabled="False" Name="BtDownSurename"
-                                Grid.Column="3" Grid.Row="2" 
-                                Style="{StaticResource BtStyle}"
-                                Padding="5"
+                                Grid.Column="3" Grid.Row="2" Padding="5"
                                 ToolTip="Опустить должность на одну строку вниз"
                                 Click="BtDownSurename_Click">
                         <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
@@ -481,13 +466,13 @@
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Button Content="Вставить" Name="BtAdd" Width="102"
-                    Style="{StaticResource BtStyle}" HorizontalAlignment="Left"
+                    HorizontalAlignment="Left"
                     Margin="2" Click="BtAdd_Click" Grid.Column="0"/>
                 <Button Content="Заменить" Name="BtReplace"  Width="102"
-                    Style="{StaticResource BtStyle}" HorizontalAlignment="Center"
+                    HorizontalAlignment="Center"
                     Margin="2" Click="BtReplace_Click" Grid.Column="1"/>
                 <Button Content="Создать лист" Name="BtCreateLayout" Width="102"
-                    Style="{StaticResource BtStyle}" HorizontalAlignment="Right"
+                    HorizontalAlignment="Right"
                     Margin="2" Click="BtCreateLayout_Click" Grid.Column="2" />
             </Grid>
         </Grid>

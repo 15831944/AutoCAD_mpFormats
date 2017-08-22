@@ -13,26 +13,17 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/ModPlusAPI;component/Windows/WinResources/Styles.xaml"></ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="BtStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource SquareMetroButton}">
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-            </Style>
             <Canvas x:Key="mp_add" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-                <Path Width="38" Height="38" Canvas.Left="19" Canvas.Top="19" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 35,19L 41,19L 41,35L 57,35L 57,41L 41,41L 41,57L 35,57L 35,41L 19,41L 19,35L 35,35L 35,19 Z "/>
+                <Path Width="38" Height="38" Canvas.Left="19" Canvas.Top="19" Stretch="Fill" Fill="Black" Data="F1 M 35,19L 41,19L 41,35L 57,35L 57,41L 41,41L 41,57L 35,57L 35,41L 19,41L 19,35L 35,35L 35,19 Z "/>
             </Canvas>
             <Canvas x:Key="mp_close" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
-                <Path Width="31.6666" Height="31.6667" Canvas.Left="22.1666" Canvas.Top="22.1667" Stretch="Fill" Fill="{DynamicResource BlackBrush}" Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z "/>
+                <Path Width="31.6666" Height="31.6667" Canvas.Left="22.1666" Canvas.Top="22.1667" Stretch="Fill" Fill="Black" Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z "/>
             </Canvas>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid Margin="2">
+    <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -74,8 +65,7 @@
             </DataGrid>
             <!--Кнопки управления-->
             <Button VerticalAlignment="Center" Margin="2" Name="BtAddSurname"
-            Grid.Column="1" Grid.Row="0" 
-            Style="{DynamicResource SquareButtonStyle}"
+            Grid.Column="1" Grid.Row="0" Padding="5"
             ToolTip="Добавить новую фамилию"
             Click="BtAddSurname_OnClick"
             >
@@ -87,8 +77,7 @@
                 </Rectangle>
             </Button>
             <Button VerticalAlignment="Top" Margin="2" Name="BtRemoveSurname"
-                Grid.Column="1" Grid.Row="1"  IsEnabled="False"
-                Style="{DynamicResource SquareButtonStyle}"
+                Grid.Column="1" Grid.Row="1"  IsEnabled="False" Padding="5"
                 ToolTip="Удалить выбранную фамилию"
                 Click="BtRemoveSurname_OnClick"
                 >

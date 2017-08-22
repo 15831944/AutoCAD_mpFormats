@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-// AutoCad
-using mpMsg;
-using mpSettings;
-using ModPlus;
-
+using ModPlusAPI.Windows;
+using ModPlusAPI.Windows.Helpers;
 
 namespace mpFormats
 {
@@ -20,12 +17,7 @@ namespace mpFormats
         public LayoutName(string layOutName)
         {
             InitializeComponent();
-            MpWindowHelpers.OnWindowStartUp(
-                this,
-                MpSettings.GetValue("Settings", "MainSet", "Theme"),
-                MpSettings.GetValue("Settings", "MainSet", "AccentColor"),
-                MpSettings.GetValue("Settings", "MainSet", "BordersType")
-                );
+            this.OnWindowStartUp();
             TbLayoutName.Text = layOutName;
         }
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -38,8 +30,8 @@ namespace mpFormats
         {
             if (_wrongSymbols.Any(wrongSymbol => TbLayoutName.Text.Contains(wrongSymbol)))
             {
-                MpMsgWin.Show("Недопустимые символы в имени листа: " + TbLayoutName.Text + Environment.NewLine +
-                              "Не разрешается использование следующих символов: " + string.Join("",_wrongSymbols.ToArray()));
+                ModPlusAPI.Windows.MessageBox.Show("Недопустимые символы в имени листа: " + TbLayoutName.Text + Environment.NewLine +
+                              "Не разрешается использование следующих символов: " + string.Join("",_wrongSymbols.ToArray()), MessageBoxIcon.Alert);
                 return;
             }
             DialogResult = true;

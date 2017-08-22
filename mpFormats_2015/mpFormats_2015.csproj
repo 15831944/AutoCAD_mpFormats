@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\ModPlus_builded\Functions\mpFormats\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\..\ModPlus\Functions\mpFormats\</OutputPath>
     <DefineConstants>TRACE;DEBUG;ac2013</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -24,26 +24,34 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>..\..\..\..\..\..\..\ModPlus\Functions\mpFormats\</OutputPath>
+    <DefineConstants>TRACE;ac2013</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="accoremgd">
-      <HintPath>..\..\..\..\Acad dlls\2015\accoremgd.dll</HintPath>
+      <HintPath>..\..\..\..\_Acad dlls\2015\accoremgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="acdbmgd">
-      <HintPath>..\..\..\..\Acad dlls\2015\acdbmgd.dll</HintPath>
+      <HintPath>..\..\..\..\_Acad dlls\2015\acdbmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="acmgd">
-      <HintPath>..\..\..\..\Acad dlls\2015\acmgd.dll</HintPath>
+      <HintPath>..\..\..\..\_Acad dlls\2015\acmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MahApps.Metro">
-      <HintPath>..\..\..\..\ModPlus_builded\MahApps.Metro.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\MahApps.Metro.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ModPlusAPI">
+      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlusAPI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ModPlus_2015">
+      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlus_2015.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
@@ -52,15 +60,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Interactivity">
-      <HintPath>..\..\..\..\ModPlus_builded\System.Windows.Interactivity.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -92,48 +94,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\MpFormats_16x16.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\MpFormats_32x32.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\AutoCAD Modules\ModPlus_2015\ModPlus_2015.csproj">
-      <Project>{fa70d61d-f8bc-433f-9aae-7d5f2570cdaf}</Project>
-      <Name>ModPlus_2015</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\mpExWin\mpMsg.csproj">
-      <Project>{cb3b96a0-57c2-44c5-af59-5cec27da599e}</Project>
-      <Name>mpMsg</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\mpPInterface\mpPInterface.csproj">
-      <Project>{769afe8c-728a-49df-acde-325a961b809f}</Project>
-      <Name>mpPInterface</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\mpRegistry\mpRegistry.csproj">
-      <Project>{6212c072-7c3f-49ec-ad4a-19bd46643f11}</Project>
-      <Name>mpRegistry</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\mpSettings\mpSettings.csproj">
-      <Project>{04f6a42c-3492-4430-a0f1-5ddfcea0fddd}</Project>
-      <Name>mpSettings</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\mpSite\mpSite.csproj">
-      <Project>{40d42083-947c-4422-bef2-75ecd4119abb}</Project>
-      <Name>mpSite</Name>
-      <Private>False</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Stamps.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\MpStampFields_32x32.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="..\mpFormats_2010\Resources\Preview\b_1.png">
@@ -205,14 +166,25 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="..\..\..\Flags\belarus_thin_rectangular_icon_64.png">
+    <Resource Include="..\mpFormats_2010\Resources\Flags\belarus_thin_rectangular_icon_64.png">
       <Link>Resources\Flags\belarus_thin_rectangular_icon_64.png</Link>
     </Resource>
-    <Resource Include="..\..\..\Flags\russia_thin_rectangular_icon_64.png">
+    <Resource Include="..\mpFormats_2010\Resources\Flags\russia_thin_rectangular_icon_64.png">
       <Link>Resources\Flags\russia_thin_rectangular_icon_64.png</Link>
     </Resource>
-    <Resource Include="..\..\..\Flags\ukraine_thin_rectangular_icon_64.png">
+    <Resource Include="..\mpFormats_2010\Resources\Flags\ukraine_thin_rectangular_icon_64.png">
       <Link>Resources\Flags\ukraine_thin_rectangular_icon_64.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpFormats_2010\Resources\MpFormats_16x16.png">
+      <Link>Resources\MpFormats_16x16.png</Link>
+    </Resource>
+    <Resource Include="..\mpFormats_2010\Resources\MpFormats_32x32.png">
+      <Link>Resources\MpFormats_32x32.png</Link>
+    </Resource>
+    <Resource Include="..\mpFormats_2010\Resources\MpStampFields_32x32.png">
+      <Link>Resources\MpStampFields_32x32.png</Link>
     </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -6,11 +6,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Linq;
-// AutoCad
-using mpMsg;
-using mpSettings;
-using ModPlus;
-
+using ModPlusAPI;
+using ModPlusAPI.Windows;
+using ModPlusAPI.Windows.Helpers;
 
 namespace mpFormats
 {
@@ -31,17 +29,12 @@ namespace mpFormats
         {
 
             InitializeComponent();
-            MpWindowHelpers.OnWindowStartUp(
-                this,
-                MpSettings.GetValue("Settings", "MainSet", "Theme"),
-                MpSettings.GetValue("Settings", "MainSet", "AccentColor"),
-                MpSettings.GetValue("Settings", "MainSet", "BordersType")
-                );
+            this.OnWindowStartUp();
         }
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
-                this.Close();
+                Close();
         }
 
         // Загрузка формы
@@ -50,12 +43,12 @@ namespace mpFormats
             try
             {
                 _surnamesXml = new XElement("UserSurnames");
-                var confifDoc = MpSettings.XmlMpSettingsFile;
+                var confifDoc = UserConfigFile.ConfigFileXml;
                 if (confifDoc.Element("Settings") != null)
                 {
                     var sEl = confifDoc.Element("Settings");
                     // Если уже есть должности, то берем их
-                    if (sEl.Element("UserSurnames") != null)
+                    if (sEl?.Element("UserSurnames") != null)
                     {
                         if (sEl.Element("UserSurnames").Elements("Surname").Any())
                             foreach (var usn in sEl.Element("UserSurnames").Elements("Surname"))
@@ -82,16 +75,16 @@ namespace mpFormats
                 }
                 else
                 {
-                    MpMsgWin.Show("Файл конфигурации поврежден!" + Environment.NewLine +
-                          "Запустите Конфигуратор ModPlus");
-                    this.Close();
+                    ModPlusAPI.Windows.MessageBox.Show("Файл конфигурации поврежден!" + Environment.NewLine +
+                          "Запустите Конфигуратор ModPlus", MessageBoxIcon.Close);
+                    Close();
                 }
                 // Биндим
-                this.DgSurnames.ItemsSource = _surnamesXml.Elements("Surname");
+                DgSurnames.ItemsSource = _surnamesXml.Elements("Surname");
             }
             catch (Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
         // Добавить строчку в список
@@ -124,7 +117,7 @@ namespace mpFormats
                     }
                     else
                     {
-                        MpMsgWin.Show("Произошла ошибка!");
+                        ModPlusAPI.Windows.MessageBox.Show("Произошла ошибка!", MessageBoxIcon.Close);
                     }
                 }
                 else
@@ -140,14 +133,14 @@ namespace mpFormats
             }
             catch (Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
 
         private void RefreshDg()
         {
-            this.DgSurnames.ItemsSource = null;
-            this.DgSurnames.ItemsSource = _surnamesXml.Elements("Surname");
+            DgSurnames.ItemsSource = null;
+            DgSurnames.ItemsSource = _surnamesXml.Elements("Surname");
         }
         // Сохранение в файл настроек
         private void SaveToConfig()
@@ -155,27 +148,27 @@ namespace mpFormats
             try
             {
                 // Открываем как xml
-                var configFile = MpSettings.XmlMpSettingsFile;
+                var configFile = UserConfigFile.ConfigFileXml;
                 // Проверяем есть ли группа Settings
                 // Если нет, то сообщаем об ошибке
                 if (configFile.Element("Settings") == null)
                 {
-                    MpMsgWin.Show("Файл конфигурации поврежден!" + Environment.NewLine +
-                          "Запустите Конфигуратор ModPlus");
-                    this.Close();
+                    ModPlusAPI.Windows.MessageBox.Show("Файл конфигурации поврежден!" + Environment.NewLine +
+                          "Запустите Конфигуратор ModPlus", MessageBoxIcon.Close);
+                    Close();
                 }
                 var element = configFile.Element("Settings");
                 // Если есть элемент UserSurnames, то удаляем его!
-                if (element.Element("UserSurnames") != null)
-                    element.Element("UserSurnames").Remove();
+                if (element?.Element("UserSurnames") != null)
+                    element.Element("UserSurnames")?.Remove();
                 // Добавляем текущий
-                element.Add(_surnamesXml);
+                element?.Add(_surnamesXml);
                 // Сохраняем
-                MpSettings.SaveFile();
+                UserConfigFile.SaveConfigFile();
             }
             catch (Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
         // Удалить выбранную строчку
@@ -183,9 +176,9 @@ namespace mpFormats
         {
             try
             {
-                if (this.DgSurnames.SelectedIndex != -1)
+                if (DgSurnames.SelectedIndex != -1)
                 {
-                    var selectedItem = this.DgSurnames.SelectedItem as XElement;
+                    var selectedItem = DgSurnames.SelectedItem as XElement;
                     foreach (var sn in _surnamesXml.Elements("Surname"))
                     {
                         if (sn.Attribute("Id").Value.Equals(selectedItem.Attribute("Id").Value))
@@ -199,7 +192,7 @@ namespace mpFormats
             }
             catch (Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
         // Закрытие окна
@@ -210,37 +203,37 @@ namespace mpFormats
                 // Проверяем, что не содержится стандартных значений
                 foreach (var sn in _surnamesXml.Elements("Surname"))
                 {
-                    if (_defvalues.Contains(sn.Attribute("Surname").Value))
+                    if (_defvalues.Contains(sn.Attribute("Surname")?.Value))
                     {
-                        MpMsgWin.Show("Значение " + sn.Attribute("Surname").Value +
-                                      " уже содержится в списке стандартных значений");
+                        ModPlusAPI.Windows.MessageBox.Show("Значение " + sn.Attribute("Surname")?.Value +
+                                      " уже содержится в списке стандартных значений", MessageBoxIcon.Alert);
                         e.Cancel = true;
                         return;
                     }
                 }
                 // Проверяем на наличие одинаковых значенйи
-                var list = _surnamesXml.Elements("Surname").Select(un => un.Attribute("Surname").Value).ToList();
+                var list = _surnamesXml.Elements("Surname").Select(un => un.Attribute("Surname")?.Value).ToList();
                 var duplicates = list.GroupBy(x => x)
                     .Where(g => g.Count() > 1)
                     .Select(y => y.Key)
                     .ToList();
                 if (duplicates.Count > 0)
                 {
-                    MpMsgWin.Show("В списке содержатся одинаковые значения!");
+                    ModPlusAPI.Windows.MessageBox.Show("В списке содержатся одинаковые значения!", MessageBoxIcon.Alert);
                     e.Cancel = true;
                 }
                 else SaveToConfig();
             }
             catch (Exception exception)
             {
-                MpExWin.Show(exception);
+                ExceptionBox.Show(exception);
             }
         }
         // Выбор позиции в списке
         private void DgSurnames_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Активируем кнопку
-            this.BtRemoveSurname.IsEnabled = true;
+            BtRemoveSurname.IsEnabled = true;
         }
     }
 }

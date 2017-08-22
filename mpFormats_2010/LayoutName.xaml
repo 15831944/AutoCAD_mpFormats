@@ -13,20 +13,11 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedSingleRowTabControl.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/ModPlusAPI;component/Windows/WinResources/Styles.xaml"></ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="BtStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource SquareMetroButton}">
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-            </Style>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid Margin="2">
+    <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -63,7 +54,7 @@
                           ToolTip="Если снять галочку, то масштаб форматки будет соответствовать масштабу, указанному в основном окне функции">Масштаб 1:1</CheckBox>
             </Grid>
             <Button Name="BtAccept" Margin="2" Grid.Row="2" VerticalAlignment="Center"
-                    Style="{StaticResource BtStyle}" HorizontalAlignment="Center"
+                    HorizontalAlignment="Center"
                     Click="BtAccept_OnClick">Принять</Button>
         </Grid>
     </Grid>

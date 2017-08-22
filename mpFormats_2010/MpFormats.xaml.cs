@@ -6,7 +6,6 @@ using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -22,12 +21,9 @@ using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.Internal;
 using Autodesk.AutoCAD.Runtime;
 using Autodesk.AutoCAD.Windows;
-using mpMsg;
-using mpSettings;
-using ModPlus;
-
-using Color = Autodesk.AutoCAD.Colors.Color;
-using Exception = System.Exception;
+using ModPlusAPI;
+using ModPlusAPI.Windows;
+using ModPlusAPI.Windows.Helpers;
 using Visibility = System.Windows.Visibility;
 
 namespace mpFormats
@@ -55,12 +51,7 @@ namespace mpFormats
         public MpFormats()
         {
             InitializeComponent();
-            MpWindowHelpers.OnWindowStartUp(
-                this,
-                MpSettings.GetValue("Settings", "MainSet", "Theme"),
-                MpSettings.GetValue("Settings", "MainSet", "AccentColor"),
-                MpSettings.GetValue("Settings", "MainSet", "BordersType")
-                );
+            this.OnWindowStartUp();
             // Настройки видимости для штампа отключаем тут, чтобы видеть в редакторе окна
             GridStamp.Visibility = //DpSurenames.Visibility = //TbLogo.Visibility =
             CbLogo.Visibility = GridSplitterStamp.Visibility = Visibility.Collapsed;
@@ -159,7 +150,8 @@ namespace mpFormats
                 // Проверка файла со штампами
                 if (!CheckTableFileExist())
                 {
-                    MpMsgWin.Show("Не найден файл со штампами!" + Environment.NewLine + "Запустите функцию \"Штампы\"");
+                    ModPlusAPI.Windows.MessageBox.Show("Не найден файл со штампами!" + Environment.NewLine + 
+                        "Запустите функцию \"Штампы\" для распаковки dwg-файла со штампами", MessageBoxIcon.Alert);
                     // Видимость
                     GridStamp.Visibility = //DpSurenames.Visibility = //TbLogo.Visibility =
                         CbLogo.Visibility =
@@ -182,9 +174,9 @@ namespace mpFormats
                 // show format size
                 ShowFormatSize();
             }
-            catch (Exception exception)
+            catch (System.Exception exception)
             {
-                MpExWin.Show(exception);
+                ExceptionBox.Show(exception);
             }
         }
         private void Window_Closed(object sender, EventArgs e)
@@ -200,7 +192,7 @@ namespace mpFormats
                 var comboBoxItem = cb?.SelectedItem as ComboBoxItem;
                 if (cb != null && comboBoxItem != null && cb.SelectedIndex != -1)
                 {
-                    MpSettings.SetValue("Settings", "mpFormats", "CbDocumentsFor",
+                    UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbDocumentsFor",
                         cb.SelectedIndex.ToString(CultureInfo.InvariantCulture), true);
 
                     switch (cb.SelectedIndex)
@@ -226,7 +218,7 @@ namespace mpFormats
             }
             catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
         private static bool CheckTableFileExist()
@@ -249,57 +241,57 @@ namespace mpFormats
         private void LoadFromSettings()
         {
             CbDocumentsFor.SelectedIndex =
-                    int.TryParse(MpSettings.GetValue("Settings", "mpFormats", "CbDocumentsFor"), out int index)
+                    int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbDocumentsFor"), out int index)
                         ? index
                         : 0;
             // format
             int i;
-            CbFormat.SelectedIndex = int.TryParse(MpSettings.GetValue("Settings", "mpFormats", "CbFormat"), out i) ? i : 3;
-            CbMultiplicity.SelectedIndex = int.TryParse(MpSettings.GetValue("Settings", "mpFormats", "CbMultiplicity"), out i) ? i : 0;
-            CbBottomFrame.SelectedIndex = int.TryParse(MpSettings.GetValue("Settings", "mpFormats", "CbBottomFrame"), out i) ? i : 0;
+            CbFormat.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbFormat"), out i) ? i : 3;
+            CbMultiplicity.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbMultiplicity"), out i) ? i : 0;
+            CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbBottomFrame"), out i) ? i : 0;
             // Выбранный штамп
-            CbTables.SelectedIndex = int.TryParse(MpSettings.GetValue("Settings", "mpFormats", "CbTables"), out i) ? i : 0;
+            CbTables.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbTables"), out i) ? i : 0;
             // Масштаб
-            var scale = MpSettings.GetValue("Settings", "mpFormats", "CbScales");
+            var scale = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbScales");
             CbScales.SelectedIndex = CbScales.Items.Contains(scale)
                 ? CbScales.Items.IndexOf(scale)
                 : 0;
             bool b;
-            ChkB1.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "ChkB1"), out b) && b;
-            ChkB2.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "ChkB2"), out b) && b;
-            ChkB3.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "ChkB3"), out b) && b;
-            ChbCopy.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "ChbCopy"), out b) && b;
-            ChbNumber.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "ChbNumber"), out b) && b;
-            ChkStamp.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "ChkStamp"), out b) && b;
-            RbVertical.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "RbVertical"), out b) && b;
-            RbLong.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "RbLong"), out b) && b;
+            ChkB1.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB1"), out b) && b;
+            ChkB2.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB2"), out b) && b;
+            ChkB3.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB3"), out b) && b;
+            ChbCopy.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbCopy"), out b) && b;
+            ChbNumber.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbNumber"), out b) && b;
+            ChkStamp.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkStamp"), out b) && b;
+            RbVertical.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbVertical"), out b) && b;
+            RbLong.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbLong"), out b) && b;
 
-            TbFormatHeight.Text = MpSettings.GetValue("Settings", "mpFormats", "TbFormatHeight");
-            TbFormatLength.Text = MpSettings.GetValue("Settings", "mpFormats", "TbFormatLength");
+            TbFormatHeight.Text = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatHeight");
+            TbFormatLength.Text = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatLength");
             // Текстовый стиль (меняем, если есть в настройках, а иначе оставляем текущий)
-            var txtstl = MpSettings.GetValue("Settings", "mpFormats", "CbTextStyle");
+            var txtstl = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbTextStyle");
             if (CbTextStyle.Items.Contains(txtstl))
                 CbTextStyle.SelectedIndex = CbTextStyle.Items.IndexOf(txtstl);
             // Логотип
-            var logo = MpSettings.GetValue("Settings", "mpFormats", "CbLogo");
+            var logo = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbLogo");
             CbLogo.SelectedIndex = CbLogo.Items.Contains(logo) ? CbLogo.Items.IndexOf(logo) : 0;
             // Поля
-            ChbHasFields.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "ChbHasFields"), out b) && b;
+            ChbHasFields.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbHasFields"), out b) && b;
             // Высота текста
             double d;
-            TbMainTextHeight.Text = double.TryParse(MpSettings.GetValue("Settings", "mpFormats", "MainTextHeight"),
+            TbMainTextHeight.Text = double.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "MainTextHeight"),
                 out d)
                 ? d.ToString(CultureInfo.InvariantCulture)
                 : "2.5";
-            TbBigTextHeight.Text = double.TryParse(MpSettings.GetValue("Settings", "mpFormats", "BigTextHeight"),
+            TbBigTextHeight.Text = double.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "BigTextHeight"),
                 out d)
                 ? d.ToString(CultureInfo.InvariantCulture)
                 : "3.5";
             // logo from
-            ChkLogoFromBlock.IsChecked = !bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "LogoFromBlock"), out b) || b;
-            ChkLogoFromFile.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "LogoFromFile"), out b) && b;
+            ChkLogoFromBlock.IsChecked = !bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFromBlock"), out b) || b;
+            ChkLogoFromFile.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFromFile"), out b) && b;
             // logo file
-            var ffs = MpSettings.GetValue("Settings", "mpFormats", "LogoFile");
+            var ffs = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFile");
             if (!string.IsNullOrEmpty(ffs))
                 if (File.Exists(ffs))
                     TbLogoFile.Text = ffs;
@@ -309,56 +301,56 @@ namespace mpFormats
         {
             try
             {
-                MpSettings.SetValue("Settings", "mpFormats", "CbFormat", CbFormat.SelectedIndex.ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "CbMultiplicity", CbMultiplicity.SelectedIndex.ToString(),
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbFormat", CbFormat.SelectedIndex.ToString(), false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbMultiplicity", CbMultiplicity.SelectedIndex.ToString(),
                     false);
-                MpSettings.SetValue("Settings", "mpFormats", "CbBottomFrame", CbBottomFrame.SelectedIndex.ToString(),
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbBottomFrame", CbBottomFrame.SelectedIndex.ToString(),
                     false);
 
-                MpSettings.SetValue("Settings", "mpFormats", "ChkB1",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB1",
                     (ChkB1.IsChecked != null && ChkB1.IsChecked.Value).ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "ChkB2",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB2",
                     (ChkB2.IsChecked != null && ChkB2.IsChecked.Value).ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "ChkB3",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB3",
                     (ChkB3.IsChecked != null && ChkB3.IsChecked.Value).ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "ChbCopy",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbCopy",
                     (ChbCopy.IsChecked != null && ChbCopy.IsChecked.Value).ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "ChbNumber",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbNumber",
                     (ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value).ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "ChkStamp",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkStamp",
                     (ChkStamp.IsChecked != null && ChkStamp.IsChecked.Value).ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "RbVertical",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbVertical",
                     (RbVertical.IsChecked != null && RbVertical.IsChecked.Value).ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "RbLong",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbLong",
                     (RbLong.IsChecked != null && RbLong.IsChecked.Value).ToString(), false);
 
-                MpSettings.SetValue("Settings", "mpFormats", "TbFormatHeight", TbFormatHeight.Text, false);
-                MpSettings.SetValue("Settings", "mpFormats", "TbFormatLength", TbFormatLength.Text, false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatHeight", TbFormatHeight.Text, false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatLength", TbFormatLength.Text, false);
                 // Текстовый стиль
-                MpSettings.SetValue("Settings", "mpFormats", "CbTextStyle", CbTextStyle.SelectedItem.ToString(), false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbTextStyle", CbTextStyle.SelectedItem.ToString(), false);
                 // Логотип
-                MpSettings.SetValue("Settings", "mpFormats", "CbLogo", CbLogo.SelectedItem.ToString(), false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbLogo", CbLogo.SelectedItem.ToString(), false);
                 // Поля
-                MpSettings.SetValue("Settings", "mpFormats", "ChbHasFields",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbHasFields",
                     (ChbHasFields.IsChecked != null && ChbHasFields.IsChecked.Value).ToString(), false);
                 // Выбранный штамп
-                MpSettings.SetValue("Settings", "mpFormats", "CbTables",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbTables",
                     CbTables.SelectedIndex.ToString(CultureInfo.InvariantCulture), false);
                 // Масштаб
-                MpSettings.SetValue("Settings", "mpFormats", "CbScales",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbScales",
                                         CbScales.SelectedItem.ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "MainTextHeight", TbMainTextHeight.Text, false);
-                MpSettings.SetValue("Settings", "mpFormats", "BigTextHeight", TbBigTextHeight.Text, false);
-                MpSettings.SetValue("Settings", "mpFormats", "LogoFromBlock", (ChkLogoFromBlock.IsChecked != null && ChkLogoFromBlock.IsChecked.Value).ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "LogoFromFile", (ChkLogoFromFile.IsChecked != null && ChkLogoFromFile.IsChecked.Value).ToString(), false);
-                MpSettings.SetValue("Settings", "mpFormats", "LogoFile",
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "MainTextHeight", TbMainTextHeight.Text, false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "BigTextHeight", TbBigTextHeight.Text, false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFromBlock", (ChkLogoFromBlock.IsChecked != null && ChkLogoFromBlock.IsChecked.Value).ToString(), false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFromFile", (ChkLogoFromFile.IsChecked != null && ChkLogoFromFile.IsChecked.Value).ToString(), false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFile",
                     File.Exists(TbLogoFile.Text) ? TbLogoFile.Text : string.Empty, false);
 
-                MpSettings.SaveFile();
+                UserConfigFile.SaveConfigFile();
             }
-            catch (Exception exception)
+            catch (System.Exception exception)
             {
-                MpExWin.Show(exception);
+                ExceptionBox.Show(exception);
             }
         }
         private static double Scale(string scaleName)
@@ -368,7 +360,6 @@ namespace mpFormats
             var ocm = db.ObjectContextManager;
             var occ = ocm.GetContextCollection("ACDB_ANNOTATIONSCALES");
             var ansc = occ.GetContext(scaleName) as AnnotationScale;
-            Debug.Assert(ansc != null, "ansc != null");
             return (ansc.DrawingUnits / ansc.PaperUnits);
         }
 
@@ -383,9 +374,9 @@ namespace mpFormats
                 LbSurnames.Items.Add(s);
             }
             // Заполняем список пользовательских должностей
-            if (MpSettings.XmlMpSettingsFile.Element("Settings") != null)
+            if (UserConfigFile.ConfigFileXml.Element("Settings") != null)
             {
-                var setXml = MpSettings.XmlMpSettingsFile.Element("Settings");
+                var setXml = UserConfigFile.ConfigFileXml.Element("Settings");
                 if (setXml?.Element("UserSurnames") != null)
                 {
                     var element = setXml.Element("UserSurnames");
@@ -397,9 +388,9 @@ namespace mpFormats
                 }
             }
             // Заполняем значения из файла настроек. Про совпадении в "левом" списке - удаляем
-            if (MpSettings.XmlMpSettingsFile.Element("Settings") != null)
+            if (UserConfigFile.ConfigFileXml.Element("Settings") != null)
             {
-                var setXml = MpSettings.XmlMpSettingsFile.Element("Settings");
+                var setXml = UserConfigFile.ConfigFileXml.Element("Settings");
                 if (setXml?.Element("mpStampTblSaves") != null)
                 {
                     var element = setXml.Element("mpStampTblSaves");
@@ -454,9 +445,9 @@ namespace mpFormats
                 // Устанавливаем первое значение
                 CbTables.SelectedIndex = 0;
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
         // Выбор таблицы
@@ -543,18 +534,18 @@ namespace mpFormats
                     }
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
         // Вызов функции "Поля"
         private void BtFields_Click(object sender, RoutedEventArgs e)
         {
             // Проверка полной версии
-            if (!MpCadHelpers.IsFunctionBought("mpStamps", VersionData.FuncVersion))
+            if (!Registration.IsFunctionBought("mpStamps", VersionData.FuncVersion))
             {
-                MpMsgWin.Show("Доступно при наличии полной версии функции \"Штампы\"");
+                ModPlusAPI.Windows.MessageBox.Show("Доступно при наличии полной версии функции \"Штампы\"");
             }
             else
             {
@@ -565,9 +556,9 @@ namespace mpFormats
         private void BtAddUserSurname_OnClick(object sender, RoutedEventArgs e)
         {
             // Проверка полной версии
-            if (!MpCadHelpers.IsFunctionBought("mpStamps", VersionData.FuncVersion))
+            if (!Registration.IsFunctionBought("mpStamps", VersionData.FuncVersion))
             {
-                MpMsgWin.Show("Доступно при наличии полной версии функции \"Штампы\"");
+                ModPlusAPI.Windows.MessageBox.Show("Доступно при наличии полной версии функции \"Штампы\"");
             }
             else
             {
@@ -631,7 +622,7 @@ namespace mpFormats
                 // Если кол-во пустых равно 0, значит мы достигли предела
                 else
                 {
-                    MpMsgWin.Show("Нельзя добавлять более " + Namecol.ToString(CultureInfo.InvariantCulture) + " должностей");
+                    ModPlusAPI.Windows.MessageBox.Show("Нельзя добавлять более " + Namecol.ToString(CultureInfo.InvariantCulture) + " должностей");
                 }
             }
         }
@@ -690,9 +681,9 @@ namespace mpFormats
             {
                 var str = LbStampSurnames.Items.Cast<object>()
                     .Aggregate(string.Empty, (current, item) => current + (item.ToString() + "$"));
-                if (MpSettings.XmlMpSettingsFile.Element("Settings") != null)
+                if (UserConfigFile.ConfigFileXml.Element("Settings") != null)
                 {
-                    var setXml = MpSettings.XmlMpSettingsFile.Element("Settings");
+                    var setXml = UserConfigFile.ConfigFileXml.Element("Settings");
                     if (setXml != null && setXml.Element("mpStampTblSaves") == null)
                     {
                         var tblXml = new XElement("mpStampTblSaves");
@@ -705,7 +696,7 @@ namespace mpFormats
                         element?.SetAttributeValue(_currentTblXml.Attribute("tablestylename").Value, str.Substring(0, str.Length - 1));
                     }
 
-                    MpSettings.SaveFile();
+                    UserConfigFile.SaveConfigFile();
                 }
             }
         }
@@ -736,14 +727,14 @@ namespace mpFormats
                 arr = new ArrayList { "1", "3", "4", "5", "6", "7" };
                 PanelBottomFrame.Visibility = Visibility.Visible;
                 int i;
-                CbBottomFrame.SelectedIndex = int.TryParse(MpSettings.GetValue("Settings", "mpFormats", "CbBottomFrame"), out i) ? i : 0;
+                CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbBottomFrame"), out i) ? i : 0;
             }
             if (CbFormat.SelectedIndex == 4)// A4
             {
                 arr = new ArrayList { "1", "3", "4", "5", "6", "7", "8", "9" };
                 PanelBottomFrame.Visibility = Visibility.Visible;
                 int i;
-                CbBottomFrame.SelectedIndex = int.TryParse(MpSettings.GetValue("Settings", "mpFormats", "CbBottomFrame"), out i) ? i : 0;
+                CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbBottomFrame"), out i) ? i : 0;
             }
             if (CbFormat.SelectedIndex == 5)// A5
             {
@@ -817,22 +808,22 @@ namespace mpFormats
                 {
                     if (string.IsNullOrEmpty(TbFormatLength.Text))
                     {
-                        MpMsgWin.Show("Не введена длина форматки");
+                        ModPlusAPI.Windows.MessageBox.Show("Не введена длина форматки");
                         return;
                     }
                     if (string.IsNullOrEmpty(TbFormatHeight.Text))
                     {
-                        MpMsgWin.Show("Не введена высота форматки");
+                        ModPlusAPI.Windows.MessageBox.Show("Не введена высота форматки");
                         return;
                     }
                     if (double.Parse(TbFormatLength.Text) < 30)
                     {
-                        MpMsgWin.Show("Длина форматки должна быть не менее 30 мм");
+                        ModPlusAPI.Windows.MessageBox.Show("Длина форматки должна быть не менее 30 мм");
                         return;
                     }
                     if (double.Parse(TbFormatHeight.Text) < 15)
                     {
-                        MpMsgWin.Show("Высота форматки должна быть не менее 15 мм");
+                        ModPlusAPI.Windows.MessageBox.Show("Высота форматки должна быть не менее 15 мм");
                         return;
                     }
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
@@ -866,9 +857,9 @@ namespace mpFormats
                     }
                 }
             } // try
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
 
@@ -920,22 +911,22 @@ namespace mpFormats
                 {
                     if (string.IsNullOrEmpty(TbFormatLength.Text))
                     {
-                        MpMsgWin.Show("Не введена длина форматки");
+                        ModPlusAPI.Windows.MessageBox.Show("Не введена длина форматки");
                         return;
                     }
                     if (string.IsNullOrEmpty(TbFormatHeight.Text))
                     {
-                        MpMsgWin.Show("Не введена высота форматки");
+                        ModPlusAPI.Windows.MessageBox.Show("Не введена высота форматки");
                         return;
                     }
                     if (double.Parse(TbFormatLength.Text) < 30)
                     {
-                        MpMsgWin.Show("Длина форматки должна быть не менее 30 мм");
+                        ModPlusAPI.Windows.MessageBox.Show("Длина форматки должна быть не менее 30 мм");
                         return;
                     }
                     if (double.Parse(TbFormatHeight.Text) < 15)
                     {
-                        MpMsgWin.Show("Высота форматки должна быть не менее 15 мм");
+                        ModPlusAPI.Windows.MessageBox.Show("Высота форматки должна быть не менее 15 мм");
                         return;
                     }
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
@@ -961,9 +952,9 @@ namespace mpFormats
                     }
                 }
             } // try
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
 
@@ -1029,22 +1020,22 @@ namespace mpFormats
                 {
                     if (string.IsNullOrEmpty(TbFormatLength.Text))
                     {
-                        MpMsgWin.Show("Не введена длина форматки");
+                        ModPlusAPI.Windows.MessageBox.Show("Не введена длина форматки");
                         return;
                     }
                     if (string.IsNullOrEmpty(TbFormatHeight.Text))
                     {
-                        MpMsgWin.Show("Не введена высота форматки");
+                        ModPlusAPI.Windows.MessageBox.Show("Не введена высота форматки");
                         return;
                     }
                     if (double.Parse(TbFormatLength.Text) < 30)
                     {
-                        MpMsgWin.Show("Длина форматки должна быть не менее 30 мм");
+                        ModPlusAPI.Windows.MessageBox.Show("Длина форматки должна быть не менее 30 мм");
                         return;
                     }
                     if (double.Parse(TbFormatHeight.Text) < 15)
                     {
-                        MpMsgWin.Show("Высота форматки должна быть не менее 15 мм");
+                        ModPlusAPI.Windows.MessageBox.Show("Высота форматки должна быть не менее 15 мм");
                         return;
                     }
 
@@ -1082,9 +1073,9 @@ namespace mpFormats
                 }
                 AcApp.DocumentManager.MdiActiveDocument.SendStringToExecute("_zoom _all ", false, false, false);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
         private static bool CreateLayout(out bool layoutScaleOneToOne)
@@ -1124,17 +1115,17 @@ namespace mpFormats
                         // Если нет имени
                         lnamewin.ChkAddNameToStamp.Visibility = string.IsNullOrEmpty(_lnamecoord) ? Visibility.Collapsed : Visibility.Visible;
                         bool b;
-                        lnamewin.ChkAddNameToStamp.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "ChkAddNameToStamp"), out b) && b;
-                        lnamewin.ChkLNumber.IsChecked = bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "ChkLNumber"), out b) && b;
+                        lnamewin.ChkAddNameToStamp.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkAddNameToStamp"), out b) && b;
+                        lnamewin.ChkLNumber.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkLNumber"), out b) && b;
                         // scale
-                        lnamewin.ChkLayoutScaleOneToOne.IsChecked = !bool.TryParse(MpSettings.GetValue("Settings", "mpFormats", "LayoutScaleOneToOne"), out b) || b;
+                        lnamewin.ChkLayoutScaleOneToOne.IsChecked = !bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LayoutScaleOneToOne"), out b) || b;
                         if (lnamewin.ShowDialog() == true)
                         {
-                            MpSettings.SetValue("Settings", "mpFormats", "ChkAddNameToStamp",
+                            UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkAddNameToStamp",
                                 (lnamewin.ChkAddNameToStamp.IsChecked != null && lnamewin.ChkAddNameToStamp.IsChecked.Value).ToString(), false);
-                            MpSettings.SetValue("Settings", "mpFormats", "ChkLNumber",
+                            UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkLNumber",
                                 (lnamewin.ChkLNumber.IsChecked != null && lnamewin.ChkLNumber.IsChecked.Value).ToString(), false);
-                            MpSettings.SetValue("Settings", "mpFormats", "LayoutScaleOneToOne",
+                            UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LayoutScaleOneToOne",
                                 (lnamewin.ChkLayoutScaleOneToOne.IsChecked != null && lnamewin.ChkLayoutScaleOneToOne.IsChecked.Value).ToString(), false);
                             if (lnamewin.ChkLayoutScaleOneToOne.IsChecked != null)
                                 layoutScaleOneToOne = lnamewin.ChkLayoutScaleOneToOne.IsChecked.Value;
@@ -1156,9 +1147,9 @@ namespace mpFormats
                     }
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
                 returned = false;
             }
             return returned;
@@ -1265,7 +1256,7 @@ namespace mpFormats
                                         }
                                         if (tbl.ObjectId == ObjectId.Null)
                                         {
-                                            MpMsgWin.Show("В файле штампов не найден штамп с табличным стилем " +
+                                            ModPlusAPI.Windows.MessageBox.Show("В файле штампов не найден штамп с табличным стилем " +
                                                           tableStyleName + Environment.NewLine +
                                                           "Запустите функцию \"Штампы\" для перезаписи файла штампов");
                                             return;
@@ -1438,7 +1429,7 @@ namespace mpFormats
                                     }
                                     else
                                     {
-                                        MpMsgWin.Show("Не найдена запись в реестре. Запустите конфигуратор!");
+                                        ModPlusAPI.Windows.MessageBox.Show("Не найдена запись в реестре. Запустите конфигуратор!");
                                         return;
                                     }
                                 }
@@ -1447,9 +1438,9 @@ namespace mpFormats
                     }// foreach
                 }
             }// try
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
         public static void AddFieldsToStamp(Table table)
@@ -1467,7 +1458,7 @@ namespace mpFormats
                         // Даже если имя табличного стиля сошлось - проверяем по количеству ячеек!
                         if (int.Parse(xmlTbl.Attribute("cellcount").Value) != table.Cells.Count())
                         {
-                            MpMsgWin.Show("Штамп не соответсвует штампу ModPlus!" + "Неверное кол-во ячеек");
+                            ModPlusAPI.Windows.MessageBox.Show("Штамп не соответсвует штампу ModPlus!" + "Неверное кол-во ячеек");
                             return;
                         }
 
@@ -1503,10 +1494,10 @@ namespace mpFormats
                             var surnames = xmlTbl.Attribute("surnames").Value.Split(',').ToList();
                             var surnameskeys = xmlTbl.Attribute("surnameskeys").Value.Split(',').ToList();
 
-                            if (MpSettings.XmlMpSettingsFile.Element("Settings") != null)
-                                if (MpSettings.XmlMpSettingsFile?.Element("Settings")?.Element("UserSurnames") != null)
+                            if (UserConfigFile.ConfigFileXml.Element("Settings") != null)
+                                if (UserConfigFile.ConfigFileXml?.Element("Settings")?.Element("UserSurnames") != null)
                                 {
-                                    var xElements = MpSettings.XmlMpSettingsFile?.Element("Settings")?.Element("UserSurnames")?.Elements("Surname");
+                                    var xElements = UserConfigFile.ConfigFileXml?.Element("Settings")?.Element("UserSurnames")?.Elements("Surname");
                                     if (xElements != null)
                                         foreach (var sn in xElements)
                                         {
@@ -1544,9 +1535,9 @@ namespace mpFormats
                     }
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
 
@@ -1726,7 +1717,7 @@ namespace mpFormats
                 }
                 else
                 {
-                    MpMsgWin.Show("В файле" + Environment.NewLine + ofd.Filename + Environment.NewLine +
+                    ModPlusAPI.Windows.MessageBox.Show("В файле" + Environment.NewLine + ofd.Filename + Environment.NewLine +
                                   "не найдено полей");
                 }
             }
@@ -1734,9 +1725,9 @@ namespace mpFormats
             {
                 if (exception.ErrorStatus == ErrorStatus.NotImplementedYet)
                 {
-                    MpMsgWin.Show("Файл создан в более поздней версии AutoCad!");
+                    ModPlusAPI.Windows.MessageBox.Show("Файл создан в более поздней версии AutoCad!");
                 }
-                else MpExWin.Show(exception);
+                else ExceptionBox.Show(exception);
             }
         }
         // Создание блока из файла (вставка файла в виде блока)
@@ -1763,7 +1754,7 @@ namespace mpFormats
             }
             catch (System.Exception exception)
             {
-                MpExWin.Show(exception);
+                ExceptionBox.Show(exception);
                 return blockName;
             }
         }
@@ -1814,6 +1805,8 @@ namespace mpFormats
         [CommandMethod("ModPlus", "mpFormats", CommandFlags.Modal)]
         public void StartMpFormats()
         {
+            Statistic.SendCommandStarting(new Interface());
+
             if (_mpFormats == null)
             {
                 _mpFormats = new MpFormats();
@@ -2239,7 +2232,7 @@ namespace mpFormats
                             }
                             catch
                             {
-                                MessageBox.Show("Неверное имя блока");
+                                ModPlusAPI.Windows.MessageBox.Show("Неверное имя блока");
                             }
                             var btr = new BlockTableRecord { Name = blockname };
 
@@ -2348,7 +2341,7 @@ namespace mpFormats
                                 tr.AddNewlyCreatedDBObject(ent, true);
                             }
                             // Добавляем расширенные данные для возможности замены
-                            MpCadHelpers.AddRegAppTableRecord("MP_FORMAT");
+                            ModPlus.Helpers.XDataHelpers.AddRegAppTableRecord("MP_FORMAT");
                             btr.XData = new ResultBuffer(
                                 new TypedValue(1001, "MP_FORMAT"),
                                 new TypedValue(1000, "MP_FORMAT"));
@@ -2374,7 +2367,7 @@ namespace mpFormats
                                 }
                                 //==================
 
-                                MpCadHelpers.AddRegAppTableRecord("MP_FORMAT");
+                                ModPlus.Helpers.XDataHelpers.AddRegAppTableRecord("MP_FORMAT");
                                 br.XData = new ResultBuffer(
                                     new TypedValue(1001, "MP_FORMAT"),
                                     new TypedValue(1000, "MP_FORMAT"));
@@ -2388,7 +2381,7 @@ namespace mpFormats
                                     blockInsertionPoint = br.Position;
                                     var ent = entJig.GetEntity();
 
-                                    MpCadHelpers.AddRegAppTableRecord("MP_FORMAT");
+                                    ModPlus.Helpers.XDataHelpers.AddRegAppTableRecord("MP_FORMAT");
                                     ent.XData = new ResultBuffer(
                                         new TypedValue(1001, "MP_FORMAT"),
                                         new TypedValue(1000, "MP_FORMAT"));
@@ -2413,7 +2406,7 @@ namespace mpFormats
                                 }
                                 //==================
 
-                                MpCadHelpers.AddRegAppTableRecord("MP_FORMAT");
+                                ModPlus.Helpers.XDataHelpers.AddRegAppTableRecord("MP_FORMAT");
                                 br.XData = new ResultBuffer(
                                     new TypedValue(1001, "MP_FORMAT"),
                                     new TypedValue(1000, "MP_FORMAT"));
@@ -2428,9 +2421,9 @@ namespace mpFormats
                 }
                 return returned;
             } // try
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
                 return false;
             }
         }
@@ -2568,7 +2561,7 @@ namespace mpFormats
                             }
                             catch
                             {
-                                MpMsgWin.Show("Неверное имя блока");
+                                ModPlusAPI.Windows.MessageBox.Show("Неверное имя блока");
                             }
 
                             var btr = new BlockTableRecord { Name = blockname };
@@ -2673,7 +2666,7 @@ namespace mpFormats
                                 tr.AddNewlyCreatedDBObject(ent, true);
                             }
                             // Добавляем расширенные данные для возможности замены
-                            MpCadHelpers.AddRegAppTableRecord("MP_FORMAT");
+                            ModPlus.Helpers.XDataHelpers.AddRegAppTableRecord("MP_FORMAT");
                             btr.XData = new ResultBuffer(
                                 new TypedValue(1001, "MP_FORMAT"),
                                 new TypedValue(1000, "MP_FORMAT"));
@@ -2699,7 +2692,7 @@ namespace mpFormats
                                     br.TransformBy(rm);
                                 }
                                 //==================
-                                MpCadHelpers.AddRegAppTableRecord("MP_FORMAT");
+                                ModPlus.Helpers.XDataHelpers.AddRegAppTableRecord("MP_FORMAT");
                                 br.XData = new ResultBuffer(
                                     new TypedValue(1001, "MP_FORMAT"),
                                     new TypedValue(1000, "MP_FORMAT"));
@@ -2710,7 +2703,7 @@ namespace mpFormats
                                 {
                                     replaceVector3D = entJig.ReplaceVector3D;
                                     var ent = entJig.GetEntity();
-                                    MpCadHelpers.AddRegAppTableRecord("MP_FORMAT");
+                                    ModPlus.Helpers.XDataHelpers.AddRegAppTableRecord("MP_FORMAT");
                                     ent.XData = new ResultBuffer(
                                         new TypedValue(1001, "MP_FORMAT"),
                                         new TypedValue(1000, "MP_FORMAT"));
@@ -2734,7 +2727,7 @@ namespace mpFormats
                                     br.TransformBy(rm);
                                 }
                                 //==================
-                                MpCadHelpers.AddRegAppTableRecord("MP_FORMAT");
+                                ModPlus.Helpers.XDataHelpers.AddRegAppTableRecord("MP_FORMAT");
                                 br.XData = new ResultBuffer(
                                     new TypedValue(1001, "MP_FORMAT"),
                                     new TypedValue(1000, "MP_FORMAT"));
@@ -2749,9 +2742,9 @@ namespace mpFormats
                 }
                 return returned;
             } // try
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
                 return false;
             }
         }
@@ -2829,9 +2822,9 @@ namespace mpFormats
                     }
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
 
@@ -2904,9 +2897,9 @@ namespace mpFormats
                     }
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MpExWin.Show(ex);
+                ExceptionBox.Show(ex);
             }
         }
 
@@ -3199,7 +3192,7 @@ namespace mpFormats
                 ReplaceVector3D = _mCenterPt.GetVectorTo(_mActualPoint);
 
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 return false;
             }
