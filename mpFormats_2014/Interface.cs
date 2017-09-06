@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ModPlusAPI.Interfaces;
 
 namespace mpFormats
@@ -8,7 +9,9 @@ namespace mpFormats
         public SupportedProduct SupportedProduct => SupportedProduct.AutoCAD;
         public string Name => "mpFormats";
         public string AvailProductExternalVersion => "2014";
-        public string ClassName => string.Empty;
+        public string FullClassName => string.Empty;
+        public string AppFullClassName => string.Empty;
+        public Guid AddInId => Guid.Empty;
         public string LName => "Форматки";
         public string Description => "Функция вставки в чертеж форматок по ГОСТ 2.301-68";
         public string Author => "Пекшев Александр aka Modis";
