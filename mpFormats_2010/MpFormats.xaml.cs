@@ -150,7 +150,7 @@ namespace mpFormats
                 // Проверка файла со штампами
                 if (!CheckTableFileExist())
                 {
-                    ModPlusAPI.Windows.MessageBox.Show("Не найден файл со штампами!" + Environment.NewLine + 
+                    ModPlusAPI.Windows.MessageBox.Show("Не найден файл со штампами!" + Environment.NewLine +
                         "Запустите функцию \"Штампы\" для распаковки dwg-файла со штампами", MessageBoxIcon.Alert);
                     // Видимость
                     GridStamp.Visibility = //DpSurenames.Visibility = //TbLogo.Visibility =

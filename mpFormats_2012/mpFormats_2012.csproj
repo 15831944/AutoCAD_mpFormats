@@ -34,11 +34,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="acdbmgd">
-      <HintPath>..\..\..\..\_Acad dlls\2012\acdbmgd.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Пекшев\Acad dlls\2012\acdbmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="acmgd">
-      <HintPath>..\..\..\..\_Acad dlls\2012\acmgd.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Пекшев\Acad dlls\2012\acmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MahApps.Metro">
