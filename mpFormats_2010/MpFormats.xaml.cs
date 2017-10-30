@@ -1458,7 +1458,7 @@ namespace mpFormats
                         // Даже если имя табличного стиля сошлось - проверяем по количеству ячеек!
                         if (int.Parse(xmlTbl.Attribute("cellcount").Value) != table.Cells.Count())
                         {
-                            ModPlusAPI.Windows.MessageBox.Show("Штамп не соответсвует штампу ModPlus!" + "Неверное кол-во ячеек");
+                            ModPlusAPI.Windows.MessageBox.Show("Штамп не соответсвует штампу ModPlus! Неверное кол-во ячеек");
                             return;
                         }
 
@@ -1563,7 +1563,7 @@ namespace mpFormats
                 Image_format.Source = new BitmapImage(uriSource);
 
                 Image_b1.Margin = new Thickness(5, 0, 0, 3);
-                Image_b2.Margin = new Thickness(0, 0, 0, 54);
+                Image_b2.Margin = new Thickness(3, 0, 0, 54);
                 Image_stamp.Margin = new Thickness(0, 0, 3, 3);
             }
             else
@@ -1572,7 +1572,7 @@ namespace mpFormats
                 Image_format.Source = new BitmapImage(uriSource);
 
                 Image_b1.Margin = new Thickness(5, 0, 0, 5);
-                Image_b2.Margin = new Thickness(0, 0, 0, 56);
+                Image_b2.Margin = new Thickness(3, 0, 0, 56);
                 Image_stamp.Margin = new Thickness(0, 0, 3, 5);
             }
         }

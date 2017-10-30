@@ -427,10 +427,10 @@
                        HorizontalAlignment="Left" Stretch="None"
                        RenderOptions.BitmapScalingMode="HighQuality"/>
                 <Image Name="Image_b1" Source="Resources/Preview/b_1.png" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stretch="None"
-                       Margin="5,0,0,3" Opacity="0.5"
+                       Margin="5,0,0,3" Opacity="1"
                        RenderOptions.BitmapScalingMode="HighQuality"></Image>
                 <Image Name="Image_b2" Source="Resources/Preview/b_2.png" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stretch="None"
-                       Margin="0,0,0,54" Opacity="0.5"
+                       Margin="3,0,0,54" Opacity="1"
                        RenderOptions.BitmapScalingMode="HighQuality"></Image>
                 <Image Name="Image_num" Source="Resources/Preview/num.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None"
                        Margin="243,3,0,0" RenderOptions.BitmapScalingMode="HighQuality" Opacity="0.5"></Image>
@@ -458,7 +458,7 @@
                           Checked="ChkStamp_OnChecked"
                           Unchecked="ChkStamp_OnUnchecked"></CheckBox>
                 <TextBlock Name="TbFormatSize" HorizontalAlignment="Center" VerticalAlignment="Center"
-                           FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource AccentColorBrush2}"
+                           FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource AccentColorBrush2}"
                            ToolTip="Длина форматки (мм) х Высота форматки (мм)"
                            ></TextBlock>
                 
