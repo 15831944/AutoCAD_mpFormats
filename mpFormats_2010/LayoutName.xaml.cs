@@ -10,6 +10,7 @@ namespace mpFormats
 {
     public partial class LayoutName
     {
+        private const string LangItem = "mpFormats";
         readonly List<string> _wrongSymbols = new List<string>
         {
             ">","<","/","\\","\"",":",";","?","*","|",",","=","`"
@@ -30,8 +31,9 @@ namespace mpFormats
         {
             if (_wrongSymbols.Any(wrongSymbol => TbLayoutName.Text.Contains(wrongSymbol)))
             {
-                ModPlusAPI.Windows.MessageBox.Show("Недопустимые символы в имени листа: " + TbLayoutName.Text + Environment.NewLine +
-                              "Не разрешается использование следующих символов: " + string.Join("",_wrongSymbols.ToArray()), MessageBoxIcon.Alert);
+                ModPlusAPI.Windows.MessageBox.Show(
+                    ModPlusAPI.Language.GetItem(LangItem, "err3") + " " + TbLayoutName.Text + Environment.NewLine +
+                    ModPlusAPI.Language.GetItem(LangItem, "err4") + " " + string.Join("", _wrongSymbols.ToArray()), MessageBoxIcon.Alert);
                 return;
             }
             DialogResult = true;

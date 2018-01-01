@@ -28,11 +28,9 @@ using Visibility = System.Windows.Visibility;
 
 namespace mpFormats
 {
-    /// <summary>
-    /// Логика взаимодействия для MpFormats.xaml
-    /// </summary>
     public partial class MpFormats
     {
+        private const string LangItem = "mpFormats";
         public static int Namecol;// Количество допустимых фамилий
         public static int Row;// Строка начала заполнения должностей
         public static int Col;// Столбец начала заполнения должностей
@@ -124,7 +122,7 @@ namespace mpFormats
                 CbTextStyle.SelectedItem = txtstname;
                 // Логотип
                 CbLogo.Items.Clear();
-                CbLogo.Items.Add("Нет");
+                CbLogo.Items.Add(ModPlusAPI.Language.GetItem(LangItem, "no"));
                 using (var tr = doc.TransactionManager.StartTransaction())
                 {
                     using (doc.LockDocument())
@@ -150,8 +148,7 @@ namespace mpFormats
                 // Проверка файла со штампами
                 if (!CheckTableFileExist())
                 {
-                    ModPlusAPI.Windows.MessageBox.Show("Не найден файл со штампами!" + Environment.NewLine +
-                        "Запустите функцию \"Штампы\" для распаковки dwg-файла со штампами", MessageBoxIcon.Alert);
+                    ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err5"), MessageBoxIcon.Alert);
                     // Видимость
                     GridStamp.Visibility = //DpSurenames.Visibility = //TbLogo.Visibility =
                         CbLogo.Visibility =
@@ -188,9 +185,7 @@ namespace mpFormats
         {
             try
             {
-                var cb = sender as ComboBox;
-                var comboBoxItem = cb?.SelectedItem as ComboBoxItem;
-                if (cb != null && comboBoxItem != null && cb.SelectedIndex != -1)
+                if (sender is ComboBox cb && cb.SelectedItem is ComboBoxItem && cb.SelectedIndex != -1)
                 {
                     UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbDocumentsFor",
                         cb.SelectedIndex.ToString(CultureInfo.InvariantCulture), true);
@@ -199,17 +194,17 @@ namespace mpFormats
                     {
                         case 0: // RU
                             {
-                                
+
                             }
                             break;
                         case 1: // UA
                             {
-                                
+
                             }
                             break;
                         case 2: // BY
                             {
-                                
+
                             }
                             break;
                     }
@@ -245,8 +240,7 @@ namespace mpFormats
                         ? index
                         : 0;
             // format
-            int i;
-            CbFormat.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbFormat"), out i) ? i : 3;
+            CbFormat.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbFormat"), out int i) ? i : 3;
             CbMultiplicity.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbMultiplicity"), out i) ? i : 0;
             CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbBottomFrame"), out i) ? i : 0;
             // Выбранный штамп
@@ -427,12 +421,12 @@ namespace mpFormats
             CbTables.ItemsSource = null;
             try
             {
-                var docFor = ((ComboBoxItem) CbDocumentsFor.SelectedItem).Tag;
+                var docFor = ((ComboBoxItem)CbDocumentsFor.SelectedItem).Tag;
                 var stamps = new List<Stamp>();
                 foreach (var tbl in _xmlTblsDoc.Elements("Stamp"))
                 {
                     var docForAttr = tbl.Attribute("DocFor");
-                    if (docForAttr != null && tbl.Attribute("noShow") == null & 
+                    if (docForAttr != null && tbl.Attribute("noShow") == null &
                         docForAttr.Value.Equals(docFor))
                         stamps.Add(new Stamp
                         {
@@ -470,7 +464,8 @@ namespace mpFormats
                                 // Изображение
                                 try
                                 {
-                                    var uriSource = new Uri(@"/mpFormats_" + VersionData.FuncVersion + ";component/Resources/Preview/" + tbl.Attribute("img")?.Value + ".png", UriKind.Relative);
+                                    var uriSource = new Uri(@"/mpFormats_" + VersionData.FuncVersion + ";component/Resources/Preview/" +
+                                        tbl.Attribute("img")?.Value + ".png", UriKind.Relative);
                                     Image_stamp.Source = new BitmapImage(uriSource);
                                 }
                                 catch
@@ -545,7 +540,7 @@ namespace mpFormats
             // Проверка полной версии
             if (!Registration.IsFunctionBought("mpStamps", VersionData.FuncVersion))
             {
-                ModPlusAPI.Windows.MessageBox.Show("Доступно при наличии полной версии функции \"Штампы\"");
+                ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg4"));
             }
             else
             {
@@ -558,7 +553,7 @@ namespace mpFormats
             // Проверка полной версии
             if (!Registration.IsFunctionBought("mpStamps", VersionData.FuncVersion))
             {
-                ModPlusAPI.Windows.MessageBox.Show("Доступно при наличии полной версии функции \"Штампы\"");
+                ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg4"));
             }
             else
             {
@@ -622,7 +617,8 @@ namespace mpFormats
                 // Если кол-во пустых равно 0, значит мы достигли предела
                 else
                 {
-                    ModPlusAPI.Windows.MessageBox.Show("Нельзя добавлять более " + Namecol.ToString(CultureInfo.InvariantCulture) + " должностей");
+                    ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg5") + " " +
+                        Namecol.ToString(CultureInfo.InvariantCulture) + " " + ModPlusAPI.Language.GetItem(LangItem, "msg6"));
                 }
             }
         }
@@ -761,13 +757,13 @@ namespace mpFormats
                 if (Tabs.SelectedIndex == 0)
                 {
                     string side, orientation;
-                    if (RbShort.IsChecked != null && RbShort.IsChecked.Value) side = "Короткая";
+                    if (RbShort.IsChecked != null && RbShort.IsChecked.Value) side = ModPlusAPI.Language.GetItem(LangItem, "h11");
                     else
-                        side = "Длинная";
+                        side = ModPlusAPI.Language.GetItem(LangItem, "h12");
                     if (RbHorizontal.IsChecked != null && RbHorizontal.IsChecked.Value)
-                        orientation = "Альбомный";
+                        orientation = ModPlusAPI.Language.GetItem(LangItem, "h8");
                     else
-                        orientation = "Книжный";
+                        orientation = ModPlusAPI.Language.GetItem(LangItem, "h9");
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
 
                     var format = ((ListBoxItem)CbFormat.SelectedItem).Content.ToString();
@@ -808,22 +804,22 @@ namespace mpFormats
                 {
                     if (string.IsNullOrEmpty(TbFormatLength.Text))
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Не введена длина форматки");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
                     if (string.IsNullOrEmpty(TbFormatHeight.Text))
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Не введена высота форматки");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
                     if (double.Parse(TbFormatLength.Text) < 30)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Длина форматки должна быть не менее 30 мм");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
                     if (double.Parse(TbFormatHeight.Text) < 15)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Высота форматки должна быть не менее 15 мм");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
                     }
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
@@ -872,13 +868,13 @@ namespace mpFormats
                     string side, orientation;
 
                     if (RbShort.IsChecked != null && RbShort.IsChecked.Value)
-                        side = "Короткая";
+                        side = ModPlusAPI.Language.GetItem(LangItem, "h11");
                     else
-                        side = "Длинная";
+                        side = ModPlusAPI.Language.GetItem(LangItem, "h12");
                     if (RbHorizontal.IsChecked != null && RbHorizontal.IsChecked.Value)
-                        orientation = "Альбомный";
+                        orientation = ModPlusAPI.Language.GetItem(LangItem, "h8");
                     else
-                        orientation = "Книжный";
+                        orientation = ModPlusAPI.Language.GetItem(LangItem, "h9");
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
 
                     var format = ((ListBoxItem)CbFormat.SelectedItem).Content.ToString();
@@ -911,22 +907,22 @@ namespace mpFormats
                 {
                     if (string.IsNullOrEmpty(TbFormatLength.Text))
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Не введена длина форматки");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
                     if (string.IsNullOrEmpty(TbFormatHeight.Text))
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Не введена высота форматки");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
                     if (double.Parse(TbFormatLength.Text) < 30)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Длина форматки должна быть не менее 30 мм");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
                     if (double.Parse(TbFormatHeight.Text) < 15)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Высота форматки должна быть не менее 15 мм");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
                     }
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
@@ -971,19 +967,18 @@ namespace mpFormats
                 if (Tabs.SelectedIndex == 0)
                 {
                     string side, orientation;
-                    if (RbShort.IsChecked != null && RbShort.IsChecked.Value) side = "Короткая";
-                    else side = "Длинная";
+                    if (RbShort.IsChecked != null && RbShort.IsChecked.Value) side = ModPlusAPI.Language.GetItem(LangItem, "h11");
+                    else side = ModPlusAPI.Language.GetItem(LangItem, "h12");
                     if (RbHorizontal.IsChecked != null && RbHorizontal.IsChecked.Value)
-                        orientation = "Альбомный";
-                    else orientation = "Книжный";
+                        orientation = ModPlusAPI.Language.GetItem(LangItem, "h8");
+                    else orientation = ModPlusAPI.Language.GetItem(LangItem, "h9");
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
 
                     var format = ((ListBoxItem)CbFormat.SelectedItem).Content.ToString();
                     var multiplicity = CbMultiplicity.SelectedItem.ToString();
                     // Переменная указывает, следует ли оставить масштаб 1:1
-                    bool layoutScaleOneToOne;
                     // Создаем лист
-                    if (!CreateLayout(out layoutScaleOneToOne)) return;
+                    if (!CreateLayout(out var layoutScaleOneToOne)) return;
                     Hide();
                     try
                     {
@@ -1020,29 +1015,28 @@ namespace mpFormats
                 {
                     if (string.IsNullOrEmpty(TbFormatLength.Text))
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Не введена длина форматки");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
                     if (string.IsNullOrEmpty(TbFormatHeight.Text))
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Не введена высота форматки");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
                     if (double.Parse(TbFormatLength.Text) < 30)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Длина форматки должна быть не менее 30 мм");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
                     if (double.Parse(TbFormatHeight.Text) < 15)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Высота форматки должна быть не менее 15 мм");
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
                     }
 
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
-                    bool layoutScaleOneToOne;
                     // Создаем лист
-                    if (!CreateLayout(out layoutScaleOneToOne)) return;
+                    if (!CreateLayout(out var layoutScaleOneToOne)) return;
                     Hide();
                     try
                     {
@@ -1093,7 +1087,7 @@ namespace mpFormats
                     using (doc.LockDocument())
                     {
                         var lm = LayoutManager.Current;
-                        var lname = "Лист" + lm.LayoutCount.ToString(CultureInfo.InvariantCulture);
+                        var lname = ModPlusAPI.Language.GetItem(LangItem, "h52") + lm.LayoutCount.ToString(CultureInfo.InvariantCulture);
 
                         var lnamewin = new LayoutName(lname);
                         // Если оба значения отсутствуют, тогда скрываем вообще ввод
@@ -1157,10 +1151,10 @@ namespace mpFormats
 
         private void AddStamps(Point3d bottomLeftPt, Point3d topLeftPt, Point3d bottomRightPt, Vector3d replaceVector3D, double scale, Point3d blockInsertionPoint3D)
         {
-            var docFor = ((ComboBoxItem) CbDocumentsFor.SelectedItem).Tag;
+            var docFor = ((ComboBoxItem)CbDocumentsFor.SelectedItem).Tag;
             if (ChkB1.IsChecked != null && ChkB1.IsChecked.Value)
             {
-                if(docFor.Equals("RU"))
+                if (docFor.Equals("RU"))
                     BtAddTable("Mp_GOST_P_21.1101_F3L2", "BottomRight", bottomLeftPt, replaceVector3D, scale, blockInsertionPoint3D);
                 if (docFor.Equals("UA"))
                     BtAddTable("Mp_DSTU_B_A.2.4-4_F3L2", "BottomRight", bottomLeftPt, replaceVector3D, scale, blockInsertionPoint3D);
@@ -1185,8 +1179,7 @@ namespace mpFormats
             {
                 if (CbTables.SelectedIndex != -1)
                 {
-                    var stamp = CbTables.SelectedItem as Stamp;
-                    if (stamp != null)
+                    if (CbTables.SelectedItem is Stamp stamp)
                         BtAddTable(stamp.TableStyle, "BottomRight", bottomRightPt, replaceVector3D, scale, blockInsertionPoint3D);
                 }
             }
@@ -1211,231 +1204,220 @@ namespace mpFormats
                         {
                             if (tableStyleName.Equals(xmltbl.Attribute("tablestylename").Value))
                             {
-                                var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("ModPlus");
-                                using (key)
+                                // Директория расположения файла
+                                var dir = Path.Combine(Constants.CurrentDirectory, "Data", "Dwg");
+                                // Имя файла из которого берем таблицу
+                                var sourceFileName = Path.Combine(dir, "Stamps.dwg");
+                                // Read the DWG into a side database
+                                sourceDb.ReadDwgFile(sourceFileName, FileShare.Read, true, "");
+                                var tblIds = new ObjectIdCollection();
+                                // Создаем пустую таблицу
+                                var tbl = new Table();
+
+                                var tm = sourceDb.TransactionManager;
+
+                                using (var myT = tm.StartTransaction())
                                 {
-                                    if (key != null)
+                                    var sourceBtr = (BlockTableRecord)myT.GetObject(sourceDb.CurrentSpaceId, OpenMode.ForWrite, false);
+
+                                    foreach (var obj in sourceBtr)
                                     {
-                                        // Директория расположения файла
-                                        var dir = Path.Combine(key.GetValue("TopDir").ToString(), "Data", "Dwg");
-                                        // Имя файла из которого берем таблицу
-                                        var sourceFileName = Path.Combine(dir, "Stamps.dwg");
-                                        // Read the DWG into a side database
-                                        sourceDb.ReadDwgFile(sourceFileName, FileShare.Read, true, "");
-                                        var tblIds = new ObjectIdCollection();
-                                        // Создаем пустую таблицу
-                                        var tbl = new Table();
-
-                                        var tm = sourceDb.TransactionManager;
-
-                                        using (var myT = tm.StartTransaction())
+                                        var ent = (Entity)myT.GetObject(obj, OpenMode.ForWrite);
+                                        if (ent is Table)
                                         {
-                                            var sourceBtr = (BlockTableRecord)myT.GetObject(sourceDb.CurrentSpaceId, OpenMode.ForWrite, false);
-
-                                            foreach (var obj in sourceBtr)
+                                            var tblsty = (Table)myT.GetObject(obj, OpenMode.ForWrite);
+                                            if (tblsty.TableStyleName.Equals(xmltbl.Attribute("tablestylename").Value))
                                             {
-                                                var ent = (Entity)myT.GetObject(obj, OpenMode.ForWrite);
-                                                if (ent is Table)
-                                                {
-                                                    var tblsty = (Table)myT.GetObject(obj, OpenMode.ForWrite);
-                                                    if (tblsty.TableStyleName.Equals(xmltbl.Attribute("tablestylename").Value))
-                                                    {
-                                                        tblIds.Add(tblsty.ObjectId);
-                                                        var im = new IdMapping();
-                                                        sourceDb.WblockCloneObjects(tblIds, db.CurrentSpaceId, im,
-                                                            DuplicateRecordCloning.Ignore, false);
-                                                        tbl =
-                                                            (Table)
-                                                                tr.GetObject(im.Lookup(tblsty.ObjectId).Value,
-                                                                    OpenMode.ForWrite);
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                            myT.Commit();
-                                        }
-                                        if (tbl.ObjectId == ObjectId.Null)
-                                        {
-                                            ModPlusAPI.Windows.MessageBox.Show("В файле штампов не найден штамп с табличным стилем " +
-                                                          tableStyleName + Environment.NewLine +
-                                                          "Запустите функцию \"Штампы\" для перезаписи файла штампов");
-                                            return;
-                                        }
-
-                                        var tst = (TextStyleTable)tr.GetObject(db.TextStyleTableId, OpenMode.ForRead);
-
-                                        // Перемещаем 
-                                        var mInsertPt = tbl.Position;
-                                        var width = tbl.Width;
-                                        var height = tbl.Height;
-
-                                        if (pointAligin.Equals("TopLeft")) mInsertPt = insertPt;
-                                        if (pointAligin.Equals("TopRight"))
-                                            mInsertPt = new Point3d(insertPt.X - width, insertPt.Y, insertPt.Z);
-                                        if (pointAligin.Equals("BottomLeft"))
-                                            mInsertPt = new Point3d(insertPt.X, insertPt.Y + height, insertPt.Z);
-                                        if (pointAligin.Equals("BottomRight"))
-                                            mInsertPt = new Point3d(insertPt.X - width, insertPt.Y + height, insertPt.Z);
-                                        tbl.Position = mInsertPt;
-
-                                        var mat = Matrix3d.Displacement(replaceVector3D.GetNormal() * replaceVector3D.Length);
-                                        tbl.TransformBy(mat);
-                                        // Масштабируем относительно точки вставки блока
-                                        mat = Matrix3d.Scaling(scale, blockInsertionPoint3D);
-                                        tbl.TransformBy(mat);
-
-                                        doc.TransactionManager.QueueForGraphicsFlush();
-                                        sourceDb.Dispose();
-                                        // Присваиваем свойства//
-                                        /////////////////////////
-
-                                        tbl.Cells.TextStyleId = tst[CbTextStyle.SelectedItem.ToString()];
-                                        // Отступ в ячейках
-                                        for (var i = 0; i < tbl.Columns.Count; i++)
-                                        {
-                                            for (var j = 0; j < tbl.Rows.Count; j++)
-                                            {
-                                                var cell = tbl.Cells[j, i];
-                                                cell.Borders.Horizontal.Margin = 0.5 * scale;
-                                                cell.Borders.Vertical.Margin = 0.5 * scale;
+                                                tblIds.Add(tblsty.ObjectId);
+                                                var im = new IdMapping();
+                                                sourceDb.WblockCloneObjects(tblIds, db.CurrentSpaceId, im,
+                                                    DuplicateRecordCloning.Ignore, false);
+                                                tbl =
+                                                    (Table)
+                                                        tr.GetObject(im.Lookup(tblsty.ObjectId).Value,
+                                                            OpenMode.ForWrite);
+                                                break;
                                             }
                                         }
-                                        // Нулевой отступ в ячейках
-                                        var nullMargin = xmltbl.Attribute("nullMargin");
-                                        if (nullMargin != null)
-                                        {
-                                            foreach (var cellCoord in nullMargin.Value.Split(';'))
-                                            {
-                                                var cell = tbl.Cells[int.Parse(cellCoord.Split(',')[1]), int.Parse(cellCoord.Split(',')[0])];
-                                                cell.Borders.Horizontal.Margin = 0;
-                                                cell.Borders.Vertical.Margin = 0;
-                                            }
-                                        }
-                                        // surenames
-                                        HasSureNames = xmltbl.Attribute("hassurenames").Value.Equals("true");
-                                        if (HasSureNames)
-                                        {
-                                            for (var i = 0; i < LbStampSurnames.Items.Count; i++)
-                                            {
-                                                tbl.Cells[Row + i, Col].TextString =
-                                                    LbStampSurnames.Items[i].ToString();
-                                            }
-                                        }
-
-                                        if (ChbHasFields.IsChecked != null && ChbHasFields.IsChecked.Value)
-                                        {
-                                            AddFieldsToStamp(tbl);
-                                        }
-                                        // Добавление логотипа
-                                        if (bool.Parse(xmltbl.Attribute("logo").Value))
-                                        {
-                                            var logoName = string.Empty;
-                                            if (ChkLogoFromBlock.IsChecked != null && ChkLogoFromBlock.IsChecked.Value)
-                                            {
-                                                if (CbLogo.SelectedIndex > 0)
-                                                {
-                                                    logoName = CbLogo.SelectedItem.ToString();
-                                                }
-                                            }
-                                            else if (ChkLogoFromFile.IsChecked != null && ChkLogoFromFile.IsChecked.Value)
-                                            {
-                                                logoName = CreateBlockFromFile();
-                                            }
-                                            if (!string.IsNullOrEmpty(logoName))
-                                            {
-                                                var bt = (BlockTable)tr.GetObject(doc.Database.BlockTableId, OpenMode.ForRead);
-                                                if (bt.Has(logoName))
-                                                {
-                                                    var coln =
-                                                        int.Parse(
-                                                            xmltbl.Attribute("logocoordinates").Value.Split(',')
-                                                                .GetValue(0)
-                                                                .ToString());
-                                                    var rown =
-                                                        int.Parse(
-                                                            xmltbl.Attribute("logocoordinates").Value.Split(',')
-                                                                .GetValue(1)
-                                                                .ToString());
-                                                    var cell = tbl.Cells[rown, coln];
-                                                    cell.Borders.Top.Margin = 1 * scale;
-                                                    cell.Borders.Bottom.Margin = 1 * scale;
-                                                    cell.Borders.Right.Margin = 1 * scale;
-                                                    cell.Borders.Left.Margin = 1 * scale;
-                                                    cell.Alignment = CellAlignment.MiddleCenter;
-                                                    cell.Contents[0].BlockTableRecordId = bt[logoName];
-                                                }
-                                            }
-                                        }
-                                        // Высота текста
-                                        // Сначала ставим для всех ячеек 2.5
-                                        for (var i = 0; i < tbl.Columns.Count; i++)
-                                        {
-                                            for (var j = 0; j < tbl.Rows.Count; j++)
-                                            {
-                                                var cell = tbl.Cells[j, i];
-                                                double d;
-                                                cell.TextHeight =
-                                                    double.TryParse(TbMainTextHeight.Text, out d)
-                                                        ? d * scale
-                                                        : 2.5 * scale;
-                                            }
-                                        }
-                                        // Теперь ставим дополнительную высоту
-                                        var bigCellAtr = xmltbl.Attribute("bigCells");
-                                        if (bigCellAtr != null)
-                                        {
-                                            foreach (var cellCoord in bigCellAtr.Value.Split(';'))
-                                            {
-                                                var cell = tbl.Cells[int.Parse(cellCoord.Split(',')[1]), int.Parse(cellCoord.Split(',')[0])];
-                                                double d;
-                                                cell.TextHeight =
-                                                    double.TryParse(TbBigTextHeight.Text, out d)
-                                                        ? d * scale
-                                                        : 3.5 * scale;
-                                            }
-                                        }
-                                        // Имя листа и номер
-                                        if (xmltbl.Attribute("lnamecoordinates") != null)
-                                            if (!string.IsNullOrEmpty(_lnamecoord))
-                                                if (!string.IsNullOrEmpty(_lname))
-                                                {
-                                                    var rown = -1;
-                                                    var coln = -1;
-                                                    int.TryParse(_lnamecoord.Split(',').GetValue(0).ToString(), out rown);
-                                                    int.TryParse(_lnamecoord.Split(',').GetValue(1).ToString(), out coln);
-                                                    if (rown != -1 & coln != -1)
-                                                        tbl.Cells[rown, coln].TextString = _lname;
-                                                }
-                                        if (xmltbl.Attribute("lnumbercooridnates") != null)
-                                            if (!string.IsNullOrEmpty(_lnumbercoord))
-                                                if (!string.IsNullOrEmpty(_lnumber))
-                                                {
-                                                    var rown = -1;
-                                                    var coln = -1;
-                                                    int.TryParse(_lnumbercoord.Split(',').GetValue(0).ToString(), out rown);
-                                                    int.TryParse(_lnumbercoord.Split(',').GetValue(1).ToString(), out coln);
-                                                    if (rown != -1 & coln != -1)
-                                                    {
-                                                        if (string.IsNullOrEmpty(tbl.Cells[rown, coln].TextString))
-                                                            tbl.Cells[rown, coln].TextString = _lnumber;
-                                                        else
-                                                            tbl.Cells[rown, coln].TextString =
-                                                                tbl.Cells[rown, coln].TextString + " " + _lnumber;
-                                                    }
-                                                }
-
-                                        tr.Commit();
-                                        break; // Тормозим Foreach
                                     }
-                                    else
+                                    myT.Commit();
+                                }
+                                if (tbl.ObjectId == ObjectId.Null)
+                                {
+                                    ModPlusAPI.Windows.MessageBox.Show(
+                                        ModPlusAPI.Language.GetItem(LangItem, "err10") + " " +
+                                        tableStyleName + Environment.NewLine +
+                                        ModPlusAPI.Language.GetItem(LangItem, "err11"));
+                                    return;
+                                }
+
+                                var tst = (TextStyleTable)tr.GetObject(db.TextStyleTableId, OpenMode.ForRead);
+
+                                // Перемещаем 
+                                var mInsertPt = tbl.Position;
+                                var width = tbl.Width;
+                                var height = tbl.Height;
+
+                                if (pointAligin.Equals("TopLeft")) mInsertPt = insertPt;
+                                if (pointAligin.Equals("TopRight"))
+                                    mInsertPt = new Point3d(insertPt.X - width, insertPt.Y, insertPt.Z);
+                                if (pointAligin.Equals("BottomLeft"))
+                                    mInsertPt = new Point3d(insertPt.X, insertPt.Y + height, insertPt.Z);
+                                if (pointAligin.Equals("BottomRight"))
+                                    mInsertPt = new Point3d(insertPt.X - width, insertPt.Y + height, insertPt.Z);
+                                tbl.Position = mInsertPt;
+
+                                var mat = Matrix3d.Displacement(replaceVector3D.GetNormal() * replaceVector3D.Length);
+                                tbl.TransformBy(mat);
+                                // Масштабируем относительно точки вставки блока
+                                mat = Matrix3d.Scaling(scale, blockInsertionPoint3D);
+                                tbl.TransformBy(mat);
+
+                                doc.TransactionManager.QueueForGraphicsFlush();
+                                sourceDb.Dispose();
+                                // Присваиваем свойства//
+                                /////////////////////////
+
+                                tbl.Cells.TextStyleId = tst[CbTextStyle.SelectedItem.ToString()];
+                                // Отступ в ячейках
+                                for (var i = 0; i < tbl.Columns.Count; i++)
+                                {
+                                    for (var j = 0; j < tbl.Rows.Count; j++)
                                     {
-                                        ModPlusAPI.Windows.MessageBox.Show("Не найдена запись в реестре. Запустите конфигуратор!");
-                                        return;
+                                        var cell = tbl.Cells[j, i];
+                                        cell.Borders.Horizontal.Margin = 0.5 * scale;
+                                        cell.Borders.Vertical.Margin = 0.5 * scale;
                                     }
                                 }
-                            }// transaction
-                        }// if
-                    }// foreach
+                                // Нулевой отступ в ячейках
+                                var nullMargin = xmltbl.Attribute("nullMargin");
+                                if (nullMargin != null)
+                                {
+                                    foreach (var cellCoord in nullMargin.Value.Split(';'))
+                                    {
+                                        var cell = tbl.Cells[int.Parse(cellCoord.Split(',')[1]), int.Parse(cellCoord.Split(',')[0])];
+                                        cell.Borders.Horizontal.Margin = 0;
+                                        cell.Borders.Vertical.Margin = 0;
+                                    }
+                                }
+                                // surenames
+                                HasSureNames = xmltbl.Attribute("hassurenames").Value.Equals("true");
+                                if (HasSureNames)
+                                {
+                                    for (var i = 0; i < LbStampSurnames.Items.Count; i++)
+                                    {
+                                        tbl.Cells[Row + i, Col].TextString =
+                                            LbStampSurnames.Items[i].ToString();
+                                    }
+                                }
+
+                                if (ChbHasFields.IsChecked != null && ChbHasFields.IsChecked.Value)
+                                {
+                                    AddFieldsToStamp(tbl);
+                                }
+                                // Добавление логотипа
+                                if (bool.Parse(xmltbl.Attribute("logo").Value))
+                                {
+                                    var logoName = string.Empty;
+                                    if (ChkLogoFromBlock.IsChecked != null && ChkLogoFromBlock.IsChecked.Value)
+                                    {
+                                        if (CbLogo.SelectedIndex > 0)
+                                        {
+                                            logoName = CbLogo.SelectedItem.ToString();
+                                        }
+                                    }
+                                    else if (ChkLogoFromFile.IsChecked != null && ChkLogoFromFile.IsChecked.Value)
+                                    {
+                                        logoName = CreateBlockFromFile();
+                                    }
+                                    if (!string.IsNullOrEmpty(logoName))
+                                    {
+                                        var bt = (BlockTable)tr.GetObject(doc.Database.BlockTableId, OpenMode.ForRead);
+                                        if (bt.Has(logoName))
+                                        {
+                                            var coln =
+                                                int.Parse(
+                                                    xmltbl.Attribute("logocoordinates").Value.Split(',')
+                                                        .GetValue(0)
+                                                        .ToString());
+                                            var rown =
+                                                int.Parse(
+                                                    xmltbl.Attribute("logocoordinates").Value.Split(',')
+                                                        .GetValue(1)
+                                                        .ToString());
+                                            var cell = tbl.Cells[rown, coln];
+                                            cell.Borders.Top.Margin = 1 * scale;
+                                            cell.Borders.Bottom.Margin = 1 * scale;
+                                            cell.Borders.Right.Margin = 1 * scale;
+                                            cell.Borders.Left.Margin = 1 * scale;
+                                            cell.Alignment = CellAlignment.MiddleCenter;
+                                            cell.Contents[0].BlockTableRecordId = bt[logoName];
+                                        }
+                                    }
+                                }
+                                // Высота текста
+                                // Сначала ставим для всех ячеек 2.5
+                                for (var i = 0; i < tbl.Columns.Count; i++)
+                                {
+                                    for (var j = 0; j < tbl.Rows.Count; j++)
+                                    {
+                                        var cell = tbl.Cells[j, i];
+                                        double d;
+                                        cell.TextHeight =
+                                            double.TryParse(TbMainTextHeight.Text, out d)
+                                                ? d * scale
+                                                : 2.5 * scale;
+                                    }
+                                }
+                                // Теперь ставим дополнительную высоту
+                                var bigCellAtr = xmltbl.Attribute("bigCells");
+                                if (bigCellAtr != null)
+                                {
+                                    foreach (var cellCoord in bigCellAtr.Value.Split(';'))
+                                    {
+                                        var cell = tbl.Cells[int.Parse(cellCoord.Split(',')[1]), int.Parse(cellCoord.Split(',')[0])];
+                                        double d;
+                                        cell.TextHeight =
+                                            double.TryParse(TbBigTextHeight.Text, out d)
+                                                ? d * scale
+                                                : 3.5 * scale;
+                                    }
+                                }
+                                // Имя листа и номер
+                                if (xmltbl.Attribute("lnamecoordinates") != null)
+                                    if (!string.IsNullOrEmpty(_lnamecoord))
+                                        if (!string.IsNullOrEmpty(_lname))
+                                        {
+                                            var rown = -1;
+                                            var coln = -1;
+                                            int.TryParse(_lnamecoord.Split(',').GetValue(0).ToString(), out rown);
+                                            int.TryParse(_lnamecoord.Split(',').GetValue(1).ToString(), out coln);
+                                            if (rown != -1 & coln != -1)
+                                                tbl.Cells[rown, coln].TextString = _lname;
+                                        }
+                                if (xmltbl.Attribute("lnumbercooridnates") != null)
+                                    if (!string.IsNullOrEmpty(_lnumbercoord))
+                                        if (!string.IsNullOrEmpty(_lnumber))
+                                        {
+                                            var rown = -1;
+                                            var coln = -1;
+                                            int.TryParse(_lnumbercoord.Split(',').GetValue(0).ToString(), out rown);
+                                            int.TryParse(_lnumbercoord.Split(',').GetValue(1).ToString(), out coln);
+                                            if (rown != -1 & coln != -1)
+                                            {
+                                                if (string.IsNullOrEmpty(tbl.Cells[rown, coln].TextString))
+                                                    tbl.Cells[rown, coln].TextString = _lnumber;
+                                                else
+                                                    tbl.Cells[rown, coln].TextString =
+                                                        tbl.Cells[rown, coln].TextString + " " + _lnumber;
+                                            }
+                                        }
+
+                                tr.Commit();
+                                break; // Тормозим Foreach
+                            }
+                        }
+                    }
                 }
             }// try
             catch (System.Exception ex)
@@ -1458,7 +1440,7 @@ namespace mpFormats
                         // Даже если имя табличного стиля сошлось - проверяем по количеству ячеек!
                         if (int.Parse(xmlTbl.Attribute("cellcount").Value) != table.Cells.Count())
                         {
-                            ModPlusAPI.Windows.MessageBox.Show("Штамп не соответсвует штампу ModPlus! Неверное кол-во ячеек");
+                            ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err12"));
                             return;
                         }
 
@@ -1554,8 +1536,7 @@ namespace mpFormats
 
         private void CbBottomFrame_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var cb = sender as ComboBox;
-            if (cb == null) return;
+            if (!(sender is ComboBox cb)) return;
             var index = cb.SelectedIndex;
             if (index == 0)
             {
@@ -1612,7 +1593,7 @@ namespace mpFormats
             Image_stamp.Opacity = 1;
             GridStamp.Visibility = CbDocumentsFor.Visibility =//DpSurenames.Visibility = //TbLogo.Visibility =
             CbLogo.Visibility = GridSplitterStamp.Visibility = Visibility.Visible;
-            
+
         }
 
         private void ChkStamp_OnUnchecked(object sender, RoutedEventArgs e)
@@ -1636,13 +1617,13 @@ namespace mpFormats
             {
                 double dlina, visota;
                 string side, orientation;
-                if (RbShort.IsChecked != null && RbShort.IsChecked.Value) side = "Короткая";
+                if (RbShort.IsChecked != null && RbShort.IsChecked.Value) side = ModPlusAPI.Language.GetItem(LangItem, "h11");
                 else
-                    side = "Длинная";
+                    side = ModPlusAPI.Language.GetItem(LangItem, "h12");
                 if (RbHorizontal.IsChecked != null && RbHorizontal.IsChecked.Value)
-                    orientation = "Альбомный";
+                    orientation = ModPlusAPI.Language.GetItem(LangItem, "h8");
                 else
-                    orientation = "Книжный";
+                    orientation = ModPlusAPI.Language.GetItem(LangItem, "h9");
 
                 var format = ((ListBoxItem)CbFormat.SelectedItem).Content.ToString();
                 var multiplicity = CbMultiplicity.SelectedItem.ToString();
@@ -1671,8 +1652,7 @@ namespace mpFormats
 
         private void MainTab_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var tab = sender as TabControl;
-            if (tab != null)
+            if (sender is TabControl tab)
             {
                 if (tab.SelectedIndex != -1)
                     TbFormatSize.Visibility = tab.SelectedIndex == 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -1704,7 +1684,7 @@ namespace mpFormats
         {
             try
             {
-                var ofd = new OpenFileDialog("Использовать dwg-файл в качестве логотипа", string.Empty, "dwg", "dialog",
+                var ofd = new OpenFileDialog(ModPlusAPI.Language.GetItem(LangItem, "h53"), string.Empty, "dwg", "dialog",
                     OpenFileDialog.OpenFileDialogFlags.SearchPath |
                     OpenFileDialog.OpenFileDialogFlags.DefaultIsFolder);
                 if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -1717,15 +1697,16 @@ namespace mpFormats
                 }
                 else
                 {
-                    ModPlusAPI.Windows.MessageBox.Show("В файле" + Environment.NewLine + ofd.Filename + Environment.NewLine +
-                                  "не найдено полей");
+                    ModPlusAPI.Windows.MessageBox.Show(
+                        ModPlusAPI.Language.GetItem(LangItem, "msg7") + Environment.NewLine + ofd.Filename + Environment.NewLine +
+                        ModPlusAPI.Language.GetItem(LangItem, "msg8"));
                 }
             }
             catch (Autodesk.AutoCAD.Runtime.Exception exception)
             {
                 if (exception.ErrorStatus == ErrorStatus.NotImplementedYet)
                 {
-                    ModPlusAPI.Windows.MessageBox.Show("Файл создан в более поздней версии AutoCad!");
+                    ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err13"));
                 }
                 else ExceptionBox.Show(exception);
             }
@@ -1800,6 +1781,7 @@ namespace mpFormats
     // Запуск функции и создание блока
     public class MpFormatsAdd
     {
+        private const string LangItem = "mpFormats";
         private MpFormats _mpFormats;
 
         [CommandMethod("ModPlus", "mpFormats", CommandFlags.Modal)]
@@ -1866,27 +1848,27 @@ namespace mpFormats
                     //{
                     //    if (int.Parse(multiplicity) > 1)
                     //    {
-                    //        if (orientation.Equals("Книжный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //        {
-                    //            if (side.Equals("Короткая"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h11")))
                     //            {
                     //                dlina = 1189;
                     //                visota = 841 * int.Parse(multiplicity);
                     //            }
-                    //            if (side.Equals("Длинная"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h12")))
                     //            {
                     //                dlina = 841;
                     //                visota = 1189 * int.Parse(multiplicity);
                     //            }
                     //        }
-                    //        if (orientation.Equals("Альбомный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //        {
-                    //            if (side.Equals("Короткая"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h11")))
                     //            {
                     //                dlina = 841 * int.Parse(multiplicity);
                     //                visota = 1189;
                     //            }
-                    //            if (side.Equals("Длинная"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h12")))
                     //            {
                     //                dlina = 1189 * int.Parse(multiplicity);
                     //                visota = 841;
@@ -1895,12 +1877,12 @@ namespace mpFormats
                     //    }
                     //    else
                     //    {
-                    //        if (orientation.Equals("Книжный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //        {
                     //            dlina = 841;
                     //            visota = 1189;
                     //        }
-                    //        if (orientation.Equals("Альбомный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //        {
                     //            dlina = 1189;
                     //            visota = 841;
@@ -1911,27 +1893,27 @@ namespace mpFormats
                     //{
                     //    if (int.Parse(multiplicity) > 1)
                     //    {
-                    //        if (orientation.Equals("Книжный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //        {
-                    //            if (side.Equals("Короткая"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h11")))
                     //            {
                     //                dlina = 841;
                     //                visota = 594 * int.Parse(multiplicity);
                     //            }
-                    //            if (side.Equals("Длинная"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h12")))
                     //            {
                     //                dlina = 594;
                     //                visota = 841 * int.Parse(multiplicity);
                     //            }
                     //        }
-                    //        if (orientation.Equals("Альбомный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //        {
-                    //            if (side.Equals("Короткая"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h11")))
                     //            {
                     //                dlina = 594 * int.Parse(multiplicity);
                     //                visota = 841;
                     //            }
-                    //            if (side.Equals("Длинная"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h12")))
                     //            {
                     //                dlina = 841 * int.Parse(multiplicity);
                     //                visota = 594;
@@ -1940,12 +1922,12 @@ namespace mpFormats
                     //    }
                     //    else
                     //    {
-                    //        if (orientation.Equals("Книжный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //        {
                     //            dlina = 594;
                     //            visota = 841;
                     //        }
-                    //        if (orientation.Equals("Альбомный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //        {
                     //            dlina = 841;
                     //            visota = 594;
@@ -1956,27 +1938,27 @@ namespace mpFormats
                     //{
                     //    if (int.Parse(multiplicity) > 1)
                     //    {
-                    //        if (orientation.Equals("Книжный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //        {
-                    //            if (side.Equals("Короткая"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h11")))
                     //            {
                     //                dlina = 594;
                     //                visota = 420 * int.Parse(multiplicity);
                     //            }
-                    //            if (side.Equals("Длинная"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h12")))
                     //            {
                     //                dlina = 420;
                     //                visota = 594 * int.Parse(multiplicity);
                     //            }
                     //        }
-                    //        if (orientation.Equals("Альбомный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //        {
-                    //            if (side.Equals("Короткая"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h11")))
                     //            {
                     //                dlina = 420 * int.Parse(multiplicity);
                     //                visota = 594;
                     //            }
-                    //            if (side.Equals("Длинная"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h12")))
                     //            {
                     //                dlina = 594 * int.Parse(multiplicity);
                     //                visota = 420;
@@ -1985,12 +1967,12 @@ namespace mpFormats
                     //    }
                     //    else
                     //    {
-                    //        if (orientation.Equals("Книжный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //        {
                     //            dlina = 420;
                     //            visota = 594;
                     //        }
-                    //        if (orientation.Equals("Альбомный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //        {
                     //            dlina = 594;
                     //            visota = 420;
@@ -2001,27 +1983,27 @@ namespace mpFormats
                     //{
                     //    if (int.Parse(multiplicity) > 1)
                     //    {
-                    //        if (orientation.Equals("Книжный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //        {
-                    //            if (side.Equals("Короткая"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h11")))
                     //            {
                     //                dlina = 420;
                     //                visota = 297 * int.Parse(multiplicity);
                     //            }
-                    //            if (side.Equals("Длинная"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h12")))
                     //            {
                     //                dlina = 297;
                     //                visota = 420 * int.Parse(multiplicity);
                     //            }
                     //        }
-                    //        if (orientation.Equals("Альбомный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //        {
-                    //            if (side.Equals("Короткая"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h11")))
                     //            {
                     //                dlina = 297 * int.Parse(multiplicity);
                     //                visota = 420;
                     //            }
-                    //            if (side.Equals("Длинная"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h12")))
                     //            {
                     //                dlina = 420 * int.Parse(multiplicity);
                     //                visota = 297;
@@ -2030,12 +2012,12 @@ namespace mpFormats
                     //    }
                     //    else
                     //    {
-                    //        if (orientation.Equals("Книжный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //        {
                     //            dlina = 297;
                     //            visota = 420;
                     //        }
-                    //        if (orientation.Equals("Альбомный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //        {
                     //            dlina = 420;
                     //            visota = 297;
@@ -2046,27 +2028,27 @@ namespace mpFormats
                     //{
                     //    if (int.Parse(multiplicity) > 1)
                     //    {
-                    //        if (orientation.Equals("Книжный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //        {
-                    //            if (side.Equals("Короткая"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h11")))
                     //            {
                     //                dlina = 297;
                     //                visota = 210 * int.Parse(multiplicity);
                     //            }
-                    //            if (side.Equals("Длинная"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h12")))
                     //            {
                     //                dlina = 210;
                     //                visota = 297 * int.Parse(multiplicity);
                     //            }
                     //        }
-                    //        if (orientation.Equals("Альбомный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //        {
-                    //            if (side.Equals("Короткая"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h11")))
                     //            {
                     //                dlina = 210 * int.Parse(multiplicity);
                     //                visota = 297;
                     //            }
-                    //            if (side.Equals("Длинная"))
+                    //            if (side.Equals(Language.GetItem(LangItem, "h12")))
                     //            {
                     //                dlina = 297 * int.Parse(multiplicity);
                     //                visota = 210;
@@ -2075,12 +2057,12 @@ namespace mpFormats
                     //    }
                     //    else
                     //    {
-                    //        if (orientation.Equals("Книжный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //        {
                     //            dlina = 210;
                     //            visota = 297;
                     //        }
-                    //        if (orientation.Equals("Альбомный"))
+                    //        if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //        {
                     //            dlina = 297;
                     //            visota = 210;
@@ -2089,12 +2071,12 @@ namespace mpFormats
                     //}
                     //if (format.Equals("A5"))
                     //{
-                    //    if (orientation.Equals("Книжный"))
+                    //    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     //    {
                     //        dlina = 148;
                     //        visota = 210;
                     //    }
-                    //    if (orientation.Equals("Альбомный"))
+                    //    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     //    {
                     //        dlina = 210;
                     //        visota = 148;
@@ -2114,7 +2096,7 @@ namespace mpFormats
                     Point3d pt22;
                     if (format.Equals("A4") || format.Equals("A3"))
                     {
-                        if (bottomFrame.Equals("10мм"))
+                        if (bottomFrame.Equals(Language.GetItem(LangItem, "h19")))
                         {
                             pt11 = new Point3d(pt1.X + 20, pt1.Y + 10, 0.0);
                             pt22 = new Point3d(pt2.X - 5, pt2.Y + 10, 0.0);
@@ -2232,7 +2214,7 @@ namespace mpFormats
                             }
                             catch
                             {
-                                ModPlusAPI.Windows.MessageBox.Show("Неверное имя блока");
+                                ModPlusAPI.Windows.MessageBox.Show(Language.GetItem(LangItem, "err14"));
                             }
                             var btr = new BlockTableRecord { Name = blockname };
 
@@ -2561,7 +2543,7 @@ namespace mpFormats
                             }
                             catch
                             {
-                                ModPlusAPI.Windows.MessageBox.Show("Неверное имя блока");
+                                ModPlusAPI.Windows.MessageBox.Show(Language.GetItem(LangItem, "err14"));
                             }
 
                             var btr = new BlockTableRecord { Name = blockname };
@@ -2767,8 +2749,8 @@ namespace mpFormats
                 var doc = AcApp.DocumentManager.MdiActiveDocument;
                 var db = doc.Database;
                 var ed = doc.Editor;
-                var peo = new PromptEntityOptions("\n" + "Выберите форматку для замены: ");
-                peo.SetRejectMessage("\n" + "Неверный выбор!");
+                var peo = new PromptEntityOptions("\n" + Language.GetItem(LangItem, "msg9"));
+                peo.SetRejectMessage("\n" + Language.GetItem(LangItem, "msg10"));
                 peo.AddAllowedClass(typeof(BlockReference), false);
                 var per = ed.GetEntity(peo);
                 if (per.Status != PromptStatus.OK) return;
@@ -2843,8 +2825,8 @@ namespace mpFormats
                 var doc = AcApp.DocumentManager.MdiActiveDocument;
                 var db = doc.Database;
                 var ed = doc.Editor;
-                var peo = new PromptEntityOptions("\n" + "Выберите форматку для замены: ");
-                peo.SetRejectMessage("\n" + "Неверный выбор!");
+                var peo = new PromptEntityOptions("\n" + Language.GetItem(LangItem, "msg9"));
+                peo.SetRejectMessage("\n" + Language.GetItem(LangItem, "msg10"));
                 peo.AddAllowedClass(typeof(BlockReference), false);
                 var per = ed.GetEntity(peo);
                 if (per.Status != PromptStatus.OK)
@@ -2918,27 +2900,27 @@ namespace mpFormats
             {
                 if (int.Parse(multiplicity) > 1)
                 {
-                    if (orientation.Equals("Книжный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     {
-                        if (side.Equals("Короткая"))
+                        if (side.Equals(Language.GetItem(LangItem, "h11")))
                         {
                             dlina = 1189;
                             visota = 841 * int.Parse(multiplicity);
                         }
-                        if (side.Equals("Длинная"))
+                        if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             dlina = 841;
                             visota = 1189 * int.Parse(multiplicity);
                         }
                     }
-                    if (orientation.Equals("Альбомный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
-                        if (side.Equals("Короткая"))
+                        if (side.Equals(Language.GetItem(LangItem, "h11")))
                         {
                             dlina = 841 * int.Parse(multiplicity);
                             visota = 1189;
                         }
-                        if (side.Equals("Длинная"))
+                        if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             dlina = 1189 * int.Parse(multiplicity);
                             visota = 841;
@@ -2947,12 +2929,12 @@ namespace mpFormats
                 }
                 else
                 {
-                    if (orientation.Equals("Книжный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     {
                         dlina = 841;
                         visota = 1189;
                     }
-                    if (orientation.Equals("Альбомный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         dlina = 1189;
                         visota = 841;
@@ -2963,27 +2945,27 @@ namespace mpFormats
             {
                 if (int.Parse(multiplicity) > 1)
                 {
-                    if (orientation.Equals("Книжный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     {
-                        if (side.Equals("Короткая"))
+                        if (side.Equals(Language.GetItem(LangItem, "h11")))
                         {
                             dlina = 841;
                             visota = 594 * int.Parse(multiplicity);
                         }
-                        if (side.Equals("Длинная"))
+                        if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             dlina = 594;
                             visota = 841 * int.Parse(multiplicity);
                         }
                     }
-                    if (orientation.Equals("Альбомный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
-                        if (side.Equals("Короткая"))
+                        if (side.Equals(Language.GetItem(LangItem, "h11")))
                         {
                             dlina = 594 * int.Parse(multiplicity);
                             visota = 841;
                         }
-                        if (side.Equals("Длинная"))
+                        if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             dlina = 841 * int.Parse(multiplicity);
                             visota = 594;
@@ -2992,12 +2974,12 @@ namespace mpFormats
                 }
                 else
                 {
-                    if (orientation.Equals("Книжный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     {
                         dlina = 594;
                         visota = 841;
                     }
-                    if (orientation.Equals("Альбомный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         dlina = 841;
                         visota = 594;
@@ -3008,27 +2990,27 @@ namespace mpFormats
             {
                 if (int.Parse(multiplicity) > 1)
                 {
-                    if (orientation.Equals("Книжный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     {
-                        if (side.Equals("Короткая"))
+                        if (side.Equals(Language.GetItem(LangItem, "h11")))
                         {
                             dlina = 594;
                             visota = 420 * int.Parse(multiplicity);
                         }
-                        if (side.Equals("Длинная"))
+                        if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             dlina = 420;
                             visota = 594 * int.Parse(multiplicity);
                         }
                     }
-                    if (orientation.Equals("Альбомный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
-                        if (side.Equals("Короткая"))
+                        if (side.Equals(Language.GetItem(LangItem, "h11")))
                         {
                             dlina = 420 * int.Parse(multiplicity);
                             visota = 594;
                         }
-                        if (side.Equals("Длинная"))
+                        if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             dlina = 594 * int.Parse(multiplicity);
                             visota = 420;
@@ -3037,12 +3019,12 @@ namespace mpFormats
                 }
                 else
                 {
-                    if (orientation.Equals("Книжный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     {
                         dlina = 420;
                         visota = 594;
                     }
-                    if (orientation.Equals("Альбомный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         dlina = 594;
                         visota = 420;
@@ -3053,27 +3035,27 @@ namespace mpFormats
             {
                 if (int.Parse(multiplicity) > 1)
                 {
-                    if (orientation.Equals("Книжный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     {
-                        if (side.Equals("Короткая"))
+                        if (side.Equals(Language.GetItem(LangItem, "h11")))
                         {
                             dlina = 420;
                             visota = 297 * int.Parse(multiplicity);
                         }
-                        if (side.Equals("Длинная"))
+                        if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             dlina = 297;
                             visota = 420 * int.Parse(multiplicity);
                         }
                     }
-                    if (orientation.Equals("Альбомный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
-                        if (side.Equals("Короткая"))
+                        if (side.Equals(Language.GetItem(LangItem, "h11")))
                         {
                             dlina = 297 * int.Parse(multiplicity);
                             visota = 420;
                         }
-                        if (side.Equals("Длинная"))
+                        if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             dlina = 420 * int.Parse(multiplicity);
                             visota = 297;
@@ -3082,12 +3064,12 @@ namespace mpFormats
                 }
                 else
                 {
-                    if (orientation.Equals("Книжный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     {
                         dlina = 297;
                         visota = 420;
                     }
-                    if (orientation.Equals("Альбомный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         dlina = 420;
                         visota = 297;
@@ -3098,27 +3080,27 @@ namespace mpFormats
             {
                 if (int.Parse(multiplicity) > 1)
                 {
-                    if (orientation.Equals("Книжный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     {
-                        if (side.Equals("Короткая"))
+                        if (side.Equals(Language.GetItem(LangItem, "h11")))
                         {
                             dlina = 297;
                             visota = 210 * int.Parse(multiplicity);
                         }
-                        if (side.Equals("Длинная"))
+                        if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             dlina = 210;
                             visota = 297 * int.Parse(multiplicity);
                         }
                     }
-                    if (orientation.Equals("Альбомный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
-                        if (side.Equals("Короткая"))
+                        if (side.Equals(Language.GetItem(LangItem, "h11")))
                         {
                             dlina = 210 * int.Parse(multiplicity);
                             visota = 297;
                         }
-                        if (side.Equals("Длинная"))
+                        if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             dlina = 297 * int.Parse(multiplicity);
                             visota = 210;
@@ -3127,12 +3109,12 @@ namespace mpFormats
                 }
                 else
                 {
-                    if (orientation.Equals("Книжный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                     {
                         dlina = 210;
                         visota = 297;
                     }
-                    if (orientation.Equals("Альбомный"))
+                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         dlina = 297;
                         visota = 210;
@@ -3141,12 +3123,12 @@ namespace mpFormats
             }
             if (format.Equals("A5"))
             {
-                if (orientation.Equals("Книжный"))
+                if (orientation.Equals(Language.GetItem(LangItem, "h9")))
                 {
                     dlina = 148;
                     visota = 210;
                 }
-                if (orientation.Equals("Альбомный"))
+                if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                 {
                     dlina = 210;
                     visota = 148;
@@ -3155,8 +3137,9 @@ namespace mpFormats
         }
     }
 
-    class BlockJig : EntityJig
+    internal class BlockJig : EntityJig
     {
+        private const string LangItem = "mpFormats";
         Point3d _mCenterPt, _mActualPoint;
 
         public BlockJig(BlockReference br)
@@ -3175,7 +3158,7 @@ namespace mpFormats
                 | UserInputControls.NoZeroResponseAccepted
                 | UserInputControls.AcceptOtherInputString
                 | UserInputControls.NoNegativeResponseAccepted),
-                Message = "\n" + "Точка вставки: "
+                Message = "\n" + Language.GetItem(LangItem, "msg11")
             };
             var dres = prompts.AcquirePoint(jigOpts);
             if (_mActualPoint == dres.Value)

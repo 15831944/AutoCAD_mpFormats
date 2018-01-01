@@ -12,11 +12,9 @@ using ModPlusAPI.Windows.Helpers;
 
 namespace mpFormats
 {
-    /// <summary>
-    /// Логика взаимодействия для MpStampFields.xaml
-    /// </summary>
     public partial class EditUserSurnames
     {
+        private const string LangItem = "mpFormats";
         // Список стандартных должностей
         readonly List<string> _defvalues = new List<string>
         {
@@ -75,8 +73,7 @@ namespace mpFormats
                 }
                 else
                 {
-                    ModPlusAPI.Windows.MessageBox.Show("Файл конфигурации поврежден!" + Environment.NewLine +
-                          "Запустите Конфигуратор ModPlus", MessageBoxIcon.Close);
+                    ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err1"), MessageBoxIcon.Close);
                     Close();
                 }
                 // Биндим
@@ -117,7 +114,7 @@ namespace mpFormats
                     }
                     else
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Произошла ошибка!", MessageBoxIcon.Close);
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err2"), MessageBoxIcon.Close);
                     }
                 }
                 else
@@ -153,8 +150,7 @@ namespace mpFormats
                 // Если нет, то сообщаем об ошибке
                 if (configFile.Element("Settings") == null)
                 {
-                    ModPlusAPI.Windows.MessageBox.Show("Файл конфигурации поврежден!" + Environment.NewLine +
-                          "Запустите Конфигуратор ModPlus", MessageBoxIcon.Close);
+                    ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err1"), MessageBoxIcon.Close);
                     Close();
                 }
                 var element = configFile.Element("Settings");
@@ -205,8 +201,8 @@ namespace mpFormats
                 {
                     if (_defvalues.Contains(sn.Attribute("Surname")?.Value))
                     {
-                        ModPlusAPI.Windows.MessageBox.Show("Значение " + sn.Attribute("Surname")?.Value +
-                                      " уже содержится в списке стандартных значений", MessageBoxIcon.Alert);
+                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg1") + " " + sn.Attribute("Surname")?.Value +
+                                      " "+ ModPlusAPI.Language.GetItem(LangItem, "msg2"), MessageBoxIcon.Alert);
                         e.Cancel = true;
                         return;
                     }
@@ -219,7 +215,7 @@ namespace mpFormats
                     .ToList();
                 if (duplicates.Count > 0)
                 {
-                    ModPlusAPI.Windows.MessageBox.Show("В списке содержатся одинаковые значения!", MessageBoxIcon.Alert);
+                    ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg3"), MessageBoxIcon.Alert);
                     e.Cancel = true;
                 }
                 else SaveToConfig();

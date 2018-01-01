@@ -6,7 +6,7 @@
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                       SizeToContent="WidthAndHeight" ShowMaxRestoreButton="False" ShowMinButton="False"
                       PreviewKeyDown="Window_PreviewKeyDown" MouseEnter="MetroWindow_MouseEnter" MouseLeave="MetroWindow_MouseLeave"
-                      Closed="Window_Closed" ResizeMode="NoResize" Title="Форматки"
+                      Closed="Window_Closed" ResizeMode="NoResize" 
                       WindowStartupLocation="CenterScreen" ShowTitleBar="False"
                       Loaded="Window_Loaded" UseLayoutRounding="True" MouseLeftButtonDown="MpFormats_OnMouseLeftButtonDown">
     <Window.Resources>
@@ -20,24 +20,25 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/ModPlusAPI;component/Windows/WinResources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Canvas x:Key="mp_arrow_down" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+            <Canvas x:Key="MpArrowDown" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
                 <Path Width="28" Height="39.25" Canvas.Left="24" Canvas.Top="19.0002" Stretch="Fill" Fill="Black" Data="F1 M 42,19.0002L 34,19.0002L 34,43.7502L 24,33.7502L 24,44.2502L 38,58.2502L 52,44.2502L 52,33.7502L 42,43.7502L 42,19.0002 Z "/>
             </Canvas>
-            <Canvas x:Key="mp_arrow_left" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+            <Canvas x:Key="MpArrowLeft" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
                 <Path Width="39.25" Height="28" Canvas.Left="17.75" Canvas.Top="24" Stretch="Fill" Fill="Black" Data="F1 M 57,42L 57,34L 32.25,34L 42.25,24L 31.75,24L 17.75,38L 31.75,52L 42.25,52L 32.25,42L 57,42 Z "/>
             </Canvas>
-            <Canvas x:Key="mp_arrow_right" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+            <Canvas x:Key="MpArrowRight" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
                 <Path Width="39.25" Height="28" Canvas.Left="19.0002" Canvas.Top="24" Stretch="Fill" Fill="Black" Data="F1 M 19.0002,34L 19.0002,42L 43.7502,42L 33.7502,52L 44.2502,52L 58.2502,38L 44.2502,24L 33.7502,24L 43.7502,34L 19.0002,34 Z "/>
             </Canvas>
-            <Canvas x:Key="mp_arrow_up" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+            <Canvas x:Key="MpArrowUp" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
                 <Path Width="28" Height="39.25" Canvas.Left="24" Canvas.Top="17.75" Stretch="Fill" Fill="Black" Data="F1 M 34,57L 42,57L 42,32.25L 52,42.25L 52,31.75L 38,17.75L 24,31.75L 24,42.25L 34,32.25L 34,57 Z "/>
             </Canvas>
-            <Canvas x:Key="mp_edit_box" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+            <Canvas x:Key="MpEditBox" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
                 <Path Width="38.0251" Height="38.0251" Canvas.Left="19" Canvas.Top="18.9749" Stretch="Fill" Fill="Black" Data="F1 M 54.6818,20.1053L 55.8947,21.3182C 57.4019,22.8254 57.4019,25.2691 55.8947,26.7763L 53.7721,28.8989L 47.1011,22.2279L 49.2237,20.1053C 50.7309,18.5981 53.1746,18.5981 54.6818,20.1053 Z M 36.1848,46.4862L 29.5138,39.8152L 45.8881,23.4408L 52.5592,30.1119L 36.1848,46.4862 Z M 28.9073,42.241L 33.759,47.0927L 27.0251,48.9749L 28.9073,42.241 Z M 19,57L 19,25L 40.8063,25L 36.8063,29L 23,29L 23,53L 53,53L 53,32.6912L 57,28.6911L 57,57L 19,57 Z "/>
             </Canvas>
-            <Canvas x:Key="appbar_folder_open" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
+            <Canvas x:Key="AppbarFolderOpen" Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0">
                 <Path Width="44" Height="26" Canvas.Left="19" Canvas.Top="24" Stretch="Fill" Fill="Black" Data="F1 M 19,50L 28,34L 63,34L 54,50L 19,50 Z M 19,28.0001L 35,28C 36,25 37.4999,24.0001 37.4999,24.0001L 48.75,24C 49.3023,24 50,24.6977 50,25.25L 50,28L 53.9999,28.0001L 53.9999,32L 27,32L 19,46.4L 19,28.0001 Z "/>
             </Canvas>
+            <XmlDataProvider x:Key="Lang" Source="E:/ModPlus/Languages/en-US.xml" XPath="ModPlus/mpFormats"></XmlDataProvider>
         </ResourceDictionary>
     </Window.Resources>
     <controls:MetroWindow.RightWindowCommands>
@@ -47,21 +48,24 @@
                     <StackPanel Orientation="Horizontal">
                         <Image Source="Resources/Flags/russia_thin_rectangular_icon_64.png" 
                                            Width="16" Height="16" Stretch="Fill" Margin="2"></Image>
-                        <TextBlock Margin="10,2,2,2" Text="Россия" VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"></TextBlock>
+                        <TextBlock Margin="10,2,2,2" Text="{Binding Source={StaticResource Lang}, XPath=h1}" 
+                                   VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"></TextBlock>
                     </StackPanel>
                 </ComboBoxItem>
                 <ComboBoxItem Tag="UA">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="Resources/Flags/ukraine_thin_rectangular_icon_64.png" 
                                            Width="16" Height="16" Stretch="Fill" Margin="2"></Image>
-                        <TextBlock Margin="10,2,2,2" Text="Украина" VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"></TextBlock>
+                        <TextBlock Margin="10,2,2,2" Text="{Binding Source={StaticResource Lang}, XPath=h2}"
+                                   VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"></TextBlock>
                     </StackPanel>
                 </ComboBoxItem>
                 <ComboBoxItem Tag="BY">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="Resources/Flags/belarus_thin_rectangular_icon_64.png" 
                                            Width="16" Height="16" Stretch="Fill" Margin="2"></Image>
-                        <TextBlock Margin="10,2,2,2" Text="Беларусь" VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"></TextBlock>
+                        <TextBlock Margin="10,2,2,2" Text="{Binding Source={StaticResource Lang}, XPath=h3}"
+                                   VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}"></TextBlock>
                     </StackPanel>
                 </ComboBoxItem>
             </ComboBox>
@@ -72,7 +76,7 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <Label FontSize="16" Grid.Row="0">ФОРМАТКИ</Label>
+        <TextBlock FontSize="16" Grid.Row="0" Margin="0,0,20,5" Text="{Binding Source={StaticResource Lang}, XPath=h4}"></TextBlock>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -88,7 +92,8 @@
             <!--Выбор формата-->
             <TabControl Grid.Column="0" Grid.Row="0" Name="Tabs" Height="126" Width="324"
                         SelectionChanged="MainTab_OnSelectionChanged">
-                <TabItem Header="ГОСТ 2.301-68" controls:ControlsHelper.HeaderFontSize="20">
+                <TabItem Header="{Binding Source={StaticResource Lang}, XPath=h5}"
+                         controls:ControlsHelper.HeaderFontSize="20">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -102,7 +107,7 @@
                         </Grid.RowDefinitions>
                         <!--Формат/кратность-->
                         <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
-                            <TextBlock Margin="2">Формат/кратность</TextBlock>
+                            <TextBlock Margin="2" Text="{Binding Source={StaticResource Lang}, XPath=h6}"></TextBlock>
                             <StackPanel Orientation="Vertical">
                                 <ComboBox Margin="2" Name="CbFormat" MinWidth="50"
                                           VerticalAlignment="Center"
@@ -114,38 +119,36 @@
                                     <ComboBoxItem Content="A4" />
                                     <ComboBoxItem Content="A5" />
                                 </ComboBox>
-                                <ComboBox Margin="2" Name="CbMultiplicity" MinWidth="50"
-                                          VerticalAlignment="Center"/>
+                                <ComboBox Margin="2" Name="CbMultiplicity" MinWidth="50" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
 
                         <!--Ориентация листа-->
                         <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Vertical">
-                            <TextBlock Margin="2">Ориентация листа</TextBlock>
+                            <TextBlock Margin="2" Text="{Binding Source={StaticResource Lang}, XPath=h7}"></TextBlock>
                             <StackPanel Orientation="Vertical">
-                                <RadioButton Content="Альбомный"
-                                             Margin="2" Name="RbHorizontal" IsChecked="True" 
-                                             />
-                                <RadioButton Content="Книжный"
-                                             Margin="2" Name="RbVertical"
-                                             />
+                                <RadioButton Content="{Binding Source={StaticResource Lang}, XPath=h8}"
+                                             Margin="2" Name="RbHorizontal" IsChecked="True" />
+                                <RadioButton Content="{Binding Source={StaticResource Lang}, XPath=h9}"
+                                             Margin="2" Name="RbVertical"/>
                             </StackPanel>
                         </StackPanel>
 
                         <!--Сторона кратности-->
                         <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Vertical">
-                            <TextBlock Margin="2">Сторона кратности</TextBlock>
+                            <TextBlock Margin="2" Text="{Binding Source={StaticResource Lang}, XPath=h10}"></TextBlock>
                             <StackPanel Orientation="Vertical">
-                                <RadioButton Content="Короткая"
+                                <RadioButton Content="{Binding Source={StaticResource Lang}, XPath=h11}"
                                              Margin="2" Name="RbShort" IsChecked="True" />
-                                <RadioButton Content="Длинная"
+                                <RadioButton Content="{Binding Source={StaticResource Lang}, XPath=h12}"
                                              Margin="2" Name="RbLong" />
                             </StackPanel>
                         </StackPanel>
 
                     </Grid>
                 </TabItem>
-                <TabItem Header="Ручной ввод" controls:ControlsHelper.HeaderFontSize="20">
+                <TabItem Header="{Binding Source={StaticResource Lang}, XPath=h13}"
+                         controls:ControlsHelper.HeaderFontSize="20">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -158,7 +161,7 @@
                             <RowDefinition Height="Auto"></RowDefinition>
                         </Grid.RowDefinitions>
                         <!--Длина-->
-                        <TextBlock Text="Длина форматки, мм"
+                        <TextBlock Text="{Binding Source={StaticResource Lang}, XPath=h14}"
                                Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"></TextBlock>
                         <TextBox Name="TbFormatLength" MinWidth="100" MaxWidth="250" Margin="2"
                              TextWrapping="Wrap" Grid.Column="1" Grid.Row="0"
@@ -167,7 +170,7 @@
                              controls:TextBoxHelper.ClearTextButton="True"
                              VerticalAlignment="Center"></TextBox>
                         <!--Высота-->
-                        <TextBlock Text="Высота форматки, мм"
+                        <TextBlock Text="{Binding Source={StaticResource Lang}, XPath=h15}"
                                Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" ></TextBlock>
                         <TextBox Name="TbFormatHeight" MinWidth="100" MaxWidth="250" Margin="2"
                              TextWrapping="Wrap" Grid.Column="1" Grid.Row="1"
@@ -190,24 +193,25 @@
                     <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
 
-                <CheckBox Content="&quot;Копировал&quot;" Grid.Column="0" Grid.Row="0" Margin="2" Name="ChbCopy" />
+                <CheckBox Content="{Binding Source={StaticResource Lang}, XPath=h16}"
+                          Grid.Column="0" Grid.Row="0" Margin="2" Name="ChbCopy" />
                 <!--Нижняя рамка-->
                 <StackPanel Orientation="Horizontal" Name="PanelBottomFrame" Visibility="Visible" Grid.Column="0"
                             HorizontalAlignment="Left" Grid.Row="1" Grid.ColumnSpan="2">
-                    <TextBlock Margin="2" VerticalAlignment="Center">Нижняя рамка:</TextBlock>
+                    <TextBlock Margin="2" VerticalAlignment="Center" Text="{Binding Source={StaticResource Lang}, XPath=h17}"></TextBlock>
                     <ComboBox Name="CbBottomFrame" MinWidth="50" Height="23" Margin="2"
                               SelectionChanged="CbBottomFrame_OnSelectionChanged">
-                        <ComboBoxItem Content="5мм" />
-                        <ComboBoxItem Content="10мм" />
+                        <ComboBoxItem Content="{Binding Source={StaticResource Lang}, XPath=h18}" />
+                        <ComboBoxItem Content="{Binding Source={StaticResource Lang}, XPath=h19}" />
                     </ComboBox>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right">
-                    <TextBlock Text="Текстовый стиль:" HorizontalAlignment="Left"
+                    <TextBlock Text="{Binding Source={StaticResource Lang}, XPath=h20}" HorizontalAlignment="Left"
                                    Margin="2" VerticalAlignment="Center"></TextBlock>
                     <ComboBox Name="CbTextStyle" MinWidth="120" Margin="2" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2">
-                    <TextBlock Text="Масштаб форматки:"
+                    <TextBlock Text="{Binding Source={StaticResource Lang}, XPath=h21}"
                                        Margin="2" VerticalAlignment="Center"></TextBlock>
                     <ComboBox MinWidth="40" Margin="2" Name="CbScales" VerticalAlignment="Center"></ComboBox>
                 </StackPanel>
@@ -232,7 +236,7 @@
                     <RowDefinition Height="Auto"></RowDefinition>
                     <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Штамп:</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="{Binding Source={StaticResource Lang}, XPath=h22}"></TextBlock>
                 <ComboBox Name="CbTables" Grid.Column="1" Grid.ColumnSpan="4" Grid.Row="0" VerticalAlignment="Center" Margin="2"
                           SelectionChanged="CbTables_SelectionChanged" Width="374" Height="72">
                     <ComboBox.ItemContainerStyle>
@@ -249,15 +253,15 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="{Binding Name}" TextWrapping="Wrap" FontWeight="SemiBold"
                                            Grid.Row="0" Width="500"></TextBlock>
-                                <TextBlock Text="{ Binding Description}" Grid.Row="1" Margin="10,2,2,2"></TextBlock>
+                                <TextBlock Text="{Binding Description}" Grid.Row="1" Margin="10,2,2,2"></TextBlock>
                             </Grid>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <CheckBox Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" VerticalAlignment="Center" Margin="2" Name="ChbHasFields" Padding="0"
-                          ToolTip="Использовать поля">Использовать поля</CheckBox>
+                          Content="{Binding Source={StaticResource Lang}, XPath=h23}"></CheckBox>
                 <Button Name="BtFields" Padding="0" HorizontalAlignment="Right" Margin="2"
-                        Grid.Column="4" Grid.Row="1" ToolTip="Запуск функции Поля" Click="BtFields_Click"
+                        Grid.Column="4" Grid.Row="1" ToolTip="{Binding Source={StaticResource Lang}, XPath=h24}" Click="BtFields_Click"
                         Background="Transparent" VerticalAlignment="Center">
                     <Border CornerRadius="3" BorderBrush="Black">
                         <Image Source="Resources/MpStampFields_32x32.png" Stretch="Fill"
@@ -265,7 +269,8 @@
                     </Border>
                 </Button>
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"
-                           Margin="1" VerticalAlignment="Center">Основная высота текста:</TextBlock>
+                           Margin="1" VerticalAlignment="Center"
+                           Text="{Binding Source={StaticResource Lang}, XPath=h25}"></TextBlock>
                 <TextBox VerticalAlignment="Center" Margin="1" Width="50"
                          Grid.Column="2" Grid.Row="2"
                          MaxLength="5" Name="TbMainTextHeight"
@@ -273,7 +278,8 @@
                          PreviewTextInput="Tb_OnlyNums_NoMinus_OnPreviewTextInput"
                          >2.5</TextBox>
                 <TextBlock Grid.Column="3" Grid.Row="2"
-                           Margin="1" VerticalAlignment="Center">Дополнительная высота текста:</TextBlock>
+                           Margin="1" VerticalAlignment="Center"
+                           Text="{Binding Source={StaticResource Lang}, XPath=h26}"></TextBlock>
                 <TextBox VerticalAlignment="Center" Margin="1" Width="50"
                          Grid.Column="4" Grid.Row="2"
                          MaxLength="5" Name="TbBigTextHeight"
@@ -291,37 +297,38 @@
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Логотип" FontWeight="SemiBold"
-                                       Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
-                                       Margin="1" VerticalAlignment="Center"></TextBlock>
+                    <TextBlock Text="{Binding Source={StaticResource Lang}, XPath=h27}" FontWeight="SemiBold"
+                               Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
+                               Margin="1" VerticalAlignment="Center"></TextBlock>
                     <CheckBox Grid.Column="0" Grid.Row="1" Margin="1"
-                                      Checked="ChkLogoFromBlock_OnChecked"
-                                      Unchecked="ChkLogoFromBlock_OnUnchecked"
-                                      Name="ChkLogoFromBlock" Content="из блока:"></CheckBox>
+                              Checked="ChkLogoFromBlock_OnChecked"
+                              Unchecked="ChkLogoFromBlock_OnUnchecked"
+                              Name="ChkLogoFromBlock" Content="{Binding Source={StaticResource Lang}, XPath=h28}"></CheckBox>
                     <ComboBox Name="CbLogo" MinWidth="120" Margin="1" VerticalAlignment="Center"
-                                      Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"/>
+                              Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"/>
                     <CheckBox Grid.Column="0" Grid.Row="2" Margin="1"
-                                      Checked="ChkLogoFromFile_OnChecked"
-                                      Unchecked="ChkLogoFromFile_OnUnchecked"
-                                      Name="ChkLogoFromFile" Content="из файла:"></CheckBox>
+                              Checked="ChkLogoFromFile_OnChecked"
+                              Unchecked="ChkLogoFromFile_OnUnchecked"
+                              Name="ChkLogoFromFile" Content="{Binding Source={StaticResource Lang}, XPath=h29}"></CheckBox>
                     <TextBox Grid.Column="1" Grid.Row="2" Margin="1" Width="310"
-                                     Name="TbLogoFile"
-                                     ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
-                                     IsReadOnly="True" controls:TextBoxHelper.ClearTextButton="True" ></TextBox>
+                             Name="TbLogoFile"
+                             ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                             IsReadOnly="True" controls:TextBoxHelper.ClearTextButton="True" ></TextBox>
                     <Button Grid.Row="2" Grid.Column="2"
-                                    Name="BtGetFileForLogo" Click="BtGetFileForLogo_OnClick"
-                                    Margin="1" Padding="2" ToolTip="Указать dwg-файл в качестве логотипа">
+                            Name="BtGetFileForLogo" Click="BtGetFileForLogo_OnClick"
+                            Margin="1" Padding="2" ToolTip="{Binding Source={StaticResource Lang}, XPath=h30}">
                         <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
                             <Rectangle.OpacityMask>
                                 <VisualBrush Stretch="Uniform"
-                                                 Visual="{StaticResource appbar_folder_open}"></VisualBrush>
+                                             Visual="{StaticResource AppbarFolderOpen}"></VisualBrush>
                             </Rectangle.OpacityMask>
                         </Rectangle>
                     </Button>
                 </Grid>
                 <GridSplitter Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5"
                               HorizontalAlignment="Stretch" Margin="2"
-                              BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="0,1,0,0"></GridSplitter>
+                              BorderBrush="{DynamicResource AccentColorBrush}" 
+                              BorderThickness="0,1,0,0"></GridSplitter>
                 <!--Должности-->
                 <Grid Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="5">
                     <Grid.ColumnDefinitions>
@@ -336,58 +343,57 @@
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
+                                HorizontalAlignment="Center">
                         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Text="Должности" Margin="2"></TextBlock>
+                                   Text="{Binding Source={StaticResource Lang}, XPath=h31}" Margin="2"></TextBlock>
                         <Button Margin="2" Name="BtAddUserSurname" Padding="2"
-                                    ToolTip="Редактировать список пользовательских должностей"
-                                    Click="BtAddUserSurname_OnClick"
-                                    >
+                                ToolTip="{Binding Source={StaticResource Lang}, XPath=h32}"
+                                Click="BtAddUserSurname_OnClick">
                             <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
                                 <Rectangle.OpacityMask>
                                     <VisualBrush Stretch="Uniform"
-                                                 Visual="{StaticResource mp_edit_box}"></VisualBrush>
+                                                 Visual="{StaticResource MpEditBox}"></VisualBrush>
                                 </Rectangle.OpacityMask>
                             </Rectangle>
                         </Button>
                     </StackPanel>
                     <ListBox Name="LbSurnames" MaxWidth="150" Height="148" MinWidth="120"
-                                 MinHeight="20"
-                                 VerticalAlignment="Top" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2"
-                                 BorderThickness="1" BorderBrush="{DynamicResource AccentColorBrush}"
-                                 SelectionChanged="LbSurnames_SelectionChanged" SelectionMode="Single">
+                             MinHeight="20"
+                             VerticalAlignment="Top" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2"
+                             BorderThickness="1" BorderBrush="{DynamicResource AccentColorBrush}"
+                             SelectionChanged="LbSurnames_SelectionChanged" SelectionMode="Single">
                     </ListBox>
                     <Button VerticalAlignment="Center" Margin="2" IsEnabled="False" Name="BtAddSurname"
                                 Grid.Column="1" Grid.Row="1" Padding="5"
-                                ToolTip="Добавить должность в штамп"
+                                ToolTip="{Binding Source={StaticResource Lang}, XPath=h33}"
                                 Click="BtAddSurname_Click">
                         <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
                             <Rectangle.OpacityMask>
                                 <VisualBrush Stretch="Uniform"
-                                                 Visual="{StaticResource mp_arrow_right}"></VisualBrush>
+                                             Visual="{StaticResource MpArrowRight}"></VisualBrush>
                             </Rectangle.OpacityMask>
                         </Rectangle>
                     </Button>
                     <Button VerticalAlignment="Top" Margin="2" IsEnabled="False" Name="BtRemoveSurname"
                                 Grid.Column="1" Grid.Row="2" Padding="5"
-                                ToolTip="Удалить должность из штампа"
+                                ToolTip="{Binding Source={StaticResource Lang}, XPath=h34}"
                                 Click="BtRemoveSurname_Click">
                         <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
                             <Rectangle.OpacityMask>
                                 <VisualBrush Stretch="Uniform"
-                                                 Visual="{StaticResource mp_arrow_left}"></VisualBrush>
+                                             Visual="{StaticResource MpArrowLeft}"></VisualBrush>
                             </Rectangle.OpacityMask>
                         </Rectangle>
                     </Button>
                     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Grid.Column="2" Grid.Row="0"
-                                   Text="Должности в штампе"></TextBlock>
+                               Grid.Column="2" Grid.Row="0"
+                               Text="{Binding Source={StaticResource Lang}, XPath=h35}"></TextBlock>
                     <ListBox MaxWidth="150" Name="LbStampSurnames"
-                                 Grid.Column="2" Grid.Row="1" Grid.RowSpan="2"
-                                 MinWidth="120" Height="148" MinHeight="20"
-                                 BorderThickness="1,0,1,1" VerticalAlignment="Top"
-                                 BorderBrush="{DynamicResource AccentColorBrush}"
-                                 SelectionChanged="LbStampSurnames_SelectionChanged" SelectionMode="Single">
+                             Grid.Column="2" Grid.Row="1" Grid.RowSpan="2"
+                             MinWidth="120" Height="148" MinHeight="20"
+                             BorderThickness="1,0,1,1" VerticalAlignment="Top"
+                             BorderBrush="{DynamicResource AccentColorBrush}"
+                             SelectionChanged="LbStampSurnames_SelectionChanged" SelectionMode="Single">
                         <ListBox.ItemContainerStyle>
                             <Style>
                                 <Setter Property="ListBoxItem.BorderThickness" Value="0,1,0,0"></Setter>
@@ -397,24 +403,24 @@
                     </ListBox>
 
                     <Button VerticalAlignment="Center" Margin="2" IsEnabled="False" Name="BtUpSurname"
-                                Grid.Column="3" Grid.Row="1" Padding="5"
-                                ToolTip="Поднять должность на одну строку вверх"
-                                Click="BtUpSurname_Click">
+                            Grid.Column="3" Grid.Row="1" Padding="5"
+                            ToolTip="{Binding Source={StaticResource Lang}, XPath=h36}"
+                            Click="BtUpSurname_Click">
                         <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
                             <Rectangle.OpacityMask>
                                 <VisualBrush Stretch="Uniform"
-                                                 Visual="{StaticResource mp_arrow_up}"></VisualBrush>
+                                             Visual="{StaticResource MpArrowUp}"></VisualBrush>
                             </Rectangle.OpacityMask>
                         </Rectangle>
                     </Button>
                     <Button VerticalAlignment="Top" Margin="2" IsEnabled="False" Name="BtDownSurename"
-                                Grid.Column="3" Grid.Row="2" Padding="5"
-                                ToolTip="Опустить должность на одну строку вниз"
-                                Click="BtDownSurename_Click">
+                            Grid.Column="3" Grid.Row="2" Padding="5"
+                            ToolTip="{Binding Source={StaticResource Lang}, XPath=h37}"
+                            Click="BtDownSurename_Click">
                         <Rectangle Width="20" Height="20" Fill="{DynamicResource AccentColorBrush}">
                             <Rectangle.OpacityMask>
                                 <VisualBrush Stretch="Uniform"
-                                                 Visual="{StaticResource mp_arrow_down}"></VisualBrush>
+                                             Visual="{StaticResource MpArrowDown}"></VisualBrush>
                             </Rectangle.OpacityMask>
                         </Rectangle>
                     </Button>
@@ -459,7 +465,7 @@
                           Unchecked="ChkStamp_OnUnchecked"></CheckBox>
                 <TextBlock Name="TbFormatSize" HorizontalAlignment="Center" VerticalAlignment="Center"
                            FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource AccentColorBrush2}"
-                           ToolTip="Длина форматки (мм) х Высота форматки (мм)"
+                           ToolTip="{Binding Source={StaticResource Lang}, XPath=h38}"
                            ></TextBlock>
                 
             </Grid>
@@ -471,13 +477,13 @@
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <Button Content="Вставить" Name="BtAdd" Width="102"
+                <Button Content="{Binding Source={StaticResource Lang}, XPath=h39}" Name="BtAdd" Width="102"
                     HorizontalAlignment="Left"
                     Margin="2" Click="BtAdd_Click" Grid.Column="0"/>
-                <Button Content="Заменить" Name="BtReplace"  Width="102"
+                <Button Content="{Binding Source={StaticResource Lang}, XPath=h40}" Name="BtReplace"  Width="102"
                     HorizontalAlignment="Center"
                     Margin="2" Click="BtReplace_Click" Grid.Column="1"/>
-                <Button Content="Создать лист" Name="BtCreateLayout" Width="102"
+                <Button Content="{Binding Source={StaticResource Lang}, XPath=h41}" Name="BtCreateLayout" Width="102"
                     HorizontalAlignment="Right"
                     Margin="2" Click="BtCreateLayout_Click" Grid.Column="2" />
             </Grid>

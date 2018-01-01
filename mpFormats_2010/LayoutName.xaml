@@ -6,10 +6,9 @@
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                       SizeToContent="WidthAndHeight" ShowTitleBar="False"
-                      ShowMaxRestoreButton="False" ShowMinButton="False" Title="Имя нового листа"
+                      ShowMaxRestoreButton="False" ShowMinButton="False" 
                       WindowStartupLocation="CenterScreen"
-                      ResizeMode="NoResize"
-                      >
+                      ResizeMode="NoResize">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -21,6 +20,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/ModPlusAPI;component/Windows/WinResources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <XmlDataProvider x:Key="Lang" Source="E:/ModPlus/Languages/en-US.xml" XPath="ModPlus/mpFormats"></XmlDataProvider>
         </ResourceDictionary>
     </Window.Resources>
     <Grid Margin="5">
@@ -28,7 +28,7 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <Label FontSize="16" Grid.Row="0">ИМЯ НОВОГО ЛИСТА</Label>
+        <TextBlock FontSize="16" Grid.Row="0" Margin="0,0,20,5" Text="{Binding Source={StaticResource Lang}, XPath=h42}"></TextBlock>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -48,20 +48,26 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="2">Добавить в штамп:</TextBlock>
-                <CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,2,2,2" Content="Имя листа"
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="2" 
+                           Text="{Binding Source={StaticResource Lang}, XPath=h43}"></TextBlock>
+                <CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,2,2,2" 
+                          Content="{Binding Source={StaticResource Lang}, XPath=h44}"
                           Name="ChkAddNameToStamp"></CheckBox>
-                <CheckBox Grid.Row="2" Grid.Column="0" Margin="10,2,2,2" Content="Номер листа" VerticalAlignment="Center" Name="ChkLNumber"
+                <CheckBox Grid.Row="2" Grid.Column="0" Margin="10,2,2,2" 
+                          Content="{Binding Source={StaticResource Lang}, XPath=h45}"
+                          VerticalAlignment="Center" Name="ChkLNumber"
                           Checked="ChkLNumber_OnChecked" Unchecked="ChkLNumber_OnUnchecked"></CheckBox>
                 <TextBox Grid.Row="2" Grid.Column="1" Margin="2" VerticalAlignment="Center" Width="100" MaxLength="4"
                          Name="TbLNumber" IsEnabled="False"></TextBox>
                 <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="2"
-                          Name="ChkLayoutScaleOneToOne"
-                          ToolTip="Если снять галочку, то масштаб форматки будет соответствовать масштабу, указанному в основном окне функции">Масштаб 1:1</CheckBox>
+                          Name="ChkLayoutScaleOneToOne" Content="{Binding Source={StaticResource Lang}, XPath=h46}"
+                          ToolTip="{Binding Source={StaticResource Lang}, XPath=h47}"
+                          ToolTipService.ShowDuration="0"></CheckBox>
             </Grid>
             <Button Name="BtAccept" Margin="2" Grid.Row="2" VerticalAlignment="Center"
                     HorizontalAlignment="Center"
-                    Click="BtAccept_OnClick">Принять</Button>
+                    Click="BtAccept_OnClick"
+                    Content="{Binding Source={StaticResource Lang}, XPath=accept}"></Button>
         </Grid>
     </Grid>
 </controls:MetroWindow>
