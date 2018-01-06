@@ -54,13 +54,6 @@
                   VerticalScrollBarVisibility="Auto" SelectionChanged="DgSurnames_OnSelectionChanged"
                       BorderThickness="1" BorderBrush="{DynamicResource AccentColorBrush}">
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="Id">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=Attribute[Id].Value}"></TextBlock>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="{Binding Source={StaticResource Lang}, XPath=h49}" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
