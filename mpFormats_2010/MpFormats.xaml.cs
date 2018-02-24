@@ -23,7 +23,6 @@ using Autodesk.AutoCAD.Runtime;
 using Autodesk.AutoCAD.Windows;
 using ModPlusAPI;
 using ModPlusAPI.Windows;
-using ModPlusAPI.Windows.Helpers;
 using Visibility = System.Windows.Visibility;
 
 namespace mpFormats
@@ -49,7 +48,7 @@ namespace mpFormats
         public MpFormats()
         {
             InitializeComponent();
-            this.OnWindowStartUp();
+            Title = ModPlusAPI.Language.GetItem(LangItem, "h4");
             // Настройки видимости для штампа отключаем тут, чтобы видеть в редакторе окна
             GridStamp.Visibility = //DpSurenames.Visibility = //TbLogo.Visibility =
             CbLogo.Visibility = GridSplitterStamp.Visibility = Visibility.Collapsed;

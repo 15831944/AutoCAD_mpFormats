@@ -8,7 +8,6 @@ using System.Windows.Input;
 using System.Xml.Linq;
 using ModPlusAPI;
 using ModPlusAPI.Windows;
-using ModPlusAPI.Windows.Helpers;
 
 namespace mpFormats
 {
@@ -27,7 +26,7 @@ namespace mpFormats
         {
 
             InitializeComponent();
-            this.OnWindowStartUp();
+            Title = ModPlusAPI.Language.GetItem(LangItem, "h31");
         }
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {

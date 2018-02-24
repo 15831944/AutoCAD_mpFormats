@@ -4,21 +4,21 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using ModPlusAPI.Windows;
-using ModPlusAPI.Windows.Helpers;
 
 namespace mpFormats
 {
     public partial class LayoutName
     {
         private const string LangItem = "mpFormats";
-        readonly List<string> _wrongSymbols = new List<string>
+
+        private readonly List<string> _wrongSymbols = new List<string>
         {
             ">","<","/","\\","\"",":",";","?","*","|",",","=","`"
         };
         public LayoutName(string layOutName)
         {
             InitializeComponent();
-            this.OnWindowStartUp();
+            Title = ModPlusAPI.Language.GetItem(LangItem, "h42");
             TbLayoutName.Text = layOutName;
         }
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
