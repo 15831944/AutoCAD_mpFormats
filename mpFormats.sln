@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpFormats_2010", "mpFormats_2010\mpFormats_2010.csproj", "{918FB645-AF8F-40AA-A8D4-3216FDDF817E}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpFormats_2017", "mpFormats_2017\mpFormats_2017.csproj", "{8E1552A1-CC85-4B77-BAEC-C9DCE01E4AA1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpFormats_2018", "mpFormats_2018\mpFormats_2018.csproj", "{D9D8941A-F937-4143-8157-D9CB713DC83E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpFormats_2019", "mpFormats_2019\mpFormats_2019.csproj", "{B6476510-6443-46E3-950E-F6580E49D586}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,8 +65,15 @@ Global
 		{D9D8941A-F937-4143-8157-D9CB713DC83E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9D8941A-F937-4143-8157-D9CB713DC83E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9D8941A-F937-4143-8157-D9CB713DC83E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6476510-6443-46E3-950E-F6580E49D586}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6476510-6443-46E3-950E-F6580E49D586}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6476510-6443-46E3-950E-F6580E49D586}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6476510-6443-46E3-950E-F6580E49D586}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EF0772D1-2124-4B83-873A-8C25F5B42521}
 	EndGlobalSection
 EndGlobal

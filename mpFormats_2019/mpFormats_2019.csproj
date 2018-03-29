@@ -1,44 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F120F1E7-CCEF-48B9-9745-4ABD4FA2EC2C}</ProjectGuid>
+    <ProjectGuid>{B6476510-6443-46E3-950E-F6580E49D586}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>mpFormats</RootNamespace>
-    <AssemblyName>mpFormats_2012</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <AssemblyName>mpFormats_2019</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\..\..\..\..\..\ModPlus\Functions\mpFormats\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;ac2010</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;ac2013</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\..\..\..\..\..\ModPlus\Functions\mpFormats\</OutputPath>
-    <DefineConstants>TRACE;ac2010</DefineConstants>
+    <DefineConstants>TRACE;ac2013</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="accoremgd">
+      <HintPath>..\..\..\..\_Acad dlls\2019\accoremgd.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="acdbmgd">
-      <HintPath>..\..\..\..\_Acad dlls\2012\acdbmgd.dll</HintPath>
+      <HintPath>..\..\..\..\_Acad dlls\2019\acdbmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="acmgd">
-      <HintPath>..\..\..\..\_Acad dlls\2012\acmgd.dll</HintPath>
+      <HintPath>..\..\..\..\_Acad dlls\2019\acmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MahApps.Metro">
@@ -49,8 +50,8 @@
       <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlusAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ModPlus_2012">
-      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlus_2012.dll</HintPath>
+    <Reference Include="ModPlus_2019">
+      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlus_2019.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
@@ -61,7 +62,10 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -93,24 +97,18 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="..\mpFormats_2010\EditUserSurnames.xaml">
-      <Link>EditUserSurnames.xaml</Link>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="..\mpFormats_2010\LayoutName.xaml">
-      <Link>LayoutName.xaml</Link>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="..\mpFormats_2010\MpFormats.xaml">
-      <Link>MpFormats.xaml</Link>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
+    <Resource Include="Resources\Stamps.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Stamps.xml" />
+    <Resource Include="..\mpFormats_2010\Resources\Flags\belarus_thin_rectangular_icon_64.png">
+      <Link>Resources\Flags\belarus_thin_rectangular_icon_64.png</Link>
+    </Resource>
+    <Resource Include="..\mpFormats_2010\Resources\Flags\russia_thin_rectangular_icon_64.png">
+      <Link>Resources\Flags\russia_thin_rectangular_icon_64.png</Link>
+    </Resource>
+    <Resource Include="..\mpFormats_2010\Resources\Flags\ukraine_thin_rectangular_icon_64.png">
+      <Link>Resources\Flags\ukraine_thin_rectangular_icon_64.png</Link>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="..\mpFormats_2010\Resources\Preview\b_1.png">
@@ -152,27 +150,14 @@
     <Resource Include="..\mpFormats_2010\Resources\Preview\img_3.png">
       <Link>Resources\Preview\img_3.png</Link>
     </Resource>
+    <Resource Include="..\mpFormats_2010\Resources\Preview\img_7.png">
+      <Link>Resources\Preview\img_7.png</Link>
+    </Resource>
     <Resource Include="..\mpFormats_2010\Resources\Preview\num.png">
       <Link>Resources\Preview\num.png</Link>
     </Resource>
     <Resource Include="..\mpFormats_2010\Resources\Preview\top.png">
       <Link>Resources\Preview\top.png</Link>
-    </Resource>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="..\mpFormats_2010\Resources\Preview\img_7.png">
-      <Link>Resources\Preview\img_7.png</Link>
-    </Resource>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="..\mpFormats_2010\Resources\Flags\belarus_thin_rectangular_icon_64.png">
-      <Link>Resources\Flags\belarus_thin_rectangular_icon_64.png</Link>
-    </Resource>
-    <Resource Include="..\mpFormats_2010\Resources\Flags\russia_thin_rectangular_icon_64.png">
-      <Link>Resources\Flags\russia_thin_rectangular_icon_64.png</Link>
-    </Resource>
-    <Resource Include="..\mpFormats_2010\Resources\Flags\ukraine_thin_rectangular_icon_64.png">
-      <Link>Resources\Flags\ukraine_thin_rectangular_icon_64.png</Link>
     </Resource>
   </ItemGroup>
   <ItemGroup>
@@ -186,12 +171,22 @@
       <Link>Resources\MpStampFields_32x32.png</Link>
     </Resource>
   </ItemGroup>
+  <ItemGroup>
+    <Page Include="..\mpFormats_2010\EditUserSurnames.xaml">
+      <Link>EditUserSurnames.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\mpFormats_2010\LayoutName.xaml">
+      <Link>LayoutName.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\mpFormats_2010\MpFormats.xaml">
+      <Link>MpFormats.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
