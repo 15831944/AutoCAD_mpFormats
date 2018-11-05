@@ -1,8 +1,4 @@
-﻿#if ac2010
-using AcApp = Autodesk.AutoCAD.ApplicationServices.Application;
-#elif ac2013
-using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
-#endif
+﻿using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -54,11 +50,7 @@ namespace mpFormats
             CbLogo.Visibility = GridSplitterStamp.Visibility = Visibility.Collapsed;
         }
         #region window basic
-        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-                Close();
-        }
+
         private void MetroWindow_MouseEnter(object sender, MouseEventArgs e)
         {
             Focus();
@@ -79,10 +71,6 @@ namespace mpFormats
             short val;
             if (!short.TryParse(e.Text, out val))
                 e.Handled = true;
-        }
-        private void MpFormats_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
         }
         #endregion
 
@@ -259,8 +247,10 @@ namespace mpFormats
             RbVertical.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbVertical"), out b) && b;
             RbLong.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbLong"), out b) && b;
 
-            TbFormatHeight.Text = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatHeight");
-            TbFormatLength.Text = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatLength");
+            TbFormatHeight.Value = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatHeight"), out i)
+                ? i : 10;
+            TbFormatLength.Value = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatLength"), out i)
+                ? i : 10;
             // Текстовый стиль (меняем, если есть в настройках, а иначе оставляем текущий)
             var txtstl = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbTextStyle");
             if (CbTextStyle.Items.Contains(txtstl))
@@ -317,8 +307,8 @@ namespace mpFormats
                 UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbLong",
                     (RbLong.IsChecked != null && RbLong.IsChecked.Value).ToString(), false);
 
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatHeight", TbFormatHeight.Text, false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatLength", TbFormatLength.Text, false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatHeight", TbFormatHeight.Value.ToString(), false);
+                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatLength", TbFormatLength.Value.ToString(), false);
                 // Текстовый стиль
                 UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbTextStyle", CbTextStyle.SelectedItem.ToString(), false);
                 // Логотип
@@ -463,7 +453,7 @@ namespace mpFormats
                                 // Изображение
                                 try
                                 {
-                                    var uriSource = new Uri(@"/mpFormats_" + VersionData.FuncVersion + ";component/Resources/Preview/" +
+                                    var uriSource = new Uri(@"/mpFormats_" + Interface.Instance.AvailProductExternalVersion + ";component/Resources/Preview/" +
                                         tbl.Attribute("img")?.Value + ".png", UriKind.Relative);
                                     Image_stamp.Source = new BitmapImage(uriSource);
                                 }
@@ -537,7 +527,7 @@ namespace mpFormats
         private void BtFields_Click(object sender, RoutedEventArgs e)
         {
             // Проверка полной версии
-            if (!Registration.IsFunctionBought("mpStamps", VersionData.FuncVersion))
+            if (!Registration.IsFunctionBought("mpStamps", Interface.Instance.AvailProductExternalVersion))
             {
                 ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg4"));
             }
@@ -550,7 +540,7 @@ namespace mpFormats
         private void BtAddUserSurname_OnClick(object sender, RoutedEventArgs e)
         {
             // Проверка полной версии
-            if (!Registration.IsFunctionBought("mpStamps", VersionData.FuncVersion))
+            if (!Registration.IsFunctionBought("mpStamps", Interface.Instance.AvailProductExternalVersion))
             {
                 ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg4"));
             }
@@ -801,22 +791,22 @@ namespace mpFormats
                 }
                 if (Tabs.SelectedIndex == 1)
                 {
-                    if (string.IsNullOrEmpty(TbFormatLength.Text))
+                    if (!TbFormatLength.Value.HasValue)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
-                    if (string.IsNullOrEmpty(TbFormatHeight.Text))
+                    if (!TbFormatHeight.Value.HasValue)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
-                    if (double.Parse(TbFormatLength.Text) < 30)
+                    if (TbFormatLength.Value < 30)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
-                    if (double.Parse(TbFormatHeight.Text) < 15)
+                    if (TbFormatHeight.Value < 15)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
@@ -829,8 +819,8 @@ namespace mpFormats
                         Utils.SetFocusToDwgView();
 
                         if (MpFormatsAdd.DrawBlockHand(
-                                double.Parse(TbFormatLength.Text),
-                                double.Parse(TbFormatHeight.Text),
+                                TbFormatLength.Value.Value,
+                                TbFormatHeight.Value.Value,
                                 number,
                                 ChbCopy.IsChecked != null && ChbCopy.IsChecked.Value,
                                 false,
@@ -904,22 +894,22 @@ namespace mpFormats
                 }
                 if (Tabs.SelectedIndex == 1)
                 {
-                    if (string.IsNullOrEmpty(TbFormatLength.Text))
+                    if (!TbFormatLength.Value.HasValue)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
-                    if (string.IsNullOrEmpty(TbFormatHeight.Text))
+                    if (!TbFormatHeight.Value.HasValue)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
-                    if (double.Parse(TbFormatLength.Text) < 30)
+                    if (TbFormatLength.Value < 30)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
-                    if (double.Parse(TbFormatHeight.Text) < 15)
+                    if (TbFormatHeight.Value < 15)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
@@ -933,8 +923,8 @@ namespace mpFormats
 
                         MpFormatsAdd.ReplaceBlockHand
                             (
-                                double.Parse(TbFormatLength.Text),
-                                double.Parse(TbFormatHeight.Text),
+                                TbFormatLength.Value.Value,
+                                TbFormatHeight.Value.Value,
                                 number,
                                 ChbCopy.IsChecked != null && ChbCopy.IsChecked.Value,
                                 CbTextStyle.SelectedItem.ToString(),
@@ -1012,22 +1002,22 @@ namespace mpFormats
                 }
                 if (Tabs.SelectedIndex == 1)
                 {
-                    if (string.IsNullOrEmpty(TbFormatLength.Text))
+                    if (!TbFormatLength.Value.HasValue)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
-                    if (string.IsNullOrEmpty(TbFormatHeight.Text))
+                    if (!TbFormatHeight.Value.HasValue)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
-                    if (double.Parse(TbFormatLength.Text) < 30)
+                    if (TbFormatLength.Value < 30)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
-                    if (double.Parse(TbFormatHeight.Text) < 15)
+                    if (TbFormatHeight.Value < 15)
                     {
                         ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
@@ -1042,8 +1032,8 @@ namespace mpFormats
                         Utils.SetFocusToDwgView();
 
                         if (MpFormatsAdd.DrawBlockHand(
-                                double.Parse(TbFormatLength.Text),
-                                double.Parse(TbFormatHeight.Text),
+                                TbFormatLength.Value.Value,
+                                TbFormatHeight.Value.Value,
                                 number,
                                 ChbCopy.IsChecked != null && ChbCopy.IsChecked.Value,
                                 true,
@@ -1539,7 +1529,7 @@ namespace mpFormats
             var index = cb.SelectedIndex;
             if (index == 0)
             {
-                var uriSource = new Uri(@"/mpFormats_" + VersionData.FuncVersion + ";component/Resources/Preview/F_5.png", UriKind.Relative);
+                var uriSource = new Uri(@"/mpFormats_" + Interface.Instance.AvailProductExternalVersion + ";component/Resources/Preview/F_5.png", UriKind.Relative);
                 Image_format.Source = new BitmapImage(uriSource);
 
                 Image_b1.Margin = new Thickness(5, 0, 0, 3);
@@ -1548,7 +1538,7 @@ namespace mpFormats
             }
             else
             {
-                var uriSource = new Uri(@"/mpFormats_" + VersionData.FuncVersion + ";component/Resources/Preview/F_10.png", UriKind.Relative);
+                var uriSource = new Uri(@"/mpFormats_" + Interface.Instance.AvailProductExternalVersion + ";component/Resources/Preview/F_10.png", UriKind.Relative);
                 Image_format.Source = new BitmapImage(uriSource);
 
                 Image_b1.Margin = new Thickness(5, 0, 0, 5);
@@ -1564,7 +1554,7 @@ namespace mpFormats
 
         private void ChkB1_OnUnchecked(object sender, RoutedEventArgs e)
         {
-            Image_b1.Opacity = 0.5;
+            Image_b1.Opacity = 0.3;
         }
 
         private void ChkB2_OnChecked(object sender, RoutedEventArgs e)
@@ -1574,7 +1564,7 @@ namespace mpFormats
 
         private void ChkB2_OnUnchecked(object sender, RoutedEventArgs e)
         {
-            Image_b2.Opacity = 0.5;
+            Image_b2.Opacity = 0.3;
         }
 
         private void ChkB3_OnChecked(object sender, RoutedEventArgs e)
@@ -1584,7 +1574,7 @@ namespace mpFormats
 
         private void ChkB3_OnUnchecked(object sender, RoutedEventArgs e)
         {
-            Image_top.Opacity = 0.5;
+            Image_top.Opacity = 0.3;
         }
 
         private void ChkStamp_OnChecked(object sender, RoutedEventArgs e)
@@ -1597,7 +1587,7 @@ namespace mpFormats
 
         private void ChkStamp_OnUnchecked(object sender, RoutedEventArgs e)
         {
-            Image_stamp.Opacity = 0.5;
+            Image_stamp.Opacity = 0.3;
             GridStamp.Visibility = CbDocumentsFor.Visibility =//DpSurenames.Visibility = //TbLogo.Visibility =
             CbLogo.Visibility = GridSplitterStamp.Visibility = Visibility.Collapsed;
         }

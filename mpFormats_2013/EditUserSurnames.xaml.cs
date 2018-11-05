@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Xml.Linq;
 using ModPlusAPI;
 using ModPlusAPI.Windows;
@@ -27,11 +26,6 @@ namespace mpFormats
 
             InitializeComponent();
             Title = ModPlusAPI.Language.GetItem(LangItem, "h31");
-        }
-        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-                Close();
         }
 
         // Загрузка формы
@@ -227,8 +221,10 @@ namespace mpFormats
         // Выбор позиции в списке
         private void DgSurnames_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Активируем кнопку
-            BtRemoveSurname.IsEnabled = true;
+            if (sender is ListBox lb)
+            {
+                BtRemoveSurname.IsEnabled = lb.SelectedIndex != -1;
+            }
         }
     }
 }

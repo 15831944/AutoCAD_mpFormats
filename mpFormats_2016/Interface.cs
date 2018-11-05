@@ -6,6 +6,10 @@ namespace mpFormats
 {
     public class Interface : IModPlusFunctionInterface
     {
+        private static Interface _instance;
+
+        public static Interface Instance => _instance ?? (_instance = new Interface());
+
         public SupportedProduct SupportedProduct => SupportedProduct.AutoCAD;
         public string Name => "mpFormats";
         public string AvailProductExternalVersion => "2016";
@@ -25,9 +29,5 @@ namespace mpFormats
         public List<string> SubFullDescriptions => new List<string>();
         public List<string> SubHelpImages => new List<string>();
         public List<string> SubClassNames => new List<string>();
-    }
-    public class VersionData
-    {
-        public const string FuncVersion = "2016";
     }
 }

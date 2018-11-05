@@ -1,0 +1,71 @@
+﻿<mps:ModPlusWindow x:Class="mpFormats.EditUserSurnames"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      mc:Ignorable="d" 
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:mps="https://modplus.org/winfx/xaml/controls"
+                      SizeToContent="WidthAndHeight" Loaded="Window_Loaded" 
+                      Closing="EditUserSurnames_OnClosing" ResizeMode="NoResize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ModPlusStyle;component/Styles/Controls.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <XmlDataProvider x:Key="Lang" Source="E:/ModPlus/Languages/en-US.xml" XPath="ModPlus/mpFormats" IsAsynchronous="False"></XmlDataProvider>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <!--Список фамилий-->
+        <ListBox Grid.Column="0" Grid.Row="0" Grid.RowSpan="2"
+                 Width="200" MaxHeight="200" Name="DgSurnames"
+                 SelectionMode="Single"
+                 ItemsSource="{Binding}" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 SelectionChanged="DgSurnames_OnSelectionChanged"
+                 mps:ListBoxAssist.ListBoxItemPadding="20 2 2 2">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBox Text="{Binding Path=Attribute[Surname].Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0" BorderThickness="0"></TextBox>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <!--Кнопки управления-->
+        <Button MinWidth="0" Name="BtAddSurname"
+                Style="{DynamicResource ModPlusFlatButton}"
+                Grid.Column="1" Grid.Row="0" Width="32" Height="32" Padding="0"
+                ToolTip="{Binding Source={StaticResource Lang}, XPath=h50}"
+                Click="BtAddSurname_OnClick">
+            <Viewbox Width="24" Height="24">
+                <Canvas Width="24" Height="24">
+                    <Path Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" 
+                          Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" />
+                </Canvas>
+            </Viewbox>
+        </Button>
+        <Button VerticalAlignment="Top" MinWidth="0" Name="BtRemoveSurname"
+                Style="{DynamicResource ModPlusFlatButton}"
+                Grid.Column="1" Grid.Row="1"  IsEnabled="False" 
+                Width="32" Height="32" Padding="0"
+                ToolTip="{Binding Source={StaticResource Lang}, XPath=h51}"
+                Click="BtRemoveSurname_OnClick">
+            <Viewbox Width="24" Height="24">
+                <Canvas Width="24" Height="24">
+                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
+                          Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Button}, Path=Foreground}" />
+                </Canvas>
+            </Viewbox>
+        </Button>
+    </Grid>
+</mps:ModPlusWindow>
+

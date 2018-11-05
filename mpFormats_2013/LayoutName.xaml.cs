@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Input;
 using ModPlusAPI.Windows;
 
 namespace mpFormats
@@ -20,11 +19,6 @@ namespace mpFormats
             InitializeComponent();
             Title = ModPlusAPI.Language.GetItem(LangItem, "h42");
             TbLayoutName.Text = layOutName;
-        }
-        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-                DialogResult = false;
         }
 
         private void BtAccept_OnClick(object sender, RoutedEventArgs e)
