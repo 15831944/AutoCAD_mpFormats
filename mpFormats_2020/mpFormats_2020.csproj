@@ -4,20 +4,21 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B6476510-6443-46E3-950E-F6580E49D586}</ProjectGuid>
+    <ProjectGuid>{ADAB8C8B-65C3-4CED-8824-4C950FE29A2C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>mpFormats</RootNamespace>
-    <AssemblyName>mpFormats_2019</AssemblyName>
+    <AssemblyName>mpFormats_2020</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;A2019</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;A2020</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -25,50 +26,21 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;A2019</DefineConstants>
+    <DefineConstants>TRACE;A2020</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="accoremgd">
-      <HintPath>C:\_Acad dlls\2019\accoremgd.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="acdbmgd">
-      <HintPath>C:\_Acad dlls\2019\acdbmgd.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="acmgd">
-      <HintPath>C:\_Acad dlls\2019\acmgd.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ModPlusAPI">
-      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlusAPI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ModPlusStyle">
-      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlusStyle.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ModPlus_2019">
-      <HintPath>..\..\..\..\..\..\..\ModPlus\Extensions\ModPlus_2019.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Compile Include="..\mpFormats_2013\EditUserSurnames.xaml.cs">
       <Link>EditUserSurnames.xaml.cs</Link>
@@ -90,54 +62,125 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\b_1.png">
+    <Resource Include="..\mpformats_2013\resources\flags\by-icon.png">
+      <Link>Resources\Flags\by-icon.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\flags\ru-icon.png">
+      <Link>Resources\Flags\ru-icon.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\flags\ua-icon.png">
+      <Link>Resources\Flags\ua-icon.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\mpFormats_16x16.png">
+      <Link>Resources\mpFormats_16x16.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\mpFormats_16x16_dark.png">
+      <Link>Resources\mpFormats_16x16_dark.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\mpFormats_32x32.png">
+      <Link>Resources\mpFormats_32x32.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\mpFormats_32x32_dark.png">
+      <Link>Resources\mpFormats_32x32_dark.png</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\b_1.png">
       <Link>Resources\Preview\b_1.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\b_2.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\b_2.png">
       <Link>Resources\Preview\b_2.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\F_10.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\F_10.png">
       <Link>Resources\Preview\F_10.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\F_5.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\F_5.png">
       <Link>Resources\Preview\F_5.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\img_0.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\img_0.png">
       <Link>Resources\Preview\img_0.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\img_1.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\img_1.png">
       <Link>Resources\Preview\img_1.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\img_10.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\img_10.png">
       <Link>Resources\Preview\img_10.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\img_12.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\img_12.png">
       <Link>Resources\Preview\img_12.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\img_14.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\img_14.png">
       <Link>Resources\Preview\img_14.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\img_15.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\img_15.png">
       <Link>Resources\Preview\img_15.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\img_16.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\img_16.png">
       <Link>Resources\Preview\img_16.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\img_2.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\img_2.png">
       <Link>Resources\Preview\img_2.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\img_3.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\img_3.png">
       <Link>Resources\Preview\img_3.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\img_7.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\img_7.png">
       <Link>Resources\Preview\img_7.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\num.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\num.png">
       <Link>Resources\Preview\num.png</Link>
     </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Preview\top.png">
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\mpformats_2013\resources\preview\top.png">
       <Link>Resources\Preview\top.png</Link>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\mpformats_2013\resources\Stamps.xml">
+      <Link>Resources\Stamps.xml</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Page Include="..\mpFormats_2013\EditUserSurnames.xaml">
@@ -155,37 +198,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="..\mpFormats_2013\Resources\Stamps.xml">
-      <Link>Resources\Stamps.xml</Link>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="..\mpFormats_2013\Resources\Flags\by-icon.png">
-      <Link>Resources\Flags\by-icon.png</Link>
-    </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Flags\ru-icon.png">
-      <Link>Resources\Flags\ru-icon.png</Link>
-    </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\Flags\ua-icon.png">
-      <Link>Resources\Flags\ua-icon.png</Link>
-    </Resource>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="..\mpFormats_2013\Resources\mpFormats_16x16.png">
-      <Link>Resources\mpFormats_16x16.png</Link>
-    </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\mpFormats_16x16_dark.png">
-      <Link>Resources\mpFormats_16x16_dark.png</Link>
-    </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\mpFormats_32x32.png">
-      <Link>Resources\mpFormats_32x32.png</Link>
-    </Resource>
-    <Resource Include="..\mpFormats_2013\Resources\mpFormats_32x32_dark.png">
-      <Link>Resources\mpFormats_32x32_dark.png</Link>
-    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

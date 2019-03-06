@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpFormats_2018", "mpFormats
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpFormats_2019", "mpFormats_2019\mpFormats_2019.csproj", "{B6476510-6443-46E3-950E-F6580E49D586}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpFormats_2020", "mpFormats_2020\mpFormats_2020.csproj", "{ADAB8C8B-65C3-4CED-8824-4C950FE29A2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{B6476510-6443-46E3-950E-F6580E49D586}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6476510-6443-46E3-950E-F6580E49D586}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6476510-6443-46E3-950E-F6580E49D586}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADAB8C8B-65C3-4CED-8824-4C950FE29A2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADAB8C8B-65C3-4CED-8824-4C950FE29A2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADAB8C8B-65C3-4CED-8824-4C950FE29A2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADAB8C8B-65C3-4CED-8824-4C950FE29A2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -23,6 +23,9 @@ using Visibility = System.Windows.Visibility;
 
 namespace mpFormats
 {
+    using System.Reflection;
+    using MessageBox = ModPlusAPI.Windows.MessageBox;
+
     public partial class MpFormats
     {
         private const string LangItem = "mpFormats";
@@ -81,7 +84,7 @@ namespace mpFormats
                 var doc = AcApp.DocumentManager.MdiActiveDocument;
                 var db = doc.Database;
 
-                _xmlTblsDoc = XElement.Parse(Properties.Resources.Stamps);
+                _xmlTblsDoc = XElement.Parse(GetResourceTextFile("Stamps.xml"));
                 // Заполнение списка масштабов
                 var ocm = db.ObjectContextManager;
                 var occ = ocm.GetContextCollection("ACDB_ANNOTATIONSCALES");
@@ -453,7 +456,7 @@ namespace mpFormats
                                 // Изображение
                                 try
                                 {
-                                    var uriSource = new Uri(@"/mpFormats_" + Interface.Instance.AvailProductExternalVersion + ";component/Resources/Preview/" +
+                                    var uriSource = new Uri(@"/mpFormats_" + ModPlusConnector.Instance.AvailProductExternalVersion + ";component/Resources/Preview/" +
                                         tbl.Attribute("img")?.Value + ".png", UriKind.Relative);
                                     Image_stamp.Source = new BitmapImage(uriSource);
                                 }
@@ -527,7 +530,7 @@ namespace mpFormats
         private void BtFields_Click(object sender, RoutedEventArgs e)
         {
             // Проверка полной версии
-            if (!Registration.IsFunctionBought("mpStamps", Interface.Instance.AvailProductExternalVersion))
+            if (!Registration.IsFunctionBought("mpStamps", ModPlusConnector.Instance.AvailProductExternalVersion))
             {
                 ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg4"));
             }
@@ -540,7 +543,7 @@ namespace mpFormats
         private void BtAddUserSurname_OnClick(object sender, RoutedEventArgs e)
         {
             // Проверка полной версии
-            if (!Registration.IsFunctionBought("mpStamps", Interface.Instance.AvailProductExternalVersion))
+            if (!Registration.IsFunctionBought("mpStamps", ModPlusConnector.Instance.AvailProductExternalVersion))
             {
                 ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg4"));
             }
@@ -1421,7 +1424,7 @@ namespace mpFormats
                 var dbsi = AcApp.DocumentManager.MdiActiveDocument.Database.SummaryInfo;
                 var dbsib = new DatabaseSummaryInfoBuilder(dbsi);
                 // База данных штампов
-                var doc = XElement.Parse(Properties.Resources.Stamps);
+                var doc = XElement.Parse(GetResourceTextFile("Stamps.xml"));
                 foreach (var xmlTbl in doc.Elements("Stamp"))
                 {
                     if (table.TableStyleName.Equals(xmlTbl.Attribute("tablestylename").Value))
@@ -1512,6 +1515,21 @@ namespace mpFormats
             }
         }
 
+        private static string GetResourceTextFile(string filename)
+        {
+            string result = string.Empty;
+
+            using (Stream stream = Assembly.GetExecutingAssembly().
+                GetManifestResourceStream("mpFormats.Resources." + filename))
+            {
+                using (StreamReader sr = new StreamReader(stream))
+                {
+                    result = sr.ReadToEnd();
+                }
+            }
+            return result;
+        }
+
         #region checkboxes
         private void ChbNumber_OnChecked(object sender, RoutedEventArgs e)
         {
@@ -1529,7 +1547,7 @@ namespace mpFormats
             var index = cb.SelectedIndex;
             if (index == 0)
             {
-                var uriSource = new Uri(@"/mpFormats_" + Interface.Instance.AvailProductExternalVersion + ";component/Resources/Preview/F_5.png", UriKind.Relative);
+                var uriSource = new Uri(@"/mpFormats_" + ModPlusConnector.Instance.AvailProductExternalVersion + ";component/Resources/Preview/F_5.png", UriKind.Relative);
                 Image_format.Source = new BitmapImage(uriSource);
 
                 Image_b1.Margin = new Thickness(5, 0, 0, 3);
@@ -1538,7 +1556,7 @@ namespace mpFormats
             }
             else
             {
-                var uriSource = new Uri(@"/mpFormats_" + Interface.Instance.AvailProductExternalVersion + ";component/Resources/Preview/F_10.png", UriKind.Relative);
+                var uriSource = new Uri(@"/mpFormats_" + ModPlusConnector.Instance.AvailProductExternalVersion + ";component/Resources/Preview/F_10.png", UriKind.Relative);
                 Image_format.Source = new BitmapImage(uriSource);
 
                 Image_b1.Margin = new Thickness(5, 0, 0, 5);
@@ -1776,7 +1794,7 @@ namespace mpFormats
         [CommandMethod("ModPlus", "mpFormats", CommandFlags.Modal)]
         public void StartMpFormats()
         {
-            Statistic.SendCommandStarting(new Interface());
+            Statistic.SendCommandStarting(new ModPlusConnector());
 
             if (_mpFormats == null)
             {
