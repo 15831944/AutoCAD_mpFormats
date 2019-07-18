@@ -103,10 +103,13 @@ namespace mpFormats
                     foreach (var id in tst)
                     {
                         var tstr = (TextStyleTableRecord)acTrans.GetObject(id, OpenMode.ForRead);
-                        CbTextStyle.Items.Add(tstr.Name);
+                        if (!string.IsNullOrEmpty(tstr.Name))
+                            CbTextStyle.Items.Add(tstr.Name);
                     }
                     var curtxt = (TextStyleTableRecord)acTrans.GetObject(db.Textstyle, OpenMode.ForRead);
-                    txtstname = curtxt.Name;
+                    if (CbTextStyle.Items.Contains(curtxt.Name))
+                        txtstname = curtxt.Name;
+                    else txtstname = CbTextStyle.Items[0].ToString();
                     acTrans.Commit();
                 }
                 CbTextStyle.SelectedItem = txtstname;
