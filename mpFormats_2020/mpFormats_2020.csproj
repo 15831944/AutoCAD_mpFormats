@@ -69,6 +69,9 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Compile Include="..\mpFormats_2013\BlockJig.cs">
+      <Link>BlockJig.cs</Link>
+    </Compile>
     <Compile Include="..\mpFormats_2013\EditUserSurnames.xaml.cs">
       <Link>EditUserSurnames.xaml.cs</Link>
       <DependentUpon>EditUserSurnames.xaml</DependentUpon>
@@ -84,8 +87,14 @@
       <Link>MpFormats.xaml.cs</Link>
       <DependentUpon>MpFormats.xaml</DependentUpon>
     </Compile>
+    <Compile Include="..\mpFormats_2013\MpFormatsAdd.cs">
+      <Link>MpFormatsAdd.cs</Link>
+    </Compile>
     <Compile Include="..\mpFormats_2013\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\mpFormats_2013\Stamp.cs">
+      <Link>Stamp.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
