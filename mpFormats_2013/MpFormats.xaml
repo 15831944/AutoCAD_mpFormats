@@ -448,17 +448,24 @@
 
         <!--Кнопки-->
         <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
+            <CheckBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3"
+                      Name="ChkSetCurrentLayer"
+                      Content="{Binding Source={StaticResource Lang}, XPath=h54}"></CheckBox>
             <Button Content="{Binding Source={StaticResource Lang}, XPath=h39}" Name="BtAdd"
-                    Click="BtAdd_Click" Grid.Column="0"/>
+                    Click="BtAdd_Click" Grid.Column="0" Grid.Row="1"/>
             <Button Content="{Binding Source={StaticResource Lang}, XPath=h40}" Name="BtReplace"
-                    Click="BtReplace_Click" Grid.Column="1"/>
+                    Click="BtReplace_Click" Grid.Column="1" Grid.Row="1"/>
             <Button Content="{Binding Source={StaticResource Lang}, XPath=h41}" Name="BtCreateLayout"
-                    Click="BtCreateLayout_Click" Grid.Column="2"/>
+                    Click="BtCreateLayout_Click" Grid.Column="2" Grid.Row="1"/>
         </Grid>
     </Grid>
 </mps:ModPlusWindow>

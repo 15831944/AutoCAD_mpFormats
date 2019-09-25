@@ -23,6 +23,11 @@ namespace mpFormats
 
         private void BtAccept_OnClick(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrEmpty(TbLayoutName.Text))
+            {
+                ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg12"), MessageBoxIcon.Alert);
+                return;
+            }
             if (_wrongSymbols.Any(wrongSymbol => TbLayoutName.Text.Contains(wrongSymbol)))
             {
                 ModPlusAPI.Windows.MessageBox.Show(

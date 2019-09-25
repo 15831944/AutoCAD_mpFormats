@@ -1,26 +1,25 @@
-﻿using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using System.Xml.Linq;
-using Autodesk.AutoCAD.DatabaseServices;
-using Autodesk.AutoCAD.Geometry;
-using Autodesk.AutoCAD.Internal;
-using Autodesk.AutoCAD.Runtime;
-using Autodesk.AutoCAD.Windows;
-using ModPlusAPI;
-using ModPlusAPI.Windows;
-using Visibility = System.Windows.Visibility;
-
-namespace mpFormats
+﻿namespace mpFormats
 {
+    using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Input;
+    using System.Windows.Media.Imaging;
+    using System.Xml.Linq;
+    using Autodesk.AutoCAD.DatabaseServices;
+    using Autodesk.AutoCAD.Geometry;
+    using Autodesk.AutoCAD.Internal;
+    using Autodesk.AutoCAD.Runtime;
+    using Autodesk.AutoCAD.Windows;
+    using ModPlusAPI;
+    using ModPlusAPI.Windows;
+    using Visibility = System.Windows.Visibility;
     using System.Reflection;
     using MessageBox = ModPlusAPI.Windows.MessageBox;
 
@@ -139,7 +138,7 @@ namespace mpFormats
                 // Проверка файла со штампами
                 if (!CheckTableFileExist())
                 {
-                    ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err5"), MessageBoxIcon.Alert);
+                    MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err5"), MessageBoxIcon.Alert);
                     // Видимость
                     GridStamp.Visibility = //DpSurenames.Visibility = //TbLogo.Visibility =
                         CbLogo.Visibility =
@@ -178,7 +177,7 @@ namespace mpFormats
             {
                 if (sender is ComboBox cb && cb.SelectedItem is ComboBoxItem && cb.SelectedIndex != -1)
                 {
-                    UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbDocumentsFor",
+                    UserConfigFile.SetValue("mpFormats", "CbDocumentsFor",
                         cb.SelectedIndex.ToString(CultureInfo.InvariantCulture), true);
 
                     switch (cb.SelectedIndex)
@@ -223,115 +222,134 @@ namespace mpFormats
             }
             return false;
         }
+
         // Загрузка из настроек
         private void LoadFromSettings()
         {
+            var li = ModPlusConnector.Instance.Name;
+
             CbDocumentsFor.SelectedIndex =
-                    int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbDocumentsFor"), out int index)
+                    int.TryParse(UserConfigFile.GetValue(li, "CbDocumentsFor"), out int index)
                         ? index
                         : 0;
             // format
-            CbFormat.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbFormat"), out int i) ? i : 3;
-            CbMultiplicity.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbMultiplicity"), out i) ? i : 0;
-            CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbBottomFrame"), out i) ? i : 0;
+            CbFormat.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbFormat"), out int i) ? i : 3;
+            CbMultiplicity.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbMultiplicity"), out i) ? i : 0;
+            CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbBottomFrame"), out i) ? i : 0;
+
             // Выбранный штамп
-            CbTables.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbTables"), out i) ? i : 0;
+            CbTables.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbTables"), out i) ? i : 0;
+
             // Масштаб
-            var scale = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbScales");
+            var scale = UserConfigFile.GetValue(li, "CbScales");
             CbScales.SelectedIndex = CbScales.Items.Contains(scale)
                 ? CbScales.Items.IndexOf(scale)
                 : 0;
-            bool b;
-            ChkB1.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB1"), out b) && b;
-            ChkB2.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB2"), out b) && b;
-            ChkB3.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB3"), out b) && b;
-            ChbCopy.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbCopy"), out b) && b;
-            ChbNumber.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbNumber"), out b) && b;
-            ChkStamp.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkStamp"), out b) && b;
-            RbVertical.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbVertical"), out b) && b;
-            RbLong.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbLong"), out b) && b;
+            ChkB1.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChkB1"), out var b) && b;
+            ChkB2.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChkB2"), out b) && b;
+            ChkB3.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChkB3"), out b) && b;
+            ChbCopy.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChbCopy"), out b) && b;
+            ChbNumber.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChbNumber"), out b) && b;
+            ChkStamp.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChkStamp"), out b) && b;
+            RbVertical.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "RbVertical"), out b) && b;
+            RbLong.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "RbLong"), out b) && b;
 
-            TbFormatHeight.Value = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatHeight"), out i)
+            // set current layer
+            ChkSetCurrentLayer.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "SetCurrentLayer"), out b) && b;
+
+            TbFormatHeight.Value = int.TryParse(UserConfigFile.GetValue(li, "TbFormatHeight"), out i)
                 ? i : 10;
-            TbFormatLength.Value = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatLength"), out i)
+            TbFormatLength.Value = int.TryParse(UserConfigFile.GetValue(li, "TbFormatLength"), out i)
                 ? i : 10;
+
             // Текстовый стиль (меняем, если есть в настройках, а иначе оставляем текущий)
-            var txtstl = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbTextStyle");
-            if (CbTextStyle.Items.Contains(txtstl))
-                CbTextStyle.SelectedIndex = CbTextStyle.Items.IndexOf(txtstl);
+            var textStyle = UserConfigFile.GetValue(li, "CbTextStyle");
+            if (CbTextStyle.Items.Contains(textStyle))
+                CbTextStyle.SelectedIndex = CbTextStyle.Items.IndexOf(textStyle);
+
             // Логотип
-            var logo = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbLogo");
+            var logo = UserConfigFile.GetValue(li, "CbLogo");
             CbLogo.SelectedIndex = CbLogo.Items.Contains(logo) ? CbLogo.Items.IndexOf(logo) : 0;
+
             // Поля
-            ChbHasFields.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbHasFields"), out b) && b;
+            ChbHasFields.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChbHasFields"), out b) && b;
+
             // Высота текста
-            double d;
-            TbMainTextHeight.Text = double.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "MainTextHeight"),
-                out d)
+            TbMainTextHeight.Text = double.TryParse(UserConfigFile.GetValue(li, "MainTextHeight"),
+                out var d)
                 ? d.ToString(CultureInfo.InvariantCulture)
                 : "2.5";
-            TbBigTextHeight.Text = double.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "BigTextHeight"),
+            TbBigTextHeight.Text = double.TryParse(UserConfigFile.GetValue(li, "BigTextHeight"),
                 out d)
                 ? d.ToString(CultureInfo.InvariantCulture)
                 : "3.5";
+
             // logo from
-            ChkLogoFromBlock.IsChecked = !bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFromBlock"), out b) || b;
-            ChkLogoFromFile.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFromFile"), out b) && b;
+            ChkLogoFromBlock.IsChecked = !bool.TryParse(UserConfigFile.GetValue(li, "LogoFromBlock"), out b) || b;
+            ChkLogoFromFile.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "LogoFromFile"), out b) && b;
+
             // logo file
-            var ffs = UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFile");
+            var ffs = UserConfigFile.GetValue(li, "LogoFile");
             if (!string.IsNullOrEmpty(ffs))
+            {
                 if (File.Exists(ffs))
                     TbLogoFile.Text = ffs;
+            }
         }
+
         // Сохранение в настройки
         private void SaveToSettings()
         {
             try
             {
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbFormat", CbFormat.SelectedIndex.ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbMultiplicity", CbMultiplicity.SelectedIndex.ToString(),
+                var li = ModPlusConnector.Instance.Name;
+                UserConfigFile.SetValue(li, "CbFormat", CbFormat.SelectedIndex.ToString(), false);
+                UserConfigFile.SetValue(li, "CbMultiplicity", CbMultiplicity.SelectedIndex.ToString(),
                     false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbBottomFrame", CbBottomFrame.SelectedIndex.ToString(),
+                UserConfigFile.SetValue(li, "CbBottomFrame", CbBottomFrame.SelectedIndex.ToString(),
                     false);
 
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB1",
+                UserConfigFile.SetValue(li, "ChkB1",
                     (ChkB1.IsChecked != null && ChkB1.IsChecked.Value).ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB2",
+                UserConfigFile.SetValue(li, "ChkB2",
                     (ChkB2.IsChecked != null && ChkB2.IsChecked.Value).ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkB3",
+                UserConfigFile.SetValue(li, "ChkB3",
                     (ChkB3.IsChecked != null && ChkB3.IsChecked.Value).ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbCopy",
+                UserConfigFile.SetValue(li, "ChbCopy",
                     (ChbCopy.IsChecked != null && ChbCopy.IsChecked.Value).ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbNumber",
+                UserConfigFile.SetValue(li, "ChbNumber",
                     (ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value).ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkStamp",
+                UserConfigFile.SetValue(li, "ChkStamp",
                     (ChkStamp.IsChecked != null && ChkStamp.IsChecked.Value).ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbVertical",
+                UserConfigFile.SetValue(li, "RbVertical",
                     (RbVertical.IsChecked != null && RbVertical.IsChecked.Value).ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "RbLong",
+                UserConfigFile.SetValue(li, "RbLong",
                     (RbLong.IsChecked != null && RbLong.IsChecked.Value).ToString(), false);
 
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatHeight", TbFormatHeight.Value.ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "TbFormatLength", TbFormatLength.Value.ToString(), false);
+                UserConfigFile.SetValue(li, "TbFormatHeight", TbFormatHeight.Value.ToString(), false);
+                UserConfigFile.SetValue(li, "TbFormatLength", TbFormatLength.Value.ToString(), false);
                 // Текстовый стиль
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbTextStyle", CbTextStyle.SelectedItem.ToString(), false);
+                UserConfigFile.SetValue(li, "CbTextStyle", CbTextStyle.SelectedItem.ToString(), false);
                 // Логотип
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbLogo", CbLogo.SelectedItem.ToString(), false);
+                UserConfigFile.SetValue(li, "CbLogo", CbLogo.SelectedItem.ToString(), false);
                 // Поля
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChbHasFields",
+                UserConfigFile.SetValue(li, "ChbHasFields",
                     (ChbHasFields.IsChecked != null && ChbHasFields.IsChecked.Value).ToString(), false);
                 // Выбранный штамп
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbTables",
+                UserConfigFile.SetValue(li, "CbTables",
                     CbTables.SelectedIndex.ToString(CultureInfo.InvariantCulture), false);
                 // Масштаб
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbScales",
+                UserConfigFile.SetValue(li, "CbScales",
                                         CbScales.SelectedItem.ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "MainTextHeight", TbMainTextHeight.Text, false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "BigTextHeight", TbBigTextHeight.Text, false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFromBlock", (ChkLogoFromBlock.IsChecked != null && ChkLogoFromBlock.IsChecked.Value).ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFromFile", (ChkLogoFromFile.IsChecked != null && ChkLogoFromFile.IsChecked.Value).ToString(), false);
-                UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LogoFile",
+                UserConfigFile.SetValue(li, "MainTextHeight", TbMainTextHeight.Text, false);
+                UserConfigFile.SetValue(li, "BigTextHeight", TbBigTextHeight.Text, false);
+                UserConfigFile.SetValue(li, "LogoFromBlock", (ChkLogoFromBlock.IsChecked != null && ChkLogoFromBlock.IsChecked.Value).ToString(), false);
+                UserConfigFile.SetValue(li, "LogoFromFile", (ChkLogoFromFile.IsChecked != null && ChkLogoFromFile.IsChecked.Value).ToString(), false);
+                UserConfigFile.SetValue(li, "LogoFile",
                     File.Exists(TbLogoFile.Text) ? TbLogoFile.Text : string.Empty, false);
+
+                // set current layer
+                UserConfigFile.SetValue(li, "SetCurrentLayer", (ChkSetCurrentLayer.IsChecked != null && ChkSetCurrentLayer.IsChecked.Value).ToString(), false);
 
                 UserConfigFile.SaveConfigFile();
             }
@@ -340,6 +358,7 @@ namespace mpFormats
                 ExceptionBox.Show(exception);
             }
         }
+
         private static double Scale(string scaleName)
         {
             var doc = AcApp.DocumentManager.MdiActiveDocument;
@@ -437,6 +456,7 @@ namespace mpFormats
                 ExceptionBox.Show(ex);
             }
         }
+
         // Выбор таблицы
         private void CbTables_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -527,26 +547,28 @@ namespace mpFormats
                 ExceptionBox.Show(ex);
             }
         }
+
         // Вызов функции "Поля"
         private void BtFields_Click(object sender, RoutedEventArgs e)
         {
             // Проверка полной версии
             if (!Registration.IsFunctionBought("mpStamps", ModPlusConnector.Instance.AvailProductExternalVersion))
             {
-                ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg4"));
+                MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg4"));
             }
             else
             {
                 AcApp.DocumentManager.MdiActiveDocument.SendStringToExecute("_MPSTAMPFIELDS ", true, false, false);
             }
         }
+
         // Вызов диалогового окна "Редактирование пользовательских фамилий"
         private void BtAddUserSurname_OnClick(object sender, RoutedEventArgs e)
         {
             // Проверка полной версии
             if (!Registration.IsFunctionBought("mpStamps", ModPlusConnector.Instance.AvailProductExternalVersion))
             {
-                ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg4"));
+                MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg4"));
             }
             else
             {
@@ -559,11 +581,13 @@ namespace mpFormats
                 FillSurenames();
             }
         }
+
         // Действие, если выбран элемент в списке должностей
         private void LbSurnames_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             BtAddSurname.IsEnabled = LbSurnames.SelectedIndex != -1;
         }
+
         // Действие, если выбран элемент в списке должностей штампа
         private void LbStampSurnames_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -584,6 +608,7 @@ namespace mpFormats
             else
                 BtRemoveSurname.IsEnabled = false;
         }
+
         // Нажатие на кнопку "Добавить должность"
         private void BtAddSurname_Click(object sender, RoutedEventArgs e)
         {
@@ -602,7 +627,7 @@ namespace mpFormats
                             LbStampSurnames.Items.Remove(item);
                             LbStampSurnames.Items.Insert(index, LbSurnames.SelectedItem);
                             LbSurnames.Items.Remove(LbSurnames.SelectedItem);
-                            SaveNamesForCurrentTableInConfigfile();
+                            SaveNamesForCurrentTableInConfigFile();
                             break;
                         }
                     }
@@ -610,11 +635,12 @@ namespace mpFormats
                 // Если кол-во пустых равно 0, значит мы достигли предела
                 else
                 {
-                    ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg5") + " " +
+                    MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg5") + " " +
                         Namecol.ToString(CultureInfo.InvariantCulture) + " " + ModPlusAPI.Language.GetItem(LangItem, "msg6"));
                 }
             }
         }
+
         // Нажатие кнопки "Удалить должность"
         private void BtRemoveSurname_Click(object sender, RoutedEventArgs e)
         {
@@ -629,10 +655,11 @@ namespace mpFormats
                     LbStampSurnames.Items.Remove(selected);
                     // Добавляем пустое значение!!!
                     LbStampSurnames.Items.Add(string.Empty);
-                    SaveNamesForCurrentTableInConfigfile();
+                    SaveNamesForCurrentTableInConfigFile();
                 }
             }
         }
+
         // Позиция вверх
         private void BtUpSurname_Click(object sender, RoutedEventArgs e)
         {
@@ -645,9 +672,10 @@ namespace mpFormats
                 LbStampSurnames.Items.Insert(place - 1, temp);
                 LbStampSurnames.Focus();
                 LbStampSurnames.SelectedIndex = place - 1;
-                SaveNamesForCurrentTableInConfigfile();
+                SaveNamesForCurrentTableInConfigFile();
             }
         }
+
         // Позиция вниз
         private void BtDownSurename_Click(object sender, RoutedEventArgs e)
         {
@@ -660,11 +688,12 @@ namespace mpFormats
                 LbStampSurnames.Items.Insert(place + 1, temp);
                 LbStampSurnames.Focus();
                 LbStampSurnames.SelectedIndex = place + 1;
-                SaveNamesForCurrentTableInConfigfile();
+                SaveNamesForCurrentTableInConfigFile();
             }
         }
+
         // Сохранение должностей в штампе для текущего штампа в файл настроек
-        private void SaveNamesForCurrentTableInConfigfile()
+        private void SaveNamesForCurrentTableInConfigFile()
         {
             if (bool.Parse(_currentTblXml.Attribute("hassurenames").Value))
             {
@@ -716,14 +745,14 @@ namespace mpFormats
                 arr = new ArrayList { "1", "3", "4", "5", "6", "7" };
                 PanelBottomFrame.Visibility = Visibility.Visible;
                 int i;
-                CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbBottomFrame"), out i) ? i : 0;
+                CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue("mpFormats", "CbBottomFrame"), out i) ? i : 0;
             }
             if (CbFormat.SelectedIndex == 4)// A4
             {
                 arr = new ArrayList { "1", "3", "4", "5", "6", "7", "8", "9" };
                 PanelBottomFrame.Visibility = Visibility.Visible;
                 int i;
-                CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "CbBottomFrame"), out i) ? i : 0;
+                CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue("mpFormats", "CbBottomFrame"), out i) ? i : 0;
             }
             if (CbFormat.SelectedIndex == 5)// A5
             {
@@ -780,13 +809,20 @@ namespace mpFormats
                                 CbTextStyle.SelectedItem.ToString(),
                                 Scale(CbScales.SelectedItem.ToString()),
                                 null,
+                                ChkSetCurrentLayer.IsChecked ?? false,
                                 out bottomLeftPt,
                                 out topLeftPt,
                                 out bottomRightPt,
                                 out replaceVector3D,
-                                out blockInsertionPoint3D
-                            ))
-                            AddStamps(bottomLeftPt, topLeftPt, bottomRightPt, replaceVector3D, Scale(CbScales.SelectedItem.ToString()), blockInsertionPoint3D);// stamps
+                                out blockInsertionPoint3D))
+
+                            AddStamps(
+                                bottomLeftPt,
+                                topLeftPt,
+                                bottomRightPt,
+                                replaceVector3D,
+                                Scale(CbScales.SelectedItem.ToString()),
+                                blockInsertionPoint3D);
                     }
                     finally
                     {
@@ -797,22 +833,22 @@ namespace mpFormats
                 {
                     if (!TbFormatLength.Value.HasValue)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
                     if (!TbFormatHeight.Value.HasValue)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
                     if (TbFormatLength.Value < 30)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
                     if (TbFormatHeight.Value < 15)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
                     }
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
@@ -832,13 +868,20 @@ namespace mpFormats
                                 CbTextStyle.SelectedItem.ToString(),
                                 Scale(CbScales.SelectedItem.ToString()),
                                 null,
+                                ChkSetCurrentLayer.IsChecked ?? false,
                                 out bottomLeftPt,
                                 out topLeftPt,
                                 out bottomRightPt,
                                 out replaceVector3D,
-                                out blockInsertionPoint3D
-                            ))
-                            AddStamps(bottomLeftPt, topLeftPt, bottomRightPt, replaceVector3D, Scale(CbScales.SelectedItem.ToString()), blockInsertionPoint3D);// stamps
+                                out blockInsertionPoint3D))
+
+                            AddStamps(
+                                bottomLeftPt,
+                                topLeftPt,
+                                bottomRightPt,
+                                replaceVector3D,
+                                Scale(CbScales.SelectedItem.ToString()),
+                                blockInsertionPoint3D);
                     }
                     finally
                     {
@@ -878,8 +921,7 @@ namespace mpFormats
                     {
                         Utils.SetFocusToDwgView();
 
-                        MpFormatsAdd.ReplaceBlock
-                            (
+                        MpFormatsAdd.ReplaceBlock(
                                 format,
                                 multiplicity,
                                 side,
@@ -888,8 +930,8 @@ namespace mpFormats
                                 ChbCopy.IsChecked != null && ChbCopy.IsChecked.Value,
                                 CbBottomFrame.SelectionBoxItem.ToString(),
                                 CbTextStyle.SelectedItem.ToString(),
-                                Scale(CbScales.SelectedItem.ToString())
-                            );
+                                Scale(CbScales.SelectedItem.ToString()),
+                                ChkSetCurrentLayer.IsChecked ?? false);
                     }
                     finally
                     {
@@ -900,22 +942,22 @@ namespace mpFormats
                 {
                     if (!TbFormatLength.Value.HasValue)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
                     if (!TbFormatHeight.Value.HasValue)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
                     if (TbFormatLength.Value < 30)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
                     if (TbFormatHeight.Value < 15)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
                     }
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
@@ -925,22 +967,21 @@ namespace mpFormats
                     {
                         Utils.SetFocusToDwgView();
 
-                        MpFormatsAdd.ReplaceBlockHand
-                            (
+                        MpFormatsAdd.ReplaceBlockHand(
                                 TbFormatLength.Value.Value,
                                 TbFormatHeight.Value.Value,
                                 number,
                                 ChbCopy.IsChecked != null && ChbCopy.IsChecked.Value,
                                 CbTextStyle.SelectedItem.ToString(),
-                                Scale(CbScales.SelectedItem.ToString())
-                            );
+                                Scale(CbScales.SelectedItem.ToString()),
+                                ChkSetCurrentLayer.IsChecked ?? false);
                     }
                     finally
                     {
                         Show();
                     }
                 }
-            } // try
+            }
             catch (System.Exception ex)
             {
                 ExceptionBox.Show(ex);
@@ -976,7 +1017,7 @@ namespace mpFormats
                     try
                     {
                         Utils.SetFocusToDwgView();
-                        // Форматка
+
                         if (MpFormatsAdd.DrawBlock(
                                 format,
                                 multiplicity,
@@ -990,14 +1031,20 @@ namespace mpFormats
                                 CbTextStyle.SelectedItem.ToString(),
                                 layoutScaleOneToOne ? 1 : Scale(CbScales.SelectedItem.ToString()),
                                 null,
+                                ChkSetCurrentLayer.IsChecked ?? false,
                                 out bottomLeftPt,
                                 out topLeftPt,
                                 out bottomRightPt,
                                 out replaceVector3D,
-                                out blockInsertionPoint3D
-                            ))
-                            // stamps
-                            AddStamps(bottomLeftPt, topLeftPt, bottomRightPt, replaceVector3D, layoutScaleOneToOne ? 1 : Scale(CbScales.SelectedItem.ToString()), blockInsertionPoint3D);
+                                out blockInsertionPoint3D))
+                            
+                            AddStamps(
+                                bottomLeftPt,
+                                topLeftPt,
+                                bottomRightPt,
+                                replaceVector3D,
+                                layoutScaleOneToOne ? 1 : Scale(CbScales.SelectedItem.ToString()),
+                                blockInsertionPoint3D);
                     }
                     finally
                     {
@@ -1008,26 +1055,27 @@ namespace mpFormats
                 {
                     if (!TbFormatLength.Value.HasValue)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
                     if (!TbFormatHeight.Value.HasValue)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
                     if (TbFormatLength.Value < 30)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
                     if (TbFormatHeight.Value < 15)
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
+                        MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
                     }
 
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
+
                     // Создаем лист
                     if (!CreateLayout(out var layoutScaleOneToOne)) return;
                     Hide();
@@ -1045,13 +1093,19 @@ namespace mpFormats
                                 CbTextStyle.SelectedItem.ToString(),
                                 layoutScaleOneToOne ? 1 : Scale(CbScales.SelectedItem.ToString()),
                                 null,
+                                ChkSetCurrentLayer.IsChecked ?? false,
                                 out bottomLeftPt,
                                 out topLeftPt,
                                 out bottomRightPt, out replaceVector3D,
-                                out blockInsertionPoint3D
-                            ))
-                            // stamps
-                            AddStamps(bottomLeftPt, topLeftPt, bottomRightPt, replaceVector3D, layoutScaleOneToOne ? 1 : Scale(CbScales.SelectedItem.ToString()), blockInsertionPoint3D);
+                                out blockInsertionPoint3D))
+
+                            AddStamps(
+                                bottomLeftPt, 
+                                topLeftPt,
+                                bottomRightPt,
+                                replaceVector3D,
+                                layoutScaleOneToOne ? 1 : Scale(CbScales.SelectedItem.ToString()),
+                                blockInsertionPoint3D);
                     }
                     finally
                     {
@@ -1065,6 +1119,7 @@ namespace mpFormats
                 ExceptionBox.Show(ex);
             }
         }
+
         private static bool CreateLayout(out bool layoutScaleOneToOne)
         {
             var doc = AcApp.DocumentManager.MdiActiveDocument;
@@ -1072,7 +1127,7 @@ namespace mpFormats
             var db = doc.Database;
             var returned = false;
             layoutScaleOneToOne = true;
-            // Создаем лист
+            
             try
             {
                 using (var tr = doc.TransactionManager.StartTransaction())
@@ -1082,46 +1137,53 @@ namespace mpFormats
                         var lm = LayoutManager.Current;
                         var lname = ModPlusAPI.Language.GetItem(LangItem, "h52") + lm.LayoutCount.ToString(CultureInfo.InvariantCulture);
 
-                        var lnamewin = new LayoutName(lname);
+                        var layoutName = new LayoutName(lname);
+
                         // Если оба значения отсутствуют, тогда скрываем вообще ввод
                         if (string.IsNullOrEmpty(_lnamecoord) & string.IsNullOrEmpty(_lnumbercoord))
-                            lnamewin.GridAddToStamp.Visibility = Visibility.Collapsed;
-                        else lnamewin.GridAddToStamp.Visibility = Visibility.Visible;
+                            layoutName.GridAddToStamp.Visibility = Visibility.Collapsed;
+                        else layoutName.GridAddToStamp.Visibility = Visibility.Visible;
+                        
                         // Если нет номера
                         if (string.IsNullOrEmpty(_lnumbercoord))
                         {
-                            lnamewin.ChkLNumber.Visibility = Visibility.Collapsed;
-                            lnamewin.TbLNumber.Visibility = Visibility.Collapsed;
+                            layoutName.ChkLNumber.Visibility = Visibility.Collapsed;
+                            layoutName.TbLNumber.Visibility = Visibility.Collapsed;
                         }
                         else
                         {
-                            lnamewin.ChkLNumber.Visibility = Visibility.Visible;
-                            lnamewin.TbLNumber.Visibility = Visibility.Visible;
-                            lnamewin.TbLNumber.Text = lm.LayoutCount.ToString(CultureInfo.InvariantCulture);
+                            layoutName.ChkLNumber.Visibility = Visibility.Visible;
+                            layoutName.TbLNumber.Visibility = Visibility.Visible;
+                            layoutName.TbLNumber.Text = lm.LayoutCount.ToString(CultureInfo.InvariantCulture);
                         }
+                        
                         // Если нет имени
-                        lnamewin.ChkAddNameToStamp.Visibility = string.IsNullOrEmpty(_lnamecoord) ? Visibility.Collapsed : Visibility.Visible;
-                        bool b;
-                        lnamewin.ChkAddNameToStamp.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkAddNameToStamp"), out b) && b;
-                        lnamewin.ChkLNumber.IsChecked = bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkLNumber"), out b) && b;
-                        // scale
-                        lnamewin.ChkLayoutScaleOneToOne.IsChecked = !bool.TryParse(UserConfigFile.GetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LayoutScaleOneToOne"), out b) || b;
-                        if (lnamewin.ShowDialog() == true)
-                        {
-                            UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkAddNameToStamp",
-                                (lnamewin.ChkAddNameToStamp.IsChecked != null && lnamewin.ChkAddNameToStamp.IsChecked.Value).ToString(), false);
-                            UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "ChkLNumber",
-                                (lnamewin.ChkLNumber.IsChecked != null && lnamewin.ChkLNumber.IsChecked.Value).ToString(), false);
-                            UserConfigFile.SetValue(UserConfigFile.ConfigFileZone.Settings, "mpFormats", "LayoutScaleOneToOne",
-                                (lnamewin.ChkLayoutScaleOneToOne.IsChecked != null && lnamewin.ChkLayoutScaleOneToOne.IsChecked.Value).ToString(), false);
-                            if (lnamewin.ChkLayoutScaleOneToOne.IsChecked != null)
-                                layoutScaleOneToOne = lnamewin.ChkLayoutScaleOneToOne.IsChecked.Value;
+                        layoutName.ChkAddNameToStamp.Visibility = string.IsNullOrEmpty(_lnamecoord) 
+                            ? Visibility.Collapsed 
+                            : Visibility.Visible;
+                        layoutName.ChkAddNameToStamp.IsChecked =
+                            bool.TryParse(UserConfigFile.GetValue("mpFormats", "ChkAddNameToStamp"), out var b) && b;
+                        layoutName.ChkLNumber.IsChecked = 
+                            bool.TryParse(UserConfigFile.GetValue("mpFormats", "ChkLNumber"), out b) && b;
 
-                            lname = lnamewin.TbLayoutName.Text;
-                            if (lnamewin.ChkAddNameToStamp.IsChecked != null && lnamewin.ChkAddNameToStamp.IsChecked.Value)
+                        // scale
+                        layoutName.ChkLayoutScaleOneToOne.IsChecked = !bool.TryParse(UserConfigFile.GetValue("mpFormats", "LayoutScaleOneToOne"), out b) || b;
+                        if (layoutName.ShowDialog() == true)
+                        {
+                            UserConfigFile.SetValue("mpFormats", "ChkAddNameToStamp",
+                                (layoutName.ChkAddNameToStamp.IsChecked != null && layoutName.ChkAddNameToStamp.IsChecked.Value).ToString(), false);
+                            UserConfigFile.SetValue("mpFormats", "ChkLNumber",
+                                (layoutName.ChkLNumber.IsChecked != null && layoutName.ChkLNumber.IsChecked.Value).ToString(), false);
+                            UserConfigFile.SetValue("mpFormats", "LayoutScaleOneToOne",
+                                (layoutName.ChkLayoutScaleOneToOne.IsChecked != null && layoutName.ChkLayoutScaleOneToOne.IsChecked.Value).ToString(), false);
+                            if (layoutName.ChkLayoutScaleOneToOne.IsChecked != null)
+                                layoutScaleOneToOne = layoutName.ChkLayoutScaleOneToOne.IsChecked.Value;
+
+                            lname = layoutName.TbLayoutName.Text;
+                            if (layoutName.ChkAddNameToStamp.IsChecked != null && layoutName.ChkAddNameToStamp.IsChecked.Value)
                                 _lname = lname;
-                            if (lnamewin.ChkLNumber.IsChecked != null && lnamewin.ChkLNumber.IsChecked.Value)
-                                _lnumber = lnamewin.TbLNumber.Text;
+                            if (layoutName.ChkLNumber.IsChecked != null && layoutName.ChkLNumber.IsChecked.Value)
+                                _lnumber = layoutName.TbLNumber.Text;
                             var loId = lm.CreateLayout(lname);
                             var lo = tr.GetObject(loId, OpenMode.ForWrite) as Layout;
                             lo?.Initialize();
@@ -1142,7 +1204,13 @@ namespace mpFormats
             return returned;
         }
 
-        private void AddStamps(Point3d bottomLeftPt, Point3d topLeftPt, Point3d bottomRightPt, Vector3d replaceVector3D, double scale, Point3d blockInsertionPoint3D)
+        private void AddStamps(
+            Point3d bottomLeftPt,
+            Point3d topLeftPt,
+            Point3d bottomRightPt,
+            Vector3d replaceVector3D,
+            double scale,
+            Point3d blockInsertionPoint3D)
         {
             var docFor = ((ComboBoxItem)CbDocumentsFor.SelectedItem).Tag;
             if (ChkB1.IsChecked != null && ChkB1.IsChecked.Value)
@@ -1177,8 +1245,15 @@ namespace mpFormats
                 }
             }
         }
+
         // Вставка штампа
-        private void BtAddTable(string tableStyleName, string pointAligin, Point3d insertPt, Vector3d replaceVector3D, double scale, Point3d blockInsertionPoint3D)
+        private void BtAddTable(
+            string tableStyleName,
+            string pointAligin,
+            Point3d insertPt,
+            Vector3d replaceVector3D,
+            double scale,
+            Point3d blockInsertionPoint3D)
         {
 
             var doc = AcApp.DocumentManager.MdiActiveDocument;
@@ -1199,11 +1274,14 @@ namespace mpFormats
                             {
                                 // Директория расположения файла
                                 var dir = Path.Combine(Constants.CurrentDirectory, "Data", "Dwg");
+                                
                                 // Имя файла из которого берем таблицу
                                 var sourceFileName = Path.Combine(dir, "Stamps.dwg");
+                                
                                 // Read the DWG into a side database
                                 sourceDb.ReadDwgFile(sourceFileName, FileShare.Read, true, "");
                                 var tblIds = new ObjectIdCollection();
+                                
                                 // Создаем пустую таблицу
                                 var tbl = new Table();
 
@@ -1216,28 +1294,24 @@ namespace mpFormats
                                     foreach (var obj in sourceBtr)
                                     {
                                         var ent = (Entity)myT.GetObject(obj, OpenMode.ForWrite);
-                                        if (ent is Table)
+                                        if (ent is Table table && 
+                                            table.TableStyleName.Equals(xmltbl.Attribute("tablestylename").Value))
                                         {
-                                            var tblsty = (Table)myT.GetObject(obj, OpenMode.ForWrite);
-                                            if (tblsty.TableStyleName.Equals(xmltbl.Attribute("tablestylename").Value))
-                                            {
-                                                tblIds.Add(tblsty.ObjectId);
-                                                var im = new IdMapping();
-                                                sourceDb.WblockCloneObjects(tblIds, db.CurrentSpaceId, im,
-                                                    DuplicateRecordCloning.Ignore, false);
-                                                tbl =
-                                                    (Table)
-                                                        tr.GetObject(im.Lookup(tblsty.ObjectId).Value,
-                                                            OpenMode.ForWrite);
-                                                break;
-                                            }
+                                            tblIds.Add(table.ObjectId);
+                                            var im = new IdMapping();
+                                            sourceDb.WblockCloneObjects(tblIds, db.CurrentSpaceId, im,
+                                                DuplicateRecordCloning.Ignore, false);
+                                            tbl = (Table)tr.GetObject(im.Lookup(table.ObjectId).Value, OpenMode.ForWrite);
+                                            if (ChkSetCurrentLayer.IsChecked == true)
+                                                tbl.LayerId = db.Clayer;
+                                            break;
                                         }
                                     }
                                     myT.Commit();
                                 }
                                 if (tbl.ObjectId == ObjectId.Null)
                                 {
-                                    ModPlusAPI.Windows.MessageBox.Show(
+                                    MessageBox.Show(
                                         ModPlusAPI.Language.GetItem(LangItem, "err10") + " " +
                                         tableStyleName + Environment.NewLine +
                                         ModPlusAPI.Language.GetItem(LangItem, "err11"));
@@ -1262,16 +1336,16 @@ namespace mpFormats
 
                                 var mat = Matrix3d.Displacement(replaceVector3D.GetNormal() * replaceVector3D.Length);
                                 tbl.TransformBy(mat);
+                                
                                 // Масштабируем относительно точки вставки блока
                                 mat = Matrix3d.Scaling(scale, blockInsertionPoint3D);
                                 tbl.TransformBy(mat);
 
                                 doc.TransactionManager.QueueForGraphicsFlush();
                                 sourceDb.Dispose();
-                                // Присваиваем свойства//
-                                /////////////////////////
-
+                                
                                 tbl.Cells.TextStyleId = tst[CbTextStyle.SelectedItem.ToString()];
+                                
                                 // Отступ в ячейках
                                 for (var i = 0; i < tbl.Columns.Count; i++)
                                 {
@@ -1293,6 +1367,7 @@ namespace mpFormats
                                         cell.Borders.Vertical.Margin = 0;
                                     }
                                 }
+                                
                                 // surenames
                                 HasSureNames = xmltbl.Attribute("hassurenames").Value.Equals("true");
                                 if (HasSureNames)
@@ -1308,6 +1383,7 @@ namespace mpFormats
                                 {
                                     AddFieldsToStamp(tbl);
                                 }
+
                                 // Добавление логотипа
                                 if (bool.Parse(xmltbl.Attribute("logo").Value))
                                 {
@@ -1355,9 +1431,8 @@ namespace mpFormats
                                     for (var j = 0; j < tbl.Rows.Count; j++)
                                     {
                                         var cell = tbl.Cells[j, i];
-                                        double d;
                                         cell.TextHeight =
-                                            double.TryParse(TbMainTextHeight.Text, out d)
+                                            double.TryParse(TbMainTextHeight.Text, out var d)
                                                 ? d * scale
                                                 : 2.5 * scale;
                                     }
@@ -1369,13 +1444,13 @@ namespace mpFormats
                                     foreach (var cellCoord in bigCellAtr.Value.Split(';'))
                                     {
                                         var cell = tbl.Cells[int.Parse(cellCoord.Split(',')[1]), int.Parse(cellCoord.Split(',')[0])];
-                                        double d;
                                         cell.TextHeight =
-                                            double.TryParse(TbBigTextHeight.Text, out d)
+                                            double.TryParse(TbBigTextHeight.Text, out var d)
                                                 ? d * scale
                                                 : 3.5 * scale;
                                     }
                                 }
+
                                 // Имя листа и номер
                                 if (xmltbl.Attribute("lnamecoordinates") != null)
                                     if (!string.IsNullOrEmpty(_lnamecoord))
@@ -1407,12 +1482,12 @@ namespace mpFormats
                                         }
 
                                 tr.Commit();
-                                break; // Тормозим Foreach
+                                break;
                             }
                         }
                     }
                 }
-            }// try
+            }
             catch (System.Exception ex)
             {
                 ExceptionBox.Show(ex);
@@ -1433,7 +1508,7 @@ namespace mpFormats
                         // Даже если имя табличного стиля сошлось - проверяем по количеству ячеек!
                         if (int.Parse(xmlTbl.Attribute("cellcount").Value) != table.Cells.Count())
                         {
-                            ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err12"));
+                            MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err12"));
                             return;
                         }
 
@@ -1616,7 +1691,6 @@ namespace mpFormats
         {
             try
             {
-                double dlina, visota;
                 string side, orientation;
                 if (RbShort.IsChecked != null && RbShort.IsChecked.Value) side = ModPlusAPI.Language.GetItem(LangItem, "h11");
                 else
@@ -1629,9 +1703,9 @@ namespace mpFormats
                 var format = ((ListBoxItem)CbFormat.SelectedItem).Content.ToString();
                 var multiplicity = CbMultiplicity.SelectedItem.ToString();
 
-                MpFormatsAdd.GetFormatSize(format, orientation, side, multiplicity, out dlina, out visota);
-                TbFormatSize.Text = dlina.ToString(CultureInfo.InvariantCulture) + " x " +
-                                    visota.ToString(CultureInfo.InvariantCulture);
+                MpFormatsAdd.GetFormatSize(format, orientation, side, multiplicity, out var width, out var height);
+                TbFormatSize.Text = width.ToString(CultureInfo.InvariantCulture) + " x " +
+                                    height.ToString(CultureInfo.InvariantCulture);
             }
             catch
             {
@@ -1691,14 +1765,16 @@ namespace mpFormats
                 if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     var sourceDb = new Database(false, true);
+                    
                     //read file DB
                     sourceDb.ReadDwgFile(ofd.Filename, FileOpenMode.OpenTryForReadShare, true, string.Empty);
+                    
                     // Если файл более поздней версии, то будет ошибка
                     TbLogoFile.Text = ofd.Filename;
                 }
                 else
                 {
-                    ModPlusAPI.Windows.MessageBox.Show(
+                    MessageBox.Show(
                         ModPlusAPI.Language.GetItem(LangItem, "msg7") + Environment.NewLine + ofd.Filename + Environment.NewLine +
                         ModPlusAPI.Language.GetItem(LangItem, "msg8"));
                 }
@@ -1707,12 +1783,12 @@ namespace mpFormats
             {
                 if (exception.ErrorStatus == ErrorStatus.NotImplementedYet)
                 {
-                    ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err13"));
+                    MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err13"));
                 }
                 else ExceptionBox.Show(exception);
             }
         }
-       
+
         // Создание блока из файла (вставка файла в виде блока)
         private string CreateBlockFromFile()
         {
@@ -1790,12 +1866,14 @@ namespace mpFormats
         {
             e.Handled = (e.Key == Key.Space);
         }
+
         //  - без минуса
         private void Tb_OnlyNums_NoMinus_OnPreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             var txt = ((TextBox)sender).Text + e.Text;
             e.Handled = !DoubleCharChecker(txt, false, true, null);
         }
+
         // Проверка, что число, точка или знак минус
         private static bool DoubleCharChecker(string str, bool checkMinus, bool checkDot, double? max)
         {
