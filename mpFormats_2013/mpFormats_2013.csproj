@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlockJig.cs" />
+    <Compile Include="FormatSize.cs" />
     <Compile Include="LayoutName.xaml.cs">
       <DependentUpon>LayoutName.xaml</DependentUpon>
     </Compile>

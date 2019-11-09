@@ -80,6 +80,9 @@
       <Link>EditUserSurnames.xaml.cs</Link>
       <DependentUpon>EditUserSurnames.xaml</DependentUpon>
     </Compile>
+    <Compile Include="..\mpFormats_2013\FormatSize.cs">
+      <Link>FormatSize.cs</Link>
+    </Compile>
     <Compile Include="..\mpFormats_2013\LayoutName.xaml.cs">
       <Link>LayoutName.xaml.cs</Link>
       <DependentUpon>LayoutName.xaml</DependentUpon>

@@ -73,20 +73,15 @@
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
+                    
                     <!--Формат/кратность-->
                     <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
                         <TextBlock Margin="{DynamicResource ModPlusDefaultMargin}"
                                    Text="{Binding Source={StaticResource Lang}, XPath=h6}"></TextBlock>
                         <StackPanel Orientation="Vertical">
-                            <ComboBox Name="CbFormat" SelectionChanged="CbFormat_SelectionChanged">
-                                <ComboBoxItem Content="A0" />
-                                <ComboBoxItem Content="A1" />
-                                <ComboBoxItem Content="A2" />
-                                <ComboBoxItem Content="A3" />
-                                <ComboBoxItem Content="A4" />
-                                <ComboBoxItem Content="A5" />
-                            </ComboBox>
+                            <ComboBox Name="CbGostFormats"/>
                             <ComboBox Name="CbMultiplicity"/>
                         </StackPanel>
                     </StackPanel>
@@ -115,6 +110,40 @@
                         </StackPanel>
                     </StackPanel>
 
+                    <!-- Соответствие таблице ГОСТ -->
+                    <CheckBox Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3"
+                              Name="ChkAccordingToGost"
+                              Content="{Binding Source={StaticResource Lang}, XPath=h55}"
+                              ToolTip="{Binding Source={StaticResource Lang}, XPath=h56}"
+                              ToolTipService.ShowDuration="15000"
+                              ToolTipService.InitialShowDelay="100"></CheckBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="ISO 2016">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!--Формат-->
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
+                        <TextBlock Margin="{DynamicResource ModPlusDefaultMargin}"
+                                   Text="{Binding Source={StaticResource Lang}, XPath=h57}"></TextBlock>
+                        <ComboBox Name="CbIsoFormats"/>
+                    </StackPanel>
+
+                    <!--Ориентация листа-->
+                    <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Vertical">
+                        <TextBlock Margin="{DynamicResource ModPlusDefaultMargin}"
+                                   Text="{Binding Source={StaticResource Lang}, XPath=h7}"></TextBlock>
+                        <StackPanel Orientation="Vertical">
+                            <RadioButton Content="{Binding Source={StaticResource Lang}, XPath=h8}"
+                                         IsChecked="{Binding ElementName=RbHorizontal, Path=IsChecked, Mode=TwoWay}" />
+                            <RadioButton Content="{Binding Source={StaticResource Lang}, XPath=h9}"
+                                         IsChecked="{Binding ElementName=RbVertical, Path=IsChecked, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="{Binding Source={StaticResource Lang}, XPath=h13}">
@@ -440,13 +469,12 @@
                 <Image Name="Image_top" Source="Resources/Preview/top.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None"
                    Margin="12,3,0,0" RenderOptions.BitmapScalingMode="HighQuality" Opacity="0.5"></Image>
 
-                <TextBlock Name="TbFormatSize" HorizontalAlignment="Center" 
+                <TextBlock Name="TbFormatSize" HorizontalAlignment="Center"
                            FontSize="20" FontWeight="SemiBold" Foreground="Black"
                            ToolTip="{Binding Source={StaticResource Lang}, XPath=h38}"/>
             </Grid>
         </Grid>
         
-
         <!--Кнопки-->
         <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>

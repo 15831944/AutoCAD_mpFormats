@@ -36,7 +36,7 @@
             else
                 Application.ShowModelessWindow(Application.MainWindow.Handle, _mpFormats, false);
         }
-        
+
         /// <summary>
         /// Draw block
         /// </summary>
@@ -53,6 +53,8 @@
         /// <param name="scale">масштаб</param>
         /// <param name="rotation">Поворот</param>
         /// <param name="setCurrentLayer">Установить текущий слой</param>
+        /// <param name="accordingToGost">True - размеры некоторых форматок будут соответствовать таблице в ГОСТ,
+        /// False - размеры будут получаться математически</param>
         /// <param name="bottomLeftPt">Нижняя верхняя точка</param>
         /// <param name="topLeftPt">Верхняя левая точка</param>
         /// <param name="bottomRightPt">Нижняя правая точка</param>
@@ -60,7 +62,7 @@
         /// <param name="blockInsertionPoint">Точка вставки блока</param>
         /// <returns></returns>
         public static bool DrawBlock(
-            string format, 
+            string format,
             string multiplicity,
             string side,
             string orientation,
@@ -73,6 +75,7 @@
             double scale,
             double? rotation,
             bool setCurrentLayer,
+            bool accordingToGost,
             out Point3d bottomLeftPt,
             out Point3d topLeftPt,
             out Point3d bottomRightPt,
@@ -91,12 +94,12 @@
                 using (doc.LockDocument())
                 {
                     // Задаем значение ширины и высоты в зависимости формата, кратности и стороны кратности
-                    GetFormatSize(format, orientation, side, multiplicity, out var width, out var height);
+                    var formatSize = GetFormatSize(format, orientation, side, multiplicity, accordingToGost);
 
                     #region points
 
                     var pt1 = new Point3d(0.0, 0.0, 0.0);
-                    var pt2 = new Point3d(0.0 + width, 0.0, 0.0);
+                    var pt2 = new Point3d(0.0 + formatSize.Width, 0.0, 0.0);
 
                     // Для форматов А4 и А3 нижняя рамка 10мм (по ГОСТ)
                     Point3d pt11;
@@ -120,9 +123,9 @@
                         pt22 = new Point3d(pt2.X - 5, pt2.Y + 5, 0.0);
                     }
 
-                    var pt3 = new Point3d(0.0 + width, 0.0 + height, 0.0);
+                    var pt3 = new Point3d(0.0 + formatSize.Width, 0.0 + formatSize.Height, 0.0);
                     var pt33 = new Point3d(pt3.X - 5, pt3.Y - 5, 0.0);
-                    var pt4 = new Point3d(0.0, 0.0 + height, 0.0);
+                    var pt4 = new Point3d(0.0, 0.0 + formatSize.Height, 0.0);
                     var pt44 = new Point3d(pt4.X + 20, pt4.Y - 5, 0.0);
                     var ptt1 = new Point3d(pt2.X - 55, pt22.Y - 4, 0.0);
                     var ptt2 = new Point3d(pt2.X - 125, pt22.Y - 4, 0.0);
@@ -140,20 +143,14 @@
 
                     var isNumber = number ? "N" : "NN";
                     var isCopy = copy ? "C" : "NC";
-                    string blockName;
-                    if (!multiplicity.Equals("1"))
-                    {
-                        blockName = format + "x" + multiplicity + "_" + orientation + "_"
-                                    + side + "_" + isNumber + "_" + isCopy;
-                    }
-                    else
-                    {
-                        blockName = format + "_" + orientation + "_" + side + "_" + isNumber
-                                    + "_" + isCopy;
-                    }
+                    var isAcc = accordingToGost ? "A" : "NA";
+
+                    var blockName = multiplicity.Equals("1") 
+                        ? $"{format}_{orientation}_{side}_{isNumber}_{isCopy}_{isAcc}" 
+                        : $"{format}x{multiplicity}_{orientation}_{side}_{isNumber}_{isCopy}_{isAcc}";
 
                     if (format.Equals("A4") || format.Equals("A3"))
-                        blockName = blockName + "_" + bottomFrame;
+                        blockName = $"{blockName}_{bottomFrame}";
 
                     #endregion
 
@@ -191,7 +188,7 @@
                             }
 
                             // Если есть начальная точка - то вставляем в нее
-                            else 
+                            else
                             {
                                 var blockReference = new BlockReference(insertPt, blockId);
                                 blockInsertionPoint = blockReference.Position;
@@ -227,7 +224,7 @@
 
                             // Рисуем примитивы и добавляем в блок
                             var objectCollection = new DBObjectCollection();
-                            
+
                             // внешняя рамка
                             var pLine1 = new Polyline
                             {
@@ -242,7 +239,7 @@
                                 var pp = new Point2d(pts1[i].X, pts1[i].Y);
                                 pLine1.AddVertexAt(i, pp, 0, 0, 0);
                             }
-                            
+
                             // внутренняя рамка
                             var pLine2 = new Polyline
                             {
@@ -257,7 +254,7 @@
                                 var pp = new Point2d(pts2[i].X, pts2[i].Y);
                                 pLine2.AddVertexAt(i, pp, 0, 0, 0);
                             }
-                            
+
                             // Формат
                             var txt1 = new DBText
                             {
@@ -340,9 +337,9 @@
                             var blockId = blockTable[blockName];
 
                             var cbtr = (BlockTableRecord)tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite, false);
-                            
+
                             // Если начальной точки нет - рисуем через джигу
-                            if (!hasFpt) 
+                            if (!hasFpt)
                             {
                                 var pt = new Point3d(0, 0, 0);
                                 var blockReference = new BlockReference(pt, blockId);
@@ -355,7 +352,7 @@
                                     new TypedValue(1000, "MP_FORMAT"));
 
                                 var entJig = new BlockJig(blockReference);
-                                
+
                                 // Perform the jig operation
                                 var pr = ed.Drag(entJig);
                                 if (pr.Status == PromptStatus.OK)
@@ -484,7 +481,7 @@
                             var btr = (BlockTableRecord)tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite, false);
 
                             // Если нет начальной точки, то рисуем через джигу
-                            if (!hasFpt) 
+                            if (!hasFpt)
                             {
                                 var pt = new Point3d(0, 0, 0);
                                 var blockReference = new BlockReference(pt, blockId);
@@ -508,7 +505,7 @@
                             }
 
                             // Если есть начальная точка - то вставлем в нее
-                            else 
+                            else
                             {
                                 var blockReference = new BlockReference(insertPt, blockId);
                                 blockInsertionPoint = blockReference.Position;
@@ -655,7 +652,7 @@
                             var cbtr = (BlockTableRecord)tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite, false);
 
                             // Если начальной точки нет - рисуем через джигу
-                            if (!hasFpt) 
+                            if (!hasFpt)
                             {
                                 var pt = new Point3d(0, 0, 0);
                                 var blockReference = new BlockReference(pt, blockId);
@@ -686,7 +683,7 @@
                             }
 
                             // Если начальная точка есть - вставляем в нее
-                            else 
+                            else
                             {
                                 var blockReference = new BlockReference(insertPt, blockId);
                                 blockInsertionPoint = blockReference.Position;
@@ -753,7 +750,8 @@
             string bottomFrame, // Нижняя рамка
             string txtStyle,
             double scale,
-            bool setCurrentLayer)
+            bool setCurrentLayer,
+            bool accordingToGost)
         {
             try
             {
@@ -799,6 +797,7 @@
                                         scale,
                                         rotation,
                                         setCurrentLayer,
+                                        accordingToGost,
                                         out _,
                                         out _,
                                         out _,
@@ -890,280 +889,284 @@
             }
         }
 
-        public static void GetFormatSize(
+        /// <summary>
+        /// Get format size
+        /// </summary>
+        /// <param name="format">Format name</param>
+        /// <param name="orientation">Sheet orientation</param>
+        /// <param name="side">Side of multiplicity</param>
+        /// <param name="multiplicityString">Multiplicity string value</param>
+        /// <param name="accordingToGost">True - размеры некоторых форматок будут соответствовать таблице в ГОСТ,
+        /// False - размеры будут получаться математически</param>
+        /// <returns>Instance of <see cref="FormatSize"/></returns>
+        public static FormatSize GetFormatSize(
             string format,
             string orientation,
             string side,
-            string multiplicity,
-            out double width,
-            out double height)
+            string multiplicityString,
+            bool accordingToGost)
         {
-            width = height = 0;
+            var isLandscape = orientation.Equals(Language.GetItem(LangItem, "h8"));
+            var isShortSizeMultiplicity = side.Equals(Language.GetItem(LangItem, "h11"));
+            var multiplicity = int.Parse(multiplicityString);
 
             if (format.Equals("A0"))
             {
-                if (int.Parse(multiplicity) > 1)
+                if (multiplicity > 1)
                 {
-                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
+                    if (isLandscape)
                     {
-                        if (side.Equals(Language.GetItem(LangItem, "h11")))
-                        {
-                            width = 1189;
-                            height = 841 * int.Parse(multiplicity);
-                        }
-
-                        if (side.Equals(Language.GetItem(LangItem, "h12")))
-                        {
-                            width = 841;
-                            height = 1189 * int.Parse(multiplicity);
-                        }
+                        return isShortSizeMultiplicity
+                            ? new FormatSize(841 * multiplicity, 1189)
+                            : new FormatSize(1189 * multiplicity, 841);
                     }
 
-                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
-                    {
-                        if (side.Equals(Language.GetItem(LangItem, "h11")))
-                        {
-                            width = 841 * int.Parse(multiplicity);
-                            height = 1189;
-                        }
-
-                        if (side.Equals(Language.GetItem(LangItem, "h12")))
-                        {
-                            width = 1189 * int.Parse(multiplicity);
-                            height = 841;
-                        }
-                    }
+                    return isShortSizeMultiplicity
+                        ? new FormatSize(1189, 841 * multiplicity)
+                        : new FormatSize(841, 1189 * multiplicity);
                 }
-                else
-                {
-                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
-                    {
-                        width = 841;
-                        height = 1189;
-                    }
 
-                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
-                    {
-                        width = 1189;
-                        height = 841;
-                    }
-                }
+                return isLandscape ? new FormatSize(1189, 841) : new FormatSize(841, 1189);
             }
 
             if (format.Equals("A1"))
             {
-                if (int.Parse(multiplicity) > 1)
+                if (multiplicity > 1)
                 {
-                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
+                    if (isLandscape)
                     {
-                        if (side.Equals(Language.GetItem(LangItem, "h11")))
+                        if (isShortSizeMultiplicity)
                         {
-                            width = 841;
-                            height = 594 * int.Parse(multiplicity);
+                            if (accordingToGost)
+                            {
+                                if (multiplicity == 3)
+                                    return new FormatSize(1783, 841);
+                                if (multiplicity == 4)
+                                    return new FormatSize(2378, 841);
+                            }
+
+                            return new FormatSize(594 * multiplicity, 841);
                         }
 
-                        if (side.Equals(Language.GetItem(LangItem, "h12")))
-                        {
-                            width = 594;
-                            height = 841 * int.Parse(multiplicity);
-                        }
+                        return new FormatSize(841 * multiplicity, 594);
                     }
 
-                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
+                    if (isShortSizeMultiplicity)
                     {
-                        if (side.Equals(Language.GetItem(LangItem, "h11")))
+                        if (accordingToGost)
                         {
-                            width = 594 * int.Parse(multiplicity);
-                            height = 841;
+                            if (multiplicity == 3)
+                                return new FormatSize(841, 1783);
+                            if (multiplicity == 4)
+                                return new FormatSize(841, 2378);
                         }
 
-                        if (side.Equals(Language.GetItem(LangItem, "h12")))
-                        {
-                            width = 841 * int.Parse(multiplicity);
-                            height = 594;
-                        }
+                        return new FormatSize(841, 594 * multiplicity);
                     }
+
+                    return new FormatSize(594, 841 * multiplicity);
                 }
-                else
-                {
-                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
-                    {
-                        width = 594;
-                        height = 841;
-                    }
 
-                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
-                    {
-                        width = 841;
-                        height = 594;
-                    }
-                }
+                return isLandscape ? new FormatSize(841, 594) : new FormatSize(594, 841);
             }
 
             if (format.Equals("A2"))
             {
-                if (int.Parse(multiplicity) > 1)
+                if (multiplicity > 1)
                 {
-                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
+                    if (isLandscape)
                     {
-                        if (side.Equals(Language.GetItem(LangItem, "h11")))
+                        if (isShortSizeMultiplicity)
                         {
-                            width = 594;
-                            height = 420 * int.Parse(multiplicity);
+                            if (accordingToGost)
+                            {
+                                if (multiplicity == 3)
+                                    return new FormatSize(1261, 594);
+                                if (multiplicity == 4)
+                                    return new FormatSize(1682, 594);
+                                if (multiplicity == 5)
+                                    return new FormatSize(2102, 594);
+                            }
+
+                            return new FormatSize(420 * multiplicity, 594);
                         }
 
-                        if (side.Equals(Language.GetItem(LangItem, "h12")))
-                        {
-                            width = 420;
-                            height = 594 * int.Parse(multiplicity);
-                        }
+                        return new FormatSize(594 * multiplicity, 420);
                     }
 
-                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
+                    if (isShortSizeMultiplicity)
                     {
-                        if (side.Equals(Language.GetItem(LangItem, "h11")))
+                        if (accordingToGost)
                         {
-                            width = 420 * int.Parse(multiplicity);
-                            height = 594;
+                            if (multiplicity == 3)
+                                return new FormatSize(594, 1261);
+                            if (multiplicity == 4)
+                                return new FormatSize(594, 1682);
+                            if (multiplicity == 5)
+                                return new FormatSize(594, 2102);
                         }
 
-                        if (side.Equals(Language.GetItem(LangItem, "h12")))
-                        {
-                            width = 594 * int.Parse(multiplicity);
-                            height = 420;
-                        }
+                        return new FormatSize(594, 420 * multiplicity);
                     }
+
+                    return new FormatSize(420, 594 * multiplicity);
                 }
-                else
-                {
-                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
-                    {
-                        width = 420;
-                        height = 594;
-                    }
 
-                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
-                    {
-                        width = 594;
-                        height = 420;
-                    }
-                }
+                return isLandscape ? new FormatSize(594, 420) : new FormatSize(420, 594);
             }
 
             if (format.Equals("A3"))
             {
-                if (int.Parse(multiplicity) > 1)
+                if (multiplicity > 1)
                 {
-                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
+                    if (isLandscape)
                     {
-                        if (side.Equals(Language.GetItem(LangItem, "h11")))
+                        if (isShortSizeMultiplicity)
                         {
-                            width = 420;
-                            height = 297 * int.Parse(multiplicity);
+                            if (accordingToGost)
+                            {
+                                if (multiplicity == 4)
+                                    return new FormatSize(1189, 420);
+                                if (multiplicity == 5)
+                                    return new FormatSize(1486, 420);
+                                if (multiplicity == 6)
+                                    return new FormatSize(1783, 420);
+                                if (multiplicity == 7)
+                                    return new FormatSize(2080, 420);
+                            }
+
+                            return new FormatSize(297 * multiplicity, 420);
                         }
 
-                        if (side.Equals(Language.GetItem(LangItem, "h12")))
-                        {
-                            width = 297;
-                            height = 420 * int.Parse(multiplicity);
-                        }
+                        return new FormatSize(420 * multiplicity, 297);
                     }
 
-                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
+                    if (isShortSizeMultiplicity)
                     {
-                        if (side.Equals(Language.GetItem(LangItem, "h11")))
+                        if (accordingToGost)
                         {
-                            width = 297 * int.Parse(multiplicity);
-                            height = 420;
+                            if (multiplicity == 4)
+                                return new FormatSize(420, 1189);
+                            if (multiplicity == 5)
+                                return new FormatSize(420, 1486);
+                            if (multiplicity == 6)
+                                return new FormatSize(420, 1783);
+                            if (multiplicity == 7)
+                                return new FormatSize(420, 2080);
                         }
 
-                        if (side.Equals(Language.GetItem(LangItem, "h12")))
-                        {
-                            width = 420 * int.Parse(multiplicity);
-                            height = 297;
-                        }
+                        return new FormatSize(420, 297 * multiplicity);
                     }
+
+                    return new FormatSize(297, 420 * multiplicity);
                 }
-                else
-                {
-                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
-                    {
-                        width = 297;
-                        height = 420;
-                    }
 
-                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
-                    {
-                        width = 420;
-                        height = 297;
-                    }
-                }
+                return isLandscape ? new FormatSize(420, 297) : new FormatSize(297, 420);
             }
 
             if (format.Equals("A4"))
             {
-                if (int.Parse(multiplicity) > 1)
+                if (multiplicity > 1)
                 {
-                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
+                    if (isLandscape)
                     {
-                        if (side.Equals(Language.GetItem(LangItem, "h11")))
+                        if (isShortSizeMultiplicity)
                         {
-                            width = 297;
-                            height = 210 * int.Parse(multiplicity);
+                            if (accordingToGost)
+                            {
+                                if (multiplicity == 4)
+                                    return new FormatSize(841, 297);
+                                if (multiplicity == 5)
+                                    return new FormatSize(1051, 297);
+                                if (multiplicity == 6)
+                                    return new FormatSize(1261, 297);
+                                if (multiplicity == 7)
+                                    return new FormatSize(1471, 297);
+                                if (multiplicity == 8)
+                                    return new FormatSize(1682, 297);
+                                if (multiplicity == 9)
+                                    return new FormatSize(1892, 297);
+                            }
+
+                            return new FormatSize(210 * multiplicity, 297);
                         }
 
-                        if (side.Equals(Language.GetItem(LangItem, "h12")))
-                        {
-                            width = 210;
-                            height = 297 * int.Parse(multiplicity);
-                        }
+                        return new FormatSize(297 * multiplicity, 210);
                     }
 
-                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
+                    if (isShortSizeMultiplicity)
                     {
-                        if (side.Equals(Language.GetItem(LangItem, "h11")))
+                        if (accordingToGost)
                         {
-                            width = 210 * int.Parse(multiplicity);
-                            height = 297;
+                            if (multiplicity == 4)
+                                return new FormatSize(297, 841);
+                            if (multiplicity == 5)
+                                return new FormatSize(297, 1051);
+                            if (multiplicity == 6)
+                                return new FormatSize(297, 1261);
+                            if (multiplicity == 7)
+                                return new FormatSize(297, 1471);
+                            if (multiplicity == 8)
+                                return new FormatSize(297, 1682);
+                            if (multiplicity == 9)
+                                return new FormatSize(297, 1892);
                         }
 
-                        if (side.Equals(Language.GetItem(LangItem, "h12")))
-                        {
-                            width = 297 * int.Parse(multiplicity);
-                            height = 210;
-                        }
+                        return new FormatSize(297, 210 * multiplicity);
                     }
+
+                    return new FormatSize(210, 297 * multiplicity);
                 }
-                else
-                {
-                    if (orientation.Equals(Language.GetItem(LangItem, "h9")))
-                    {
-                        width = 210;
-                        height = 297;
-                    }
 
-                    if (orientation.Equals(Language.GetItem(LangItem, "h8")))
-                    {
-                        width = 297;
-                        height = 210;
-                    }
-                }
+                return isLandscape ? new FormatSize(297, 210) : new FormatSize(210, 297);
             }
 
             if (format.Equals("A5"))
-            {
-                if (orientation.Equals(Language.GetItem(LangItem, "h9")))
-                {
-                    width = 148;
-                    height = 210;
-                }
+                return isLandscape ? new FormatSize(210, 148) : new FormatSize(148, 210);
 
-                if (orientation.Equals(Language.GetItem(LangItem, "h8")))
-                {
-                    width = 210;
-                    height = 148;
-                }
-            }
+            if (format.Equals("A6"))
+                return isLandscape ? new FormatSize(148, 105) : new FormatSize(105, 148);
+
+            if (format.Equals("B0"))
+                return isLandscape ? new FormatSize(1414, 1000) : new FormatSize(1000, 1414);
+
+            if (format.Equals("B1"))
+                return isLandscape ? new FormatSize(1000, 707) : new FormatSize(707, 1000);
+
+            if (format.Equals("B2"))
+                return isLandscape ? new FormatSize(707, 500) : new FormatSize(500, 707);
+
+            if (format.Equals("B3"))
+                return isLandscape ? new FormatSize(500, 353) : new FormatSize(353, 500);
+
+            if (format.Equals("B4"))
+                return isLandscape ? new FormatSize(353, 250) : new FormatSize(250, 353);
+
+            if (format.Equals("B5"))
+                return isLandscape ? new FormatSize(250, 176) : new FormatSize(176, 250);
+
+            if (format.Equals("B6"))
+                return isLandscape ? new FormatSize(250, 176) : new FormatSize(176, 250);
+
+            if (format.Equals("C0"))
+                return isLandscape ? new FormatSize(1297, 917) : new FormatSize(917, 1297);
+
+            if (format.Equals("C1"))
+                return isLandscape ? new FormatSize(917, 648) : new FormatSize(648, 917);
+
+            if (format.Equals("C2"))
+                return isLandscape ? new FormatSize(648, 458) : new FormatSize(458, 648);
+
+            if (format.Equals("C3"))
+                return isLandscape ? new FormatSize(458, 324) : new FormatSize(324, 458);
+
+            if (format.Equals("C4"))
+                return isLandscape ? new FormatSize(324, 229) : new FormatSize(229, 324);
+
+            if (format.Equals("C5"))
+                return isLandscape ? new FormatSize(229, 162) : new FormatSize(162, 229);
+
+            throw new ArgumentOutOfRangeException(nameof(format), "Can't get format size");
         }
     }
 }

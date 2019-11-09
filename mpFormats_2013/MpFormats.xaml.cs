@@ -52,9 +52,15 @@
             // Настройки видимости для штампа отключаем тут, чтобы видеть в редакторе окна
             GridStamp.Visibility =
             CbLogo.Visibility = GridSplitterStamp.Visibility = Visibility.Collapsed;
-        }
 
-        #region window basic
+            CbGostFormats.ItemsSource = new[] { "A0", "A1", "A2", "A3", "A4", "A5" };
+            CbIsoFormats.ItemsSource = new[]
+            {
+                "A0", "A1", "A2", "A3", "A4", "A5", "A6",
+                "B0", "B1", "B2", "B3", "B4", "B5", "B6",
+                "C0", "C1", "C2", "C3", "C4", "C5"
+            };
+        }
 
         private void MetroWindow_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -65,22 +71,6 @@
         {
             Utils.SetFocusToDwgView();
         }
-
-        private void Tb_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            // Запрет нажатия пробела
-            if (e.Key == Key.Space)
-                e.Handled = true;
-        }
-
-        private void _PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            // Ввод только цифр и точки
-            short val;
-            if (!short.TryParse(e.Text, out val))
-                e.Handled = true;
-        }
-        #endregion
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -105,7 +95,7 @@
                     CbScales.SelectedItem = cans.Name;
 
                 // Заполняем список текстовых стилей
-                string txtstname;
+                string txtStyleName;
                 using (var acTrans = doc.TransactionManager.StartTransaction())
                 {
                     var tst = (TextStyleTable)acTrans.GetObject(db.TextStyleTableId, OpenMode.ForRead);
@@ -117,14 +107,11 @@
                     }
 
                     var curtxt = (TextStyleTableRecord)acTrans.GetObject(db.Textstyle, OpenMode.ForRead);
-                    if (CbTextStyle.Items.Contains(curtxt.Name))
-                        txtstname = curtxt.Name;
-                    else
-                        txtstname = CbTextStyle.Items[0].ToString();
+                    txtStyleName = CbTextStyle.Items.Contains(curtxt.Name) ? curtxt.Name : CbTextStyle.Items[0].ToString();
                     acTrans.Commit();
                 }
 
-                CbTextStyle.SelectedItem = txtstname;
+                CbTextStyle.SelectedItem = txtStyleName;
 
                 // Логотип
                 CbLogo.Items.Clear();
@@ -151,6 +138,8 @@
                 // Загрузка из настроек
                 LoadFromSettings();
 
+                ChangeBottomFrameVisibility();
+
                 // Проверка файла со штампами
                 if (!CheckTableFileExist())
                 {
@@ -166,7 +155,11 @@
                 }
 
                 // Включаем обработчики событий
+                CbGostFormats.SelectionChanged += CbGostFormats_SelectionChanged;
+                CbIsoFormats.SelectionChanged += CbIsoFormats_OnSelectionChanged;
                 CbMultiplicity.SelectionChanged += CbMultiplicity_OnSelectionChanged;
+                ChkAccordingToGost.Checked += ChkAccordingToGostOnCheckStatusChange;
+                ChkAccordingToGost.Unchecked += ChkAccordingToGostOnCheckStatusChange;
                 RbVertical.Checked += RadioButton_FormatSettings_OnChecked_OnUnchecked;
                 RbVertical.Unchecked += RadioButton_FormatSettings_OnChecked_OnUnchecked;
                 RbHorizontal.Checked += RadioButton_FormatSettings_OnChecked_OnUnchecked;
@@ -176,7 +169,6 @@
                 RbShort.Checked += RadioButton_FormatSettings_OnChecked_OnUnchecked;
                 RbShort.Unchecked += RadioButton_FormatSettings_OnChecked_OnUnchecked;
 
-                // show format size
                 ShowFormatSize();
             }
             catch (System.Exception exception)
@@ -199,7 +191,7 @@
                 {
                     UserConfigFile.SetValue("mpFormats", "CbDocumentsFor",
                         cb.SelectedIndex.ToString(CultureInfo.InvariantCulture), true);
-                    
+
                     FillStamps();
                 }
             }
@@ -234,14 +226,17 @@
             var li = ModPlusConnector.Instance.Name;
 
             CbDocumentsFor.SelectedIndex =
-                    int.TryParse(UserConfigFile.GetValue(li, "CbDocumentsFor"), out int index)
-                        ? index
-                        : 0;
+                int.TryParse(UserConfigFile.GetValue(li, "CbDocumentsFor"), out var index) ? index : 0;
 
             // format
-            CbFormat.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbFormat"), out int i) ? i : 3;
-            CbMultiplicity.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbMultiplicity"), out i) ? i : 0;
+            CbGostFormats.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbGostFormats"), out var i) ? i : 3;
+            FillMultiplicity();
+            CbIsoFormats.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbIsoFormats"), out i) ? i : 3;
+            CbMultiplicity.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbMultiplicity"), out i) 
+                ? CbMultiplicity.Items.Count < i ? i : 0
+                : 0;
             CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbBottomFrame"), out i) ? i : 0;
+            ChkAccordingToGost.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "AccordingToGost"), out var b) && b;
 
             // Выбранный штамп
             CbTables.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbTables"), out i) ? i : 0;
@@ -251,7 +246,7 @@
             CbScales.SelectedIndex = CbScales.Items.Contains(scale)
                 ? CbScales.Items.IndexOf(scale)
                 : 0;
-            ChkB1.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChkB1"), out var b) && b;
+            ChkB1.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChkB1"), out b) && b;
             ChkB2.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChkB2"), out b) && b;
             ChkB3.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChkB3"), out b) && b;
             ChbCopy.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChbCopy"), out b) && b;
@@ -311,11 +306,11 @@
             try
             {
                 var li = ModPlusConnector.Instance.Name;
-                UserConfigFile.SetValue(li, "CbFormat", CbFormat.SelectedIndex.ToString(), false);
-                UserConfigFile.SetValue(li, "CbMultiplicity", CbMultiplicity.SelectedIndex.ToString(),
-                    false);
-                UserConfigFile.SetValue(li, "CbBottomFrame", CbBottomFrame.SelectedIndex.ToString(),
-                    false);
+                UserConfigFile.SetValue(li, "CbGostFormats", CbGostFormats.SelectedIndex.ToString(), false);
+                UserConfigFile.SetValue(li, "CbIsoFormats", CbIsoFormats.SelectedIndex.ToString(), false);
+                UserConfigFile.SetValue(li, "CbMultiplicity", CbMultiplicity.SelectedIndex.ToString(), false);
+                UserConfigFile.SetValue(li, "CbBottomFrame", CbBottomFrame.SelectedIndex.ToString(), false);
+                UserConfigFile.SetValue(li, "AccordingToGost", ChkAccordingToGost.IsChecked.ToString(), false);
 
                 UserConfigFile.SetValue(li, "ChkB1",
                     (ChkB1.IsChecked != null && ChkB1.IsChecked.Value).ToString(), false);
@@ -770,57 +765,77 @@
             }
         }
 
-        private void CbFormat_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void CbGostFormats_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var arr = new ArrayList();
-            if (CbFormat.SelectedIndex == 0) // A0
+            FillMultiplicity();
+            CbMultiplicity.SelectedIndex = 0;
+
+            ChangeBottomFrameVisibility();
+
+            ShowFormatSize();
+        }
+
+        private void FillMultiplicity()
+        {
+            string[] multiplicityValues = null;
+            if (CbGostFormats.SelectedItem.ToString() == "A0")
             {
-                arr = new ArrayList { "1", "2", "3" };
-                PanelBottomFrame.Visibility = Visibility.Collapsed;
-                CbBottomFrame.SelectedIndex = 0;
+                multiplicityValues = new[] { "1", "2", "3" };
             }
 
-            if (CbFormat.SelectedIndex == 1) // A1
+            if (CbGostFormats.SelectedItem.ToString() == "A1")
             {
-                arr = new ArrayList { "1", "3", "4" };
-                PanelBottomFrame.Visibility = Visibility.Collapsed;
-                CbBottomFrame.SelectedIndex = 0;
+                multiplicityValues = new[] { "1", "3", "4" };
             }
 
-            if (CbFormat.SelectedIndex == 2) // A2
+            if (CbGostFormats.SelectedItem.ToString() == "A2")
             {
-                arr = new ArrayList { "1", "3", "4", "5" };
-                PanelBottomFrame.Visibility = Visibility.Collapsed;
-                CbBottomFrame.SelectedIndex = 0;
+                multiplicityValues = new[] { "1", "3", "4", "5" };
             }
 
-            if (CbFormat.SelectedIndex == 3) // A3
+            if (CbGostFormats.SelectedItem.ToString() == "A3")
             {
-                arr = new ArrayList { "1", "3", "4", "5", "6", "7" };
+                multiplicityValues = new[] { "1", "3", "4", "5", "6", "7" };
+            }
+
+            if (CbGostFormats.SelectedItem.ToString() == "A4")
+            {
+                multiplicityValues = new[] { "1", "3", "4", "5", "6", "7", "8", "9" };
+            }
+
+            if (CbGostFormats.SelectedItem.ToString() == "A5")
+            {
+                multiplicityValues = new[] { "1" };
+            }
+
+            CbMultiplicity.ItemsSource = multiplicityValues;
+        }
+
+        private void ChangeBottomFrameVisibility()
+        {
+            PanelBottomFrame.Visibility = Visibility.Collapsed;
+            CbBottomFrame.SelectedIndex = 0;
+
+            if (Tabs.SelectedIndex == 0 &&
+                (CbGostFormats.SelectedItem.ToString() == "A3" || CbGostFormats.SelectedItem.ToString() == "A4"))
+            {
                 PanelBottomFrame.Visibility = Visibility.Visible;
-                int i;
-                CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue("mpFormats", "CbBottomFrame"), out i) ? i : 0;
+                CbBottomFrame.SelectedIndex =
+                    int.TryParse(UserConfigFile.GetValue("mpFormats", "CbBottomFrame"), out var i) ? i : 0;
             }
-
-            if (CbFormat.SelectedIndex == 4) // A4
+            else if (Tabs.SelectedIndex == 1 &&
+                     (CbIsoFormats.SelectedItem.ToString() == "A3" || CbIsoFormats.SelectedItem.ToString() == "A4"))
             {
-                arr = new ArrayList { "1", "3", "4", "5", "6", "7", "8", "9" };
                 PanelBottomFrame.Visibility = Visibility.Visible;
-                int i;
-                CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue("mpFormats", "CbBottomFrame"), out i) ? i : 0;
+                CbBottomFrame.SelectedIndex =
+                    int.TryParse(UserConfigFile.GetValue("mpFormats", "CbBottomFrame"), out var i) ? i : 0;
             }
+        }
 
-            if (CbFormat.SelectedIndex == 5) // A5
-            {
-                arr = new ArrayList { "1" };
-                PanelBottomFrame.Visibility = Visibility.Collapsed;
-                CbBottomFrame.SelectedIndex = 0;
-            }
+        private void CbIsoFormats_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ChangeBottomFrameVisibility();
 
-            CbMultiplicity.ItemsSource = arr;
-            CbMultiplicity.SelectedIndex = 0;// Установить первое значение
-
-            // show format size
             ShowFormatSize();
         }
 
@@ -834,7 +849,7 @@
                 Vector3d replaceVector3D;
                 Point3d blockInsertionPoint3D;
 
-                if (Tabs.SelectedIndex == 0)
+                if (Tabs.SelectedIndex == 0 || Tabs.SelectedIndex == 1)
                 {
                     string side, orientation;
                     if (RbShort.IsChecked != null && RbShort.IsChecked.Value)
@@ -847,8 +862,11 @@
                         orientation = ModPlusAPI.Language.GetItem(LangItem, "h9");
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
 
-                    var format = ((ListBoxItem)CbFormat.SelectedItem).Content.ToString();
-                    var multiplicity = CbMultiplicity.SelectedItem.ToString();
+                    var format = Tabs.SelectedIndex == 0
+                        ? CbGostFormats.SelectedItem.ToString()
+                        : CbIsoFormats.SelectedItem.ToString();
+                    var multiplicity = Tabs.SelectedIndex == 0 ? CbMultiplicity.SelectedItem.ToString() : "1";
+                    var accordingToGost = ChkAccordingToGost.IsChecked != null && ChkAccordingToGost.IsChecked.Value;
 
                     Hide();
                     try
@@ -870,6 +888,7 @@
                                 Scale(CbScales.SelectedItem.ToString()),
                                 null,
                                 ChkSetCurrentLayer.IsChecked ?? false,
+                                accordingToGost,
                                 out bottomLeftPt,
                                 out topLeftPt,
                                 out bottomRightPt,
@@ -891,7 +910,7 @@
                     }
                 }
 
-                if (Tabs.SelectedIndex == 1)
+                if (Tabs.SelectedIndex == 2)
                 {
                     if (!TbFormatLength.Value.HasValue)
                     {
@@ -940,7 +959,6 @@
                                 out bottomRightPt,
                                 out replaceVector3D,
                                 out blockInsertionPoint3D))
-
                         {
                             AddStamps(
                                 bottomLeftPt,
@@ -967,7 +985,7 @@
         {
             try
             {
-                if (Tabs.SelectedIndex == 0)
+                if (Tabs.SelectedIndex == 0 || Tabs.SelectedIndex == 1)
                 {
                     string side, orientation;
 
@@ -981,8 +999,11 @@
                         orientation = ModPlusAPI.Language.GetItem(LangItem, "h9");
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
 
-                    var format = ((ListBoxItem)CbFormat.SelectedItem).Content.ToString();
-                    var multiplicity = CbMultiplicity.SelectedItem.ToString();
+                    var format = Tabs.SelectedIndex == 0
+                        ? CbGostFormats.SelectedItem.ToString()
+                        : CbIsoFormats.SelectedItem.ToString();
+                    var multiplicity = Tabs.SelectedIndex == 0 ? CbMultiplicity.SelectedItem.ToString() : "1";
+                    var accordingToGost = ChkAccordingToGost.IsChecked != null && ChkAccordingToGost.IsChecked.Value;
 
                     Hide();
                     try
@@ -999,7 +1020,8 @@
                                 CbBottomFrame.SelectionBoxItem.ToString(),
                                 CbTextStyle.SelectedItem.ToString(),
                                 Scale(CbScales.SelectedItem.ToString()),
-                                ChkSetCurrentLayer.IsChecked ?? false);
+                                ChkSetCurrentLayer.IsChecked ?? false,
+                                accordingToGost);
                     }
                     finally
                     {
@@ -1007,7 +1029,7 @@
                     }
                 }
 
-                if (Tabs.SelectedIndex == 1)
+                if (Tabs.SelectedIndex == 2)
                 {
                     if (!TbFormatLength.Value.HasValue)
                     {
@@ -1071,7 +1093,7 @@
                 Vector3d replaceVector3D;
                 Point3d blockInsertionPoint3D;
 
-                if (Tabs.SelectedIndex == 0)
+                if (Tabs.SelectedIndex == 0 || Tabs.SelectedIndex == 1)
                 {
                     string side, orientation;
                     if (RbShort.IsChecked != null && RbShort.IsChecked.Value)
@@ -1084,8 +1106,11 @@
                         orientation = ModPlusAPI.Language.GetItem(LangItem, "h9");
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
 
-                    var format = ((ListBoxItem)CbFormat.SelectedItem).Content.ToString();
-                    var multiplicity = CbMultiplicity.SelectedItem.ToString();
+                    var format = Tabs.SelectedIndex == 0
+                        ? CbGostFormats.SelectedItem.ToString()
+                        : CbIsoFormats.SelectedItem.ToString();
+                    var multiplicity = Tabs.SelectedIndex == 0 ? CbMultiplicity.SelectedItem.ToString() : "1";
+                    var accordingToGost = ChkAccordingToGost.IsChecked != null && ChkAccordingToGost.IsChecked.Value;
 
                     // Переменная указывает, следует ли оставить масштаб 1:1
                     // Создаем лист
@@ -1110,12 +1135,12 @@
                                 layoutScaleOneToOne ? 1 : Scale(CbScales.SelectedItem.ToString()),
                                 null,
                                 ChkSetCurrentLayer.IsChecked ?? false,
+                                accordingToGost,
                                 out bottomLeftPt,
                                 out topLeftPt,
                                 out bottomRightPt,
                                 out replaceVector3D,
                                 out blockInsertionPoint3D))
-
                         {
                             AddStamps(
                                 bottomLeftPt,
@@ -1132,7 +1157,7 @@
                     }
                 }
 
-                if (Tabs.SelectedIndex == 1)
+                if (Tabs.SelectedIndex == 2)
                 {
                     if (!TbFormatLength.Value.HasValue)
                     {
@@ -1183,7 +1208,6 @@
                                 out topLeftPt,
                                 out bottomRightPt, out replaceVector3D,
                                 out blockInsertionPoint3D))
-
                         {
                             AddStamps(
                                   bottomLeftPt,
@@ -1343,7 +1367,7 @@
         // Вставка штампа
         private void BtAddTable(
             string tableStyleName,
-            string pointAligin,
+            string pointAlign,
             Point3d insertPt,
             Vector3d replaceVector3D,
             double scale,
@@ -1420,13 +1444,13 @@
                                 var width = tbl.Width;
                                 var height = tbl.Height;
 
-                                if (pointAligin.Equals("TopLeft"))
+                                if (pointAlign.Equals("TopLeft"))
                                     mInsertPt = insertPt;
-                                if (pointAligin.Equals("TopRight"))
+                                if (pointAlign.Equals("TopRight"))
                                     mInsertPt = new Point3d(insertPt.X - width, insertPt.Y, insertPt.Z);
-                                if (pointAligin.Equals("BottomLeft"))
+                                if (pointAlign.Equals("BottomLeft"))
                                     mInsertPt = new Point3d(insertPt.X, insertPt.Y + height, insertPt.Z);
-                                if (pointAligin.Equals("BottomRight"))
+                                if (pointAlign.Equals("BottomRight"))
                                     mInsertPt = new Point3d(insertPt.X - width, insertPt.Y + height, insertPt.Z);
                                 tbl.Position = mInsertPt;
 
@@ -1574,16 +1598,14 @@
                                     {
                                         if (!string.IsNullOrEmpty(_lnumber))
                                         {
-                                            var rown = -1;
-                                            var coln = -1;
-                                            int.TryParse(_lnumbercoord.Split(',').GetValue(0).ToString(), out rown);
-                                            int.TryParse(_lnumbercoord.Split(',').GetValue(1).ToString(), out coln);
-                                            if (rown != -1 & coln != -1)
+                                            int.TryParse(_lnumbercoord.Split(',').GetValue(0).ToString(), out var rowN);
+                                            int.TryParse(_lnumbercoord.Split(',').GetValue(1).ToString(), out var colN);
+                                            if (rowN != -1 & colN != -1)
                                             {
-                                                if (string.IsNullOrEmpty(tbl.Cells[rown, coln].TextString))
-                                                    tbl.Cells[rown, coln].TextString = _lnumber;
+                                                if (string.IsNullOrEmpty(tbl.Cells[rowN, colN].TextString))
+                                                    tbl.Cells[rowN, colN].TextString = _lnumber;
                                                 else
-                                                    tbl.Cells[rown, coln].TextString = tbl.Cells[rown, coln].TextString + " " + _lnumber;
+                                                    tbl.Cells[rowN, colN].TextString = tbl.Cells[rowN, colN].TextString + " " + _lnumber;
                                             }
                                         }
                                     }
@@ -1662,11 +1684,13 @@
                                 {
                                     var xElements = UserConfigFile.ConfigFileXml?.Element("Settings")?.Element("UserSurnames")?.Elements("Surname");
                                     if (xElements != null)
+                                    {
                                         foreach (var sn in xElements)
                                         {
                                             surnames.Add(sn.Attribute("Surname").Value);
                                             surnameskeys.Add(sn.Attribute("Id").Value);
                                         }
+                                    }
                                 }
                             }
 
@@ -1708,12 +1732,12 @@
 
         private static string GetResourceTextFile(string filename)
         {
-            string result = string.Empty;
+            var result = string.Empty;
 
-            using (Stream stream = Assembly.GetExecutingAssembly().
+            using (var stream = Assembly.GetExecutingAssembly().
                 GetManifestResourceStream("mpFormats.Resources." + filename))
             {
-                using (StreamReader sr = new StreamReader(stream))
+                using (var sr = new StreamReader(stream))
                 {
                     result = sr.ReadToEnd();
                 }
@@ -1723,6 +1747,7 @@
         }
 
         #region checkboxes
+
         private void ChbNumber_OnChecked(object sender, RoutedEventArgs e)
         {
             Image_num.Opacity = 1;
@@ -1793,7 +1818,6 @@
             Image_stamp.Opacity = 1;
             GridStamp.Visibility = CbDocumentsFor.Visibility =
             CbLogo.Visibility = GridSplitterStamp.Visibility = Visibility.Visible;
-
         }
 
         private void ChkStamp_OnUnchecked(object sender, RoutedEventArgs e)
@@ -1818,12 +1842,16 @@
                 else
                     orientation = ModPlusAPI.Language.GetItem(LangItem, "h9");
 
-                var format = ((ListBoxItem)CbFormat.SelectedItem).Content.ToString();
-                var multiplicity = CbMultiplicity.SelectedItem.ToString();
+                var format = Tabs.SelectedIndex == 0
+                    ? CbGostFormats.SelectedItem.ToString()
+                    : CbIsoFormats.SelectedItem.ToString();
+                var multiplicity = Tabs.SelectedIndex == 0 ? CbMultiplicity.SelectedItem.ToString() : "1";
 
-                MpFormatsAdd.GetFormatSize(format, orientation, side, multiplicity, out var width, out var height);
-                TbFormatSize.Text = width.ToString(CultureInfo.InvariantCulture) + " x " +
-                                    height.ToString(CultureInfo.InvariantCulture);
+                var accordingToGost = ChkAccordingToGost.IsChecked != null && ChkAccordingToGost.IsChecked.Value;
+
+                var formatSize = MpFormatsAdd.GetFormatSize(format, orientation, side, multiplicity, accordingToGost);
+                TbFormatSize.Text = formatSize.Width.ToString(CultureInfo.InvariantCulture) + " x " +
+                                    formatSize.Height.ToString(CultureInfo.InvariantCulture);
             }
             catch
             {
@@ -1833,13 +1861,16 @@
 
         private void CbMultiplicity_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // show format size
+            ShowFormatSize();
+        }
+
+        private void ChkAccordingToGostOnCheckStatusChange(object sender, RoutedEventArgs e)
+        {
             ShowFormatSize();
         }
 
         private void RadioButton_FormatSettings_OnChecked_OnUnchecked(object sender, RoutedEventArgs e)
         {
-            // show format size
             ShowFormatSize();
         }
 
@@ -1847,10 +1878,28 @@
         {
             if (sender is TabControl tab)
             {
-                if (tab.SelectedIndex != -1)
-                    TbFormatSize.Visibility = tab.SelectedIndex == 0 ? Visibility.Visible : Visibility.Collapsed;
+                TbFormatSize.Visibility = tab.SelectedIndex == 2 ? Visibility.Collapsed : Visibility.Visible;
+
+                if (tab.SelectedIndex == 1)
+                {
+                    ChkB1.Visibility = Visibility.Hidden;
+                    ChkB2.Visibility = Visibility.Hidden;
+                    ChkB3.Visibility = Visibility.Hidden;
+                    Image_b1.Visibility = Visibility.Hidden;
+                    Image_b2.Visibility = Visibility.Hidden;
+                    Image_top.Visibility = Visibility.Hidden;
+                }
                 else
-                    TbFormatSize.Visibility = Visibility.Visible;
+                {
+                    ChkB1.Visibility = Visibility.Visible;
+                    ChkB2.Visibility = Visibility.Visible;
+                    ChkB3.Visibility = Visibility.Visible;
+                    Image_b1.Visibility = Visibility.Visible;
+                    Image_b2.Visibility = Visibility.Visible;
+                    Image_top.Visibility = Visibility.Visible;
+                }
+
+                ShowFormatSize();
             }
         }
 
@@ -1942,7 +1991,7 @@
                 return blockName;
             }
         }
-        
+
         // Запрет пробела
         private void TboxesNoSpaceBar_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
