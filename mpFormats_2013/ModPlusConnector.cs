@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using ModPlusAPI.Interfaces;
-
+﻿#pragma warning disable SA1600 // Elements should be documented
 namespace mpFormats
 {
+    using System;
+    using System.Collections.Generic;
+    using ModPlusAPI.Interfaces;
+
     public class ModPlusConnector : IModPlusFunctionInterface
     {
         private static ModPlusConnector _instance;
@@ -40,7 +41,7 @@ namespace mpFormats
         
         public string LName => "Форматки";
         
-        public string Description => "Функция вставки в чертеж форматок по ГОСТ 2.301-68";
+        public string Description => "Плагин вставки в чертеж форматок по ГОСТ 2.301-68/ISO 216";
         
         public string Author => "Пекшев Александр aka Modis";
         
@@ -48,7 +49,7 @@ namespace mpFormats
         
         public bool CanAddToRibbon => true;
         
-        public string FullDescription => "Форматки вставляются в виде блока со специальной меткой в расширенных данных. Метка в расширенных данных требуется для определения форматок другими функциями (например, \"Нумератор листов\"). Поэтому не следует вставлять форматки стандартными средствами вставки блока в AutoCAD. Функция позволяет добавлять к форматке штампы – для этого должна быть установлена и хотя бы раз запущена функция \"Штампы\"";
+        public string FullDescription => "Форматки вставляются в виде блока со специальной меткой в расширенных данных. Метка в расширенных данных требуется для определения форматок другими функциями (например, \"Нумератор листов\"). Поэтому не следует вставлять форматки стандартными средствами вставки блока в AutoCAD. Плагин позволяет добавлять к форматке штампы – для этого должна быть установлена и хотя бы раз запущена функция \"Штампы\"";
         
         public string ToolTipHelpImage => string.Empty;
         
@@ -65,3 +66,4 @@ namespace mpFormats
         public List<string> SubClassNames => new List<string>();
     }
 }
+#pragma warning restore SA1600 // Elements should be documented

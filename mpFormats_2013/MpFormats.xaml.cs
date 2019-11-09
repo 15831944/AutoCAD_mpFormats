@@ -1,12 +1,12 @@
 ﻿namespace mpFormats
 {
-    using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Input;
@@ -19,9 +19,9 @@
     using Autodesk.AutoCAD.Windows;
     using ModPlusAPI;
     using ModPlusAPI.Windows;
-    using Visibility = System.Windows.Visibility;
-    using System.Reflection;
+    using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
     using MessageBox = ModPlusAPI.Windows.MessageBox;
+    using Visibility = System.Windows.Visibility;
 
     public partial class MpFormats
     {
@@ -30,10 +30,13 @@
         public static int Row;// Строка начала заполнения должностей
         public static int Col;// Столбец начала заполнения должностей
         public static bool HasSureNames;// Есть ли должности
+
         // Текущий документ с таблицами
         private XElement _xmlTblsDoc;
+
         // Текущая таблица в виде XElement
         private XElement _currentTblXml;
+
         // Переменные для хранения координат вставки имени и номера в штамп
         // выносим отдельно, т.к. окно открывается в другом методе
         private static string _lnamecoord = string.Empty;
@@ -45,26 +48,31 @@
         {
             InitializeComponent();
             Title = ModPlusAPI.Language.GetItem(LangItem, "h4");
+
             // Настройки видимости для штампа отключаем тут, чтобы видеть в редакторе окна
-            GridStamp.Visibility = //DpSurenames.Visibility = //TbLogo.Visibility =
+            GridStamp.Visibility =
             CbLogo.Visibility = GridSplitterStamp.Visibility = Visibility.Collapsed;
         }
+
         #region window basic
 
         private void MetroWindow_MouseEnter(object sender, MouseEventArgs e)
         {
             Focus();
         }
+
         private void MetroWindow_MouseLeave(object sender, MouseEventArgs e)
         {
             Utils.SetFocusToDwgView();
         }
+
         private void Tb_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             // Запрет нажатия пробела
             if (e.Key == Key.Space)
                 e.Handled = true;
         }
+
         private void _PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // Ввод только цифр и точки
@@ -82,6 +90,7 @@
                 var db = doc.Database;
 
                 _xmlTblsDoc = XElement.Parse(GetResourceTextFile("Stamps.xml"));
+
                 // Заполнение списка масштабов
                 var ocm = db.ObjectContextManager;
                 var occ = ocm.GetContextCollection("ACDB_ANNOTATIONSCALES");
@@ -89,9 +98,12 @@
                 {
                     CbScales.Items.Add(ans.Name);
                 }
+
                 // Начальное значение масштаба
                 var cans = occ.CurrentContext as AnnotationScale;
-                if (cans != null) CbScales.SelectedItem = cans.Name;
+                if (cans != null)
+                    CbScales.SelectedItem = cans.Name;
+
                 // Заполняем список текстовых стилей
                 string txtstname;
                 using (var acTrans = doc.TransactionManager.StartTransaction())
@@ -103,13 +115,17 @@
                         if (!string.IsNullOrEmpty(tstr.Name))
                             CbTextStyle.Items.Add(tstr.Name);
                     }
+
                     var curtxt = (TextStyleTableRecord)acTrans.GetObject(db.Textstyle, OpenMode.ForRead);
                     if (CbTextStyle.Items.Contains(curtxt.Name))
                         txtstname = curtxt.Name;
-                    else txtstname = CbTextStyle.Items[0].ToString();
+                    else
+                        txtstname = CbTextStyle.Items[0].ToString();
                     acTrans.Commit();
                 }
+
                 CbTextStyle.SelectedItem = txtstname;
+
                 // Логотип
                 CbLogo.Items.Clear();
                 CbLogo.Items.Add(ModPlusAPI.Language.GetItem(LangItem, "no"));
@@ -129,26 +145,27 @@
                         }
                     }
                 }
-                CbLogo.SelectedIndex = 0;
 
-                //FillStamps();
+                CbLogo.SelectedIndex = 0;
 
                 // Загрузка из настроек
                 LoadFromSettings();
+
                 // Проверка файла со штампами
                 if (!CheckTableFileExist())
                 {
                     MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err5"), MessageBoxIcon.Alert);
+
                     // Видимость
-                    GridStamp.Visibility = //DpSurenames.Visibility = //TbLogo.Visibility =
+                    GridStamp.Visibility =
                         CbLogo.Visibility =
                         ChkStamp.Visibility = ChkB1.Visibility = ChkB2.Visibility = ChkB3.Visibility = GridSplitterStamp.Visibility =
                         Image_stamp.Visibility = Image_b1.Visibility = Image_b2.Visibility = Image_top.Visibility =
                         Visibility.Collapsed;
                     ChkStamp.IsChecked = ChkB1.IsChecked = ChkB2.IsChecked = ChkB3.IsChecked = false;
                 }
+
                 // Включаем обработчики событий
-                //CbFormat.SelectionChanged += CbFormat_SelectionChanged;
                 CbMultiplicity.SelectionChanged += CbMultiplicity_OnSelectionChanged;
                 RbVertical.Checked += RadioButton_FormatSettings_OnChecked_OnUnchecked;
                 RbVertical.Unchecked += RadioButton_FormatSettings_OnChecked_OnUnchecked;
@@ -158,6 +175,7 @@
                 RbLong.Unchecked += RadioButton_FormatSettings_OnChecked_OnUnchecked;
                 RbShort.Checked += RadioButton_FormatSettings_OnChecked_OnUnchecked;
                 RbShort.Unchecked += RadioButton_FormatSettings_OnChecked_OnUnchecked;
+
                 // show format size
                 ShowFormatSize();
             }
@@ -166,10 +184,12 @@
                 ExceptionBox.Show(exception);
             }
         }
+
         private void Window_Closed(object sender, EventArgs e)
         {
             SaveToSettings();
         }
+
         // Выбор базы таблиц
         private void CbDocumentsFor_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -184,20 +204,21 @@
                     {
                         case 0: // RU
                             {
-
                             }
+
                             break;
                         case 1: // UA
                             {
-
                             }
+
                             break;
                         case 2: // BY
                             {
-
                             }
+
                             break;
                     }
+
                     FillStamps();
                 }
             }
@@ -206,6 +227,7 @@
                 ExceptionBox.Show(ex);
             }
         }
+
         private static bool CheckTableFileExist()
         {
             var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("ModPlus");
@@ -215,11 +237,13 @@
                 {
                     // Директория расположения файла
                     var dir = Path.Combine(key.GetValue("TopDir").ToString(), "Data", "Dwg");
+
                     // Имя файла из которого берем таблицу
                     var sourceFileName = Path.Combine(dir, "Stamps.dwg");
                     return File.Exists(sourceFileName);
                 }
             }
+
             return false;
         }
 
@@ -232,6 +256,7 @@
                     int.TryParse(UserConfigFile.GetValue(li, "CbDocumentsFor"), out int index)
                         ? index
                         : 0;
+
             // format
             CbFormat.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbFormat"), out int i) ? i : 3;
             CbMultiplicity.SelectedIndex = int.TryParse(UserConfigFile.GetValue(li, "CbMultiplicity"), out i) ? i : 0;
@@ -275,11 +300,13 @@
             ChbHasFields.IsChecked = bool.TryParse(UserConfigFile.GetValue(li, "ChbHasFields"), out b) && b;
 
             // Высота текста
-            TbMainTextHeight.Text = double.TryParse(UserConfigFile.GetValue(li, "MainTextHeight"),
+            TbMainTextHeight.Text = double.TryParse(
+                UserConfigFile.GetValue(li, "MainTextHeight"),
                 out var d)
                 ? d.ToString(CultureInfo.InvariantCulture)
                 : "2.5";
-            TbBigTextHeight.Text = double.TryParse(UserConfigFile.GetValue(li, "BigTextHeight"),
+            TbBigTextHeight.Text = double.TryParse(
+                UserConfigFile.GetValue(li, "BigTextHeight"),
                 out d)
                 ? d.ToString(CultureInfo.InvariantCulture)
                 : "3.5";
@@ -328,16 +355,21 @@
 
                 UserConfigFile.SetValue(li, "TbFormatHeight", TbFormatHeight.Value.ToString(), false);
                 UserConfigFile.SetValue(li, "TbFormatLength", TbFormatLength.Value.ToString(), false);
+
                 // Текстовый стиль
                 UserConfigFile.SetValue(li, "CbTextStyle", CbTextStyle.SelectedItem.ToString(), false);
+
                 // Логотип
                 UserConfigFile.SetValue(li, "CbLogo", CbLogo.SelectedItem.ToString(), false);
+
                 // Поля
                 UserConfigFile.SetValue(li, "ChbHasFields",
                     (ChbHasFields.IsChecked != null && ChbHasFields.IsChecked.Value).ToString(), false);
+
                 // Выбранный штамп
                 UserConfigFile.SetValue(li, "CbTables",
                     CbTables.SelectedIndex.ToString(CultureInfo.InvariantCulture), false);
+
                 // Масштаб
                 UserConfigFile.SetValue(li, "CbScales",
                                         CbScales.SelectedItem.ToString(), false);
@@ -366,7 +398,7 @@
             var ocm = db.ObjectContextManager;
             var occ = ocm.GetContextCollection("ACDB_ANNOTATIONSCALES");
             var ansc = occ.GetContext(scaleName) as AnnotationScale;
-            return (ansc.DrawingUnits / ansc.PaperUnits);
+            return ansc.DrawingUnits / ansc.PaperUnits;
         }
 
         private void FillSurenames()
@@ -374,11 +406,13 @@
             // Очистка списков
             LbStampSurnames.Items.Clear();
             LbSurnames.Items.Clear();
+
             // Все должности в список должностей. В список должностей штампа - ничего
             foreach (var s in _currentTblXml.Attribute("surnames").Value.Split(','))
             {
                 LbSurnames.Items.Add(s);
             }
+
             // Заполняем список пользовательских должностей
             if (UserConfigFile.ConfigFileXml.Element("Settings") != null)
             {
@@ -387,12 +421,15 @@
                 {
                     var element = setXml.Element("UserSurnames");
                     if (element != null)
+                    {
                         foreach (var sn in element.Elements("Surname"))
                         {
                             LbSurnames.Items.Add(sn.Attribute("Surname").Value);
                         }
+                    }
                 }
             }
+
             // Заполняем значения из файла настроек. Про совпадении в "левом" списке - удаляем
             if (UserConfigFile.ConfigFileXml.Element("Settings") != null)
             {
@@ -405,20 +442,31 @@
                         LbStampSurnames.Items.Clear();
                         var xElement = setXml.Element("mpStampTblSaves");
                         if (xElement != null)
-                            foreach (var item in xElement.Attribute(
-                                _currentTblXml.Attribute("tablestylename").Value).Value.Split('$'))
+                        {
+                            foreach (var item in xElement.Attribute(_currentTblXml.Attribute("tablestylename").Value).Value.Split('$'))
                             {
                                 if (LbSurnames.Items.Contains(item))
                                     LbSurnames.Items.Remove(item);
                                 LbStampSurnames.Items.Add(item);
                             }
+                        }
                     }
-                    else FillStampSurnamesEmpty();
+                    else
+                    {
+                        FillStampSurnamesEmpty();
+                    }
                 }
-                else FillStampSurnamesEmpty();
+                else
+                {
+                    FillStampSurnamesEmpty();
+                }
             }
-            else FillStampSurnamesEmpty();
+            else
+            {
+                FillStampSurnamesEmpty();
+            }
         }
+
         private void FillStampSurnamesEmpty()
         {
             // Список должностей в штампе заполняем пустыми значениями
@@ -427,6 +475,7 @@
                 LbStampSurnames.Items.Add(string.Empty);
             }
         }
+
         private void FillStamps()
         {
             // Очищаем список таблиц
@@ -440,14 +489,18 @@
                     var docForAttr = tbl.Attribute("DocFor");
                     if (docForAttr != null && tbl.Attribute("noShow") == null &
                         docForAttr.Value.Equals(docFor))
+                    {
                         stamps.Add(new Stamp
                         {
                             Name = tbl.Attribute("name")?.Value,
                             TableStyle = tbl.Attribute("tablestylename")?.Value,
                             Description = tbl.Attribute("document")?.Value + " " + tbl.Attribute("description")?.Value
                         });
+                    }
                 }
+
                 CbTables.ItemsSource = stamps;
+
                 // Устанавливаем первое значение
                 CbTables.SelectedIndex = 0;
             }
@@ -462,13 +515,16 @@
         {
             try
             {
-                if (CbTables.Items.Count > 0) // Если не пустой список
+                // Если не пустой список
+                if (CbTables.Items.Count > 0)
                 {
                     var stamp = CbTables.SelectedItem as Stamp;
+
                     // Изменяем значения элементов формы в зависимости от выбранной таблицы
                     foreach (var tbl in _xmlTblsDoc.Elements("Stamp"))
                     {
                         if (stamp != null)
+                        {
                             if (stamp.Name.Equals(tbl.Attribute("name").Value) &
                                 stamp.TableStyle.Equals(tbl.Attribute("tablestylename").Value))
                             {
@@ -477,13 +533,14 @@
                                 // Изображение
                                 try
                                 {
-                                    var uriSource = new Uri(@"/mpFormats_" + ModPlusConnector.Instance.AvailProductExternalVersion + ";component/Resources/Preview/" +
+                                    var uriSource = new Uri(
+                                        @"/mpFormats_" + ModPlusConnector.Instance.AvailProductExternalVersion + ";component/Resources/Preview/" +
                                         tbl.Attribute("img")?.Value + ".png", UriKind.Relative);
                                     Image_stamp.Source = new BitmapImage(uriSource);
                                 }
                                 catch
                                 {
-                                    //
+                                    // ignore
                                 }
 
                                 // Если можно использовать поля
@@ -500,14 +557,17 @@
                                     ChbHasFields.IsChecked = false;
                                     BtFields.IsEnabled = false;
                                 }
+
                                 var hasSurenamesAttr = tbl.Attribute("hassurenames");
                                 if (hasSurenamesAttr != null)
                                     HasSureNames = hasSurenamesAttr.Value.Equals("true");
+
                                 // Если есть фамилии
                                 if (HasSureNames)
                                 {
                                     LbStampSurnames.Visibility = Visibility.Visible;
                                     LbSurnames.Visibility = Visibility.Visible;
+
                                     // Максимальное количество имен
                                     var sureNamesColAttr = tbl.Attribute("surnamescol");
                                     if (sureNamesColAttr != null)
@@ -528,17 +588,21 @@
                                     LbStampSurnames.Visibility = Visibility.Hidden;
                                     LbSurnames.Visibility = Visibility.Hidden;
                                 }
+
                                 // Логотип
                                 CbLogo.IsEnabled = BtGetFileForLogo.IsEnabled = ChkLogoFromFile.IsEnabled = ChkLogoFromBlock.IsEnabled = bool.Parse(tbl.Attribute("logo").Value);
+
                                 // Большой текст
                                 TbBigTextHeight.IsEnabled = tbl.Attribute("bigCells") != null;
+
                                 // Координаты вставки номера и имени
                                 var lnameattr = tbl.Attribute("lnamecoordinates");
                                 _lnamecoord = lnameattr?.Value ?? string.Empty;
                                 var lnumberattr = tbl.Attribute("lnumbercooridnates");
                                 _lnumbercoord = lnumberattr?.Value ?? string.Empty;
                                 break;
-                            } // Tabel name
+                            }
+                        }
                     }
                 }
             }
@@ -577,7 +641,8 @@
                     Topmost = true
                 };
                 window.ShowDialog();
-                // Перезаполнем список фамилий
+
+                // Перезаполняем список фамилий
                 FillSurenames();
             }
         }
@@ -606,7 +671,9 @@
                 }
             }
             else
+            {
                 BtRemoveSurname.IsEnabled = false;
+            }
         }
 
         // Нажатие на кнопку "Добавить должность"
@@ -616,6 +683,7 @@
             {
                 // Получаем кол-во "пустых" значений
                 var emptedCount = (from object item in LbStampSurnames.Items where string.IsNullOrEmpty(item.ToString()) select item.ToString()).ToList().Count;
+
                 // Если кол-во пустых больше 0, то заменяем первое пустое выбранным значением
                 if (emptedCount > 0)
                 {
@@ -632,6 +700,7 @@
                         }
                     }
                 }
+
                 // Если кол-во пустых равно 0, значит мы достигли предела
                 else
                 {
@@ -653,6 +722,7 @@
                 {
                     LbSurnames.Items.Add(selected);
                     LbStampSurnames.Items.Remove(selected);
+
                     // Добавляем пустое значение!!!
                     LbStampSurnames.Items.Add(string.Empty);
                     SaveNamesForCurrentTableInConfigFile();
@@ -722,46 +792,53 @@
         private void CbFormat_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var arr = new ArrayList();
-            if (CbFormat.SelectedIndex == 0)// A0
+            if (CbFormat.SelectedIndex == 0) // A0
             {
                 arr = new ArrayList { "1", "2", "3" };
                 PanelBottomFrame.Visibility = Visibility.Collapsed;
                 CbBottomFrame.SelectedIndex = 0;
             }
-            if (CbFormat.SelectedIndex == 1)// A1
+
+            if (CbFormat.SelectedIndex == 1) // A1
             {
                 arr = new ArrayList { "1", "3", "4" };
                 PanelBottomFrame.Visibility = Visibility.Collapsed;
                 CbBottomFrame.SelectedIndex = 0;
             }
-            if (CbFormat.SelectedIndex == 2)// A2
+
+            if (CbFormat.SelectedIndex == 2) // A2
             {
                 arr = new ArrayList { "1", "3", "4", "5" };
                 PanelBottomFrame.Visibility = Visibility.Collapsed;
                 CbBottomFrame.SelectedIndex = 0;
             }
-            if (CbFormat.SelectedIndex == 3)// A3
+
+            if (CbFormat.SelectedIndex == 3) // A3
             {
                 arr = new ArrayList { "1", "3", "4", "5", "6", "7" };
                 PanelBottomFrame.Visibility = Visibility.Visible;
                 int i;
                 CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue("mpFormats", "CbBottomFrame"), out i) ? i : 0;
             }
-            if (CbFormat.SelectedIndex == 4)// A4
+
+            if (CbFormat.SelectedIndex == 4) // A4
             {
                 arr = new ArrayList { "1", "3", "4", "5", "6", "7", "8", "9" };
                 PanelBottomFrame.Visibility = Visibility.Visible;
                 int i;
                 CbBottomFrame.SelectedIndex = int.TryParse(UserConfigFile.GetValue("mpFormats", "CbBottomFrame"), out i) ? i : 0;
             }
-            if (CbFormat.SelectedIndex == 5)// A5
+
+            if (CbFormat.SelectedIndex == 5) // A5
             {
                 arr = new ArrayList { "1" };
                 PanelBottomFrame.Visibility = Visibility.Collapsed;
                 CbBottomFrame.SelectedIndex = 0;
             }
+
             CbMultiplicity.ItemsSource = arr;
             CbMultiplicity.SelectedIndex = 0;// Установить первое значение
+
             // show format size
             ShowFormatSize();
         }
@@ -779,7 +856,8 @@
                 if (Tabs.SelectedIndex == 0)
                 {
                     string side, orientation;
-                    if (RbShort.IsChecked != null && RbShort.IsChecked.Value) side = ModPlusAPI.Language.GetItem(LangItem, "h11");
+                    if (RbShort.IsChecked != null && RbShort.IsChecked.Value)
+                        side = ModPlusAPI.Language.GetItem(LangItem, "h11");
                     else
                         side = ModPlusAPI.Language.GetItem(LangItem, "h12");
                     if (RbHorizontal.IsChecked != null && RbHorizontal.IsChecked.Value)
@@ -795,6 +873,7 @@
                     try
                     {
                         Utils.SetFocusToDwgView();
+
                         // Форматка
                         if (MpFormatsAdd.DrawBlock(
                                 format,
@@ -815,7 +894,7 @@
                                 out bottomRightPt,
                                 out replaceVector3D,
                                 out blockInsertionPoint3D))
-
+                        {
                             AddStamps(
                                 bottomLeftPt,
                                 topLeftPt,
@@ -823,12 +902,14 @@
                                 replaceVector3D,
                                 Scale(CbScales.SelectedItem.ToString()),
                                 blockInsertionPoint3D);
+                        }
                     }
                     finally
                     {
                         Show();
                     }
                 }
+
                 if (Tabs.SelectedIndex == 1)
                 {
                     if (!TbFormatLength.Value.HasValue)
@@ -836,21 +917,25 @@
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
+
                     if (!TbFormatHeight.Value.HasValue)
                     {
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
+
                     if (TbFormatLength.Value < 30)
                     {
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
+
                     if (TbFormatHeight.Value < 15)
                     {
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
                     }
+
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
 
                     Hide();
@@ -875,6 +960,7 @@
                                 out replaceVector3D,
                                 out blockInsertionPoint3D))
 
+                        {
                             AddStamps(
                                 bottomLeftPt,
                                 topLeftPt,
@@ -882,13 +968,14 @@
                                 replaceVector3D,
                                 Scale(CbScales.SelectedItem.ToString()),
                                 blockInsertionPoint3D);
+                        }
                     }
                     finally
                     {
                         Show();
                     }
                 }
-            } // try
+            }
             catch (System.Exception ex)
             {
                 ExceptionBox.Show(ex);
@@ -938,6 +1025,7 @@
                         Show();
                     }
                 }
+
                 if (Tabs.SelectedIndex == 1)
                 {
                     if (!TbFormatLength.Value.HasValue)
@@ -945,21 +1033,25 @@
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
+
                     if (!TbFormatHeight.Value.HasValue)
                     {
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
+
                     if (TbFormatLength.Value < 30)
                     {
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
+
                     if (TbFormatHeight.Value < 15)
                     {
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
                         return;
                     }
+
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
 
                     Show();
@@ -1001,18 +1093,23 @@
                 if (Tabs.SelectedIndex == 0)
                 {
                     string side, orientation;
-                    if (RbShort.IsChecked != null && RbShort.IsChecked.Value) side = ModPlusAPI.Language.GetItem(LangItem, "h11");
-                    else side = ModPlusAPI.Language.GetItem(LangItem, "h12");
+                    if (RbShort.IsChecked != null && RbShort.IsChecked.Value)
+                        side = ModPlusAPI.Language.GetItem(LangItem, "h11");
+                    else
+                        side = ModPlusAPI.Language.GetItem(LangItem, "h12");
                     if (RbHorizontal.IsChecked != null && RbHorizontal.IsChecked.Value)
                         orientation = ModPlusAPI.Language.GetItem(LangItem, "h8");
-                    else orientation = ModPlusAPI.Language.GetItem(LangItem, "h9");
+                    else
+                        orientation = ModPlusAPI.Language.GetItem(LangItem, "h9");
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
 
                     var format = ((ListBoxItem)CbFormat.SelectedItem).Content.ToString();
                     var multiplicity = CbMultiplicity.SelectedItem.ToString();
+
                     // Переменная указывает, следует ли оставить масштаб 1:1
                     // Создаем лист
-                    if (!CreateLayout(out var layoutScaleOneToOne)) return;
+                    if (!CreateLayout(out var layoutScaleOneToOne))
+                        return;
                     Hide();
                     try
                     {
@@ -1037,7 +1134,8 @@
                                 out bottomRightPt,
                                 out replaceVector3D,
                                 out blockInsertionPoint3D))
-                            
+
+                        {
                             AddStamps(
                                 bottomLeftPt,
                                 topLeftPt,
@@ -1045,12 +1143,14 @@
                                 replaceVector3D,
                                 layoutScaleOneToOne ? 1 : Scale(CbScales.SelectedItem.ToString()),
                                 blockInsertionPoint3D);
+                        }
                     }
                     finally
                     {
                         Show();
                     }
                 }
+
                 if (Tabs.SelectedIndex == 1)
                 {
                     if (!TbFormatLength.Value.HasValue)
@@ -1058,16 +1158,19 @@
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err6"));
                         return;
                     }
+
                     if (!TbFormatHeight.Value.HasValue)
                     {
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err7"));
                         return;
                     }
+
                     if (TbFormatLength.Value < 30)
                     {
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err8"));
                         return;
                     }
+
                     if (TbFormatHeight.Value < 15)
                     {
                         MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err9"));
@@ -1077,7 +1180,8 @@
                     var number = ChbNumber.IsChecked != null && ChbNumber.IsChecked.Value;
 
                     // Создаем лист
-                    if (!CreateLayout(out var layoutScaleOneToOne)) return;
+                    if (!CreateLayout(out var layoutScaleOneToOne))
+                        return;
                     Hide();
                     try
                     {
@@ -1099,19 +1203,22 @@
                                 out bottomRightPt, out replaceVector3D,
                                 out blockInsertionPoint3D))
 
+                        {
                             AddStamps(
-                                bottomLeftPt, 
-                                topLeftPt,
-                                bottomRightPt,
-                                replaceVector3D,
-                                layoutScaleOneToOne ? 1 : Scale(CbScales.SelectedItem.ToString()),
-                                blockInsertionPoint3D);
+                                  bottomLeftPt,
+                                  topLeftPt,
+                                  bottomRightPt,
+                                  replaceVector3D,
+                                  layoutScaleOneToOne ? 1 : Scale(CbScales.SelectedItem.ToString()),
+                                  blockInsertionPoint3D);
+                        }
                     }
                     finally
                     {
                         Show();
                     }
                 }
+
                 AcApp.DocumentManager.MdiActiveDocument.SendStringToExecute("_zoom _all ", false, false, false);
             }
             catch (System.Exception ex)
@@ -1127,7 +1234,7 @@
             var db = doc.Database;
             var returned = false;
             layoutScaleOneToOne = true;
-            
+
             try
             {
                 using (var tr = doc.TransactionManager.StartTransaction())
@@ -1142,8 +1249,9 @@
                         // Если оба значения отсутствуют, тогда скрываем вообще ввод
                         if (string.IsNullOrEmpty(_lnamecoord) & string.IsNullOrEmpty(_lnumbercoord))
                             layoutName.GridAddToStamp.Visibility = Visibility.Collapsed;
-                        else layoutName.GridAddToStamp.Visibility = Visibility.Visible;
-                        
+                        else
+                            layoutName.GridAddToStamp.Visibility = Visibility.Visible;
+
                         // Если нет номера
                         if (string.IsNullOrEmpty(_lnumbercoord))
                         {
@@ -1156,14 +1264,14 @@
                             layoutName.TbLNumber.Visibility = Visibility.Visible;
                             layoutName.TbLNumber.Text = lm.LayoutCount.ToString(CultureInfo.InvariantCulture);
                         }
-                        
+
                         // Если нет имени
-                        layoutName.ChkAddNameToStamp.Visibility = string.IsNullOrEmpty(_lnamecoord) 
-                            ? Visibility.Collapsed 
+                        layoutName.ChkAddNameToStamp.Visibility = string.IsNullOrEmpty(_lnamecoord)
+                            ? Visibility.Collapsed
                             : Visibility.Visible;
                         layoutName.ChkAddNameToStamp.IsChecked =
                             bool.TryParse(UserConfigFile.GetValue("mpFormats", "ChkAddNameToStamp"), out var b) && b;
-                        layoutName.ChkLNumber.IsChecked = 
+                        layoutName.ChkLNumber.IsChecked =
                             bool.TryParse(UserConfigFile.GetValue("mpFormats", "ChkLNumber"), out b) && b;
 
                         // scale
@@ -1192,6 +1300,7 @@
                             ed.SwitchToPaperSpace();
                             returned = true;
                         }
+
                         tr.Commit();
                     }
                 }
@@ -1201,6 +1310,7 @@
                 ExceptionBox.Show(ex);
                 returned = false;
             }
+
             return returned;
         }
 
@@ -1222,6 +1332,7 @@
                 if (docFor.Equals("BY"))
                     BtAddTable("Mp_STB_2255_E1L2", "BottomRight", bottomLeftPt, replaceVector3D, scale, blockInsertionPoint3D);
             }
+
             if (ChkB2.IsChecked != null && ChkB2.IsChecked.Value)
             {
                 var pt = new Point3d(bottomLeftPt.X, bottomLeftPt.Y + 85, bottomLeftPt.Z);
@@ -1232,10 +1343,12 @@
                 if (docFor.Equals("BY"))
                     BtAddTable("Mp_STB_2255_E1L", "BottomRight", pt, replaceVector3D, scale, blockInsertionPoint3D);
             }
+
             if (ChkB3.IsChecked != null && ChkB3.IsChecked.Value)
             {
                 BtAddTable("Mp_GOST_2.104_dop1", "TopLeft", topLeftPt, replaceVector3D, scale, blockInsertionPoint3D);
             }
+
             if (ChkStamp.IsChecked != null && ChkStamp.IsChecked.Value)
             {
                 if (CbTables.SelectedIndex != -1)
@@ -1255,7 +1368,6 @@
             double scale,
             Point3d blockInsertionPoint3D)
         {
-
             var doc = AcApp.DocumentManager.MdiActiveDocument;
             var db = doc.Database;
             var sourceDb = new Database(false, true);
@@ -1274,14 +1386,14 @@
                             {
                                 // Директория расположения файла
                                 var dir = Path.Combine(Constants.CurrentDirectory, "Data", "Dwg");
-                                
+
                                 // Имя файла из которого берем таблицу
                                 var sourceFileName = Path.Combine(dir, "Stamps.dwg");
-                                
+
                                 // Read the DWG into a side database
                                 sourceDb.ReadDwgFile(sourceFileName, FileShare.Read, true, "");
                                 var tblIds = new ObjectIdCollection();
-                                
+
                                 // Создаем пустую таблицу
                                 var tbl = new Table();
 
@@ -1294,7 +1406,7 @@
                                     foreach (var obj in sourceBtr)
                                     {
                                         var ent = (Entity)myT.GetObject(obj, OpenMode.ForWrite);
-                                        if (ent is Table table && 
+                                        if (ent is Table table &&
                                             table.TableStyleName.Equals(xmltbl.Attribute("tablestylename").Value))
                                         {
                                             tblIds.Add(table.ObjectId);
@@ -1307,8 +1419,10 @@
                                             break;
                                         }
                                     }
+
                                     myT.Commit();
                                 }
+
                                 if (tbl.ObjectId == ObjectId.Null)
                                 {
                                     MessageBox.Show(
@@ -1325,7 +1439,8 @@
                                 var width = tbl.Width;
                                 var height = tbl.Height;
 
-                                if (pointAligin.Equals("TopLeft")) mInsertPt = insertPt;
+                                if (pointAligin.Equals("TopLeft"))
+                                    mInsertPt = insertPt;
                                 if (pointAligin.Equals("TopRight"))
                                     mInsertPt = new Point3d(insertPt.X - width, insertPt.Y, insertPt.Z);
                                 if (pointAligin.Equals("BottomLeft"))
@@ -1336,16 +1451,16 @@
 
                                 var mat = Matrix3d.Displacement(replaceVector3D.GetNormal() * replaceVector3D.Length);
                                 tbl.TransformBy(mat);
-                                
+
                                 // Масштабируем относительно точки вставки блока
                                 mat = Matrix3d.Scaling(scale, blockInsertionPoint3D);
                                 tbl.TransformBy(mat);
 
                                 doc.TransactionManager.QueueForGraphicsFlush();
                                 sourceDb.Dispose();
-                                
+
                                 tbl.Cells.TextStyleId = tst[CbTextStyle.SelectedItem.ToString()];
-                                
+
                                 // Отступ в ячейках
                                 for (var i = 0; i < tbl.Columns.Count; i++)
                                 {
@@ -1356,6 +1471,7 @@
                                         cell.Borders.Vertical.Margin = 0.5 * scale;
                                     }
                                 }
+
                                 // Нулевой отступ в ячейках
                                 var nullMargin = xmltbl.Attribute("nullMargin");
                                 if (nullMargin != null)
@@ -1367,7 +1483,7 @@
                                         cell.Borders.Vertical.Margin = 0;
                                     }
                                 }
-                                
+
                                 // surenames
                                 HasSureNames = xmltbl.Attribute("hassurenames").Value.Equals("true");
                                 if (HasSureNames)
@@ -1399,6 +1515,7 @@
                                     {
                                         logoName = CreateBlockFromFile();
                                     }
+
                                     if (!string.IsNullOrEmpty(logoName))
                                     {
                                         var bt = (BlockTable)tr.GetObject(doc.Database.BlockTableId, OpenMode.ForRead);
@@ -1424,6 +1541,7 @@
                                         }
                                     }
                                 }
+
                                 // Высота текста
                                 // Сначала ставим для всех ячеек 2.5
                                 for (var i = 0; i < tbl.Columns.Count; i++)
@@ -1437,6 +1555,7 @@
                                                 : 2.5 * scale;
                                     }
                                 }
+
                                 // Теперь ставим дополнительную высоту
                                 var bigCellAtr = xmltbl.Attribute("bigCells");
                                 if (bigCellAtr != null)
@@ -1453,7 +1572,9 @@
 
                                 // Имя листа и номер
                                 if (xmltbl.Attribute("lnamecoordinates") != null)
+                                {
                                     if (!string.IsNullOrEmpty(_lnamecoord))
+                                    {
                                         if (!string.IsNullOrEmpty(_lname))
                                         {
                                             var rown = -1;
@@ -1463,8 +1584,13 @@
                                             if (rown != -1 & coln != -1)
                                                 tbl.Cells[rown, coln].TextString = _lname;
                                         }
+                                    }
+                                }
+
                                 if (xmltbl.Attribute("lnumbercooridnates") != null)
+                                {
                                     if (!string.IsNullOrEmpty(_lnumbercoord))
+                                    {
                                         if (!string.IsNullOrEmpty(_lnumber))
                                         {
                                             var rown = -1;
@@ -1476,10 +1602,11 @@
                                                 if (string.IsNullOrEmpty(tbl.Cells[rown, coln].TextString))
                                                     tbl.Cells[rown, coln].TextString = _lnumber;
                                                 else
-                                                    tbl.Cells[rown, coln].TextString =
-                                                        tbl.Cells[rown, coln].TextString + " " + _lnumber;
+                                                    tbl.Cells[rown, coln].TextString = tbl.Cells[rown, coln].TextString + " " + _lnumber;
                                             }
                                         }
+                                    }
+                                }
 
                                 tr.Commit();
                                 break;
@@ -1493,12 +1620,14 @@
                 ExceptionBox.Show(ex);
             }
         }
+
         public static void AddFieldsToStamp(Table table)
         {
             try
             {
                 var dbsi = AcApp.DocumentManager.MdiActiveDocument.Database.SummaryInfo;
                 var dbsib = new DatabaseSummaryInfoBuilder(dbsi);
+
                 // База данных штампов
                 var doc = XElement.Parse(GetResourceTextFile("Stamps.xml"));
                 foreach (var xmlTbl in doc.Elements("Stamp"))
@@ -1532,6 +1661,7 @@
                                 }
                             }
                         }
+
                         // Вставка полей, содержащих фамилию
                         if (xmlTbl.Attribute("hassurenames").Value.Equals("true"))
                         {
@@ -1540,11 +1670,13 @@
                             var startcol =
                                 int.Parse(xmlTbl.Attribute("firstcell").Value.Split(',').GetValue(0).ToString());
                             var n = table.Rows.Count - startrow;
+
                             // Стандартные
                             var surnames = xmlTbl.Attribute("surnames").Value.Split(',').ToList();
                             var surnameskeys = xmlTbl.Attribute("surnameskeys").Value.Split(',').ToList();
 
                             if (UserConfigFile.ConfigFileXml.Element("Settings") != null)
+                            {
                                 if (UserConfigFile.ConfigFileXml?.Element("Settings")?.Element("UserSurnames") != null)
                                 {
                                     var xElements = UserConfigFile.ConfigFileXml?.Element("Settings")?.Element("UserSurnames")?.Elements("Surname");
@@ -1555,6 +1687,7 @@
                                             surnameskeys.Add(sn.Attribute("Id").Value);
                                         }
                                 }
+                            }
 
                             for (var i = 0; i < n; i++)
                             {
@@ -1581,6 +1714,7 @@
                                 }
                             }
                         }
+
                         break;
                     }
                 }
@@ -1603,6 +1737,7 @@
                     result = sr.ReadToEnd();
                 }
             }
+
             return result;
         }
 
@@ -1619,7 +1754,8 @@
 
         private void CbBottomFrame_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!(sender is ComboBox cb)) return;
+            if (!(sender is ComboBox cb))
+                return;
             var index = cb.SelectedIndex;
             if (index == 0)
             {
@@ -1674,7 +1810,7 @@
         private void ChkStamp_OnChecked(object sender, RoutedEventArgs e)
         {
             Image_stamp.Opacity = 1;
-            GridStamp.Visibility = CbDocumentsFor.Visibility =//DpSurenames.Visibility = //TbLogo.Visibility =
+            GridStamp.Visibility = CbDocumentsFor.Visibility =
             CbLogo.Visibility = GridSplitterStamp.Visibility = Visibility.Visible;
 
         }
@@ -1682,7 +1818,7 @@
         private void ChkStamp_OnUnchecked(object sender, RoutedEventArgs e)
         {
             Image_stamp.Opacity = 0.3;
-            GridStamp.Visibility = CbDocumentsFor.Visibility =//DpSurenames.Visibility = //TbLogo.Visibility =
+            GridStamp.Visibility = CbDocumentsFor.Visibility =
             CbLogo.Visibility = GridSplitterStamp.Visibility = Visibility.Collapsed;
         }
         #endregion
@@ -1692,7 +1828,8 @@
             try
             {
                 string side, orientation;
-                if (RbShort.IsChecked != null && RbShort.IsChecked.Value) side = ModPlusAPI.Language.GetItem(LangItem, "h11");
+                if (RbShort.IsChecked != null && RbShort.IsChecked.Value)
+                    side = ModPlusAPI.Language.GetItem(LangItem, "h11");
                 else
                     side = ModPlusAPI.Language.GetItem(LangItem, "h12");
                 if (RbHorizontal.IsChecked != null && RbHorizontal.IsChecked.Value)
@@ -1731,7 +1868,8 @@
             {
                 if (tab.SelectedIndex != -1)
                     TbFormatSize.Visibility = tab.SelectedIndex == 0 ? Visibility.Visible : Visibility.Collapsed;
-                else TbFormatSize.Visibility = Visibility.Visible;
+                else
+                    TbFormatSize.Visibility = Visibility.Visible;
             }
         }
 
@@ -1765,10 +1903,10 @@
                 if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     var sourceDb = new Database(false, true);
-                    
-                    //read file DB
+
+                    // read file DB
                     sourceDb.ReadDwgFile(ofd.Filename, FileOpenMode.OpenTryForReadShare, true, string.Empty);
-                    
+
                     // Если файл более поздней версии, то будет ошибка
                     TbLogoFile.Text = ofd.Filename;
                 }
@@ -1785,7 +1923,10 @@
                 {
                     MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err13"));
                 }
-                else ExceptionBox.Show(exception);
+                else
+                {
+                    ExceptionBox.Show(exception);
+                }
             }
         }
 
@@ -1811,6 +1952,7 @@
                         blockName = Path.GetFileNameWithoutExtension(TbLogoFile.Text);
                     }
                 }
+
                 return blockName;
             }
             catch (System.Exception exception)
@@ -1819,55 +1961,14 @@
                 return blockName;
             }
         }
-
-        // todo Пример из интернета
-        public void InsertBlock(Point3d insPt, string blockName)
-        {
-            var doc = AcApp.DocumentManager.MdiActiveDocument;
-            var db = doc.Database;
-            var ed = doc.Editor;
-            using (var tr = db.TransactionManager.StartTransaction())
-            {
-                // check if the block table already has the 'blockName'" block
-                var bt = (BlockTable)tr.GetObject(db.BlockTableId, OpenMode.ForRead);
-                if (!bt.Has(blockName))
-                {
-                    try
-                    {
-                        // search for a dwg file named 'blockName' in AutoCAD search paths
-                        var filename = HostApplicationServices.Current.FindFile(blockName + ".dwg", db, FindFileHint.Default);
-                        // add the dwg model space as 'blockName' block definition in the current database block table
-                        using (var sourceDb = new Database(false, true))
-                        {
-                            sourceDb.ReadDwgFile(filename, FileOpenMode.OpenForReadAndAllShare, true, "");
-                            db.Insert(blockName, sourceDb, true);
-                        }
-                    }
-                    catch
-                    {
-                        ed.WriteMessage($"\nBlock '{blockName}' not found.");
-                        return;
-                    }
-                }
-
-                // create a new block reference
-                using (var br = new BlockReference(insPt, bt[blockName]))
-                {
-                    var space = (BlockTableRecord)tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite);
-                    space.AppendEntity(br);
-                    tr.AddNewlyCreatedDBObject(br, true);
-                }
-                tr.Commit();
-            }
-        }
-
+        
         // Запрет пробела
         private void TboxesNoSpaceBar_OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            e.Handled = (e.Key == Key.Space);
+            e.Handled = e.Key == Key.Space;
         }
 
-        //  - без минуса
+        // - без минуса
         private void Tb_OnlyNums_NoMinus_OnPreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             var txt = ((TextBox)sender).Text + e.Text;
@@ -1878,26 +1979,38 @@
         private static bool DoubleCharChecker(string str, bool checkMinus, bool checkDot, double? max)
         {
             var result = false;
-            if (str.Count(c => c.Equals('.')) > 1) return false;
-            if (str.Count(c => c.Equals('-')) > 1) return false;
+            if (str.Count(c => c.Equals('.')) > 1)
+                return false;
+            if (str.Count(c => c.Equals('-')) > 1)
+                return false;
+
             // Проверять нужно только последний знак в строке!!!
             var ch = str.Last();
             if (checkMinus)
+            {
                 if (ch.Equals('-'))
                     result = str.IndexOf(ch) == 0;
+            }
+
             if (checkDot)
+            {
                 if (ch.Equals('.'))
                     result = true;
+            }
 
             if (char.IsNumber(ch))
                 result = true;
-            // На "максимальность" проверяем если предыдущие провреки успешны
+
+            // На "максимальность" проверяем если предыдущие проверки успешны
             if (max != null & result)
             {
-                double d;
-                if (double.TryParse(str, out d))
-                    if (Math.Abs(d) > max) result = false;
+                if (double.TryParse(str, out var d))
+                {
+                    if (Math.Abs(d) > max)
+                        result = false;
+                }
             }
+
             return result;
         }
     }

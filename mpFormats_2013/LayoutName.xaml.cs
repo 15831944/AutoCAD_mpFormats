@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using ModPlusAPI.Windows;
-
-namespace mpFormats
+﻿namespace mpFormats
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Windows;
+    using ModPlusAPI.Windows;
+
     public partial class LayoutName
     {
         private const string LangItem = "mpFormats";
 
         private readonly List<string> _wrongSymbols = new List<string>
         {
-            ">","<","/","\\","\"",":",";","?","*","|",",","=","`"
+            ">", "<", "/", "\\", "\"", ":", ";", "?", "*", "|", ",", "=", "`"
         };
+
         public LayoutName(string layOutName)
         {
             InitializeComponent();
@@ -28,13 +29,15 @@ namespace mpFormats
                 ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg12"), MessageBoxIcon.Alert);
                 return;
             }
+
             if (_wrongSymbols.Any(wrongSymbol => TbLayoutName.Text.Contains(wrongSymbol)))
             {
                 ModPlusAPI.Windows.MessageBox.Show(
                     ModPlusAPI.Language.GetItem(LangItem, "err3") + " " + TbLayoutName.Text + Environment.NewLine +
-                    ModPlusAPI.Language.GetItem(LangItem, "err4") + " " + string.Join("", _wrongSymbols.ToArray()), MessageBoxIcon.Alert);
+                    ModPlusAPI.Language.GetItem(LangItem, "err4") + " " + string.Join(string.Empty, _wrongSymbols.ToArray()), MessageBoxIcon.Alert);
                 return;
             }
+
             DialogResult = true;
         }
 

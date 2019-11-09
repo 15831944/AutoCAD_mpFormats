@@ -1,29 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Xml.Linq;
-using ModPlusAPI;
-using ModPlusAPI.Windows;
-
-namespace mpFormats
+﻿namespace mpFormats
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Xml.Linq;
+    using ModPlusAPI;
+    using ModPlusAPI.Windows;
+
     public partial class EditUserSurnames
     {
         private const string LangItem = "mpFormats";
+
         // Список стандартных должностей
-        readonly List<string> _defvalues = new List<string>
+        private readonly List<string> _defvalues = new List<string>
         {
-            "Утвердил","Составил","Изм. внес","Проверил","Нач. отд.","ГАП",
-            "ГИП","Н.контр.","Т.контр.","Разраб.","Вед.инж.","Гл.констр."
+            "Утвердил", "Составил", "Изм. внес", "Проверил", "Нач. отд.", "ГАП",
+            "ГИП", "Н.контр.", "Т.контр.", "Разраб.", "Вед.инж.", "Гл.констр."
         };
 
         private XElement _surnamesXml;
+
         public EditUserSurnames()
         {
-
             InitializeComponent();
             Title = ModPlusAPI.Language.GetItem(LangItem, "h31");
         }
@@ -34,18 +35,22 @@ namespace mpFormats
             try
             {
                 _surnamesXml = new XElement("UserSurnames");
-                var confifDoc = UserConfigFile.ConfigFileXml;
-                if (confifDoc.Element("Settings") != null)
+                var configFileXml = UserConfigFile.ConfigFileXml;
+                if (configFileXml.Element("Settings") != null)
                 {
-                    var sEl = confifDoc.Element("Settings");
+                    var sEl = configFileXml.Element("Settings");
+
                     // Если уже есть должности, то берем их
-                    if (sEl?.Element("UserSurnames") != null)
+                    var userNamesXel = sEl?.Element("UserSurnames");
+                    if (userNamesXel != null)
                     {
-                        if (sEl.Element("UserSurnames").Elements("Surname").Any())
-                            foreach (var usn in sEl.Element("UserSurnames").Elements("Surname"))
+                        if (userNamesXel.Elements("Surname").Any())
+                        {
+                            foreach (var usn in userNamesXel.Elements("Surname"))
                             {
                                 _surnamesXml.Add(usn);
                             }
+                        }
                         else
                         {
                             // Если нет ни одной записи, то создаем пустую
@@ -69,7 +74,7 @@ namespace mpFormats
                     ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err1"), MessageBoxIcon.Close);
                     Close();
                 }
-                // Биндим
+
                 DgSurnames.ItemsSource = _surnamesXml.Elements("Surname");
             }
             catch (Exception ex)
@@ -77,6 +82,7 @@ namespace mpFormats
                 ExceptionBox.Show(ex);
             }
         }
+
         // Добавить строчку в список
         private void BtAddSurname_OnClick(object sender, RoutedEventArgs e)
         {
@@ -96,12 +102,14 @@ namespace mpFormats
                         if (!ides.Contains(newId))
                             break;
                     }
+
                     if (newId != 0)
                     {
                         var newSurname = new XElement("Surname");
                         newSurname.SetAttributeValue("Id", "SnId" + newId);
                         newSurname.SetAttributeValue("Surname", string.Empty);
                         _surnamesXml.Add(newSurname);
+
                         // Refresh
                         RefreshDg();
                     }
@@ -132,6 +140,7 @@ namespace mpFormats
             DgSurnames.ItemsSource = null;
             DgSurnames.ItemsSource = _surnamesXml.Elements("Surname");
         }
+
         // Сохранение в файл настроек
         private void SaveToConfig()
         {
@@ -139,6 +148,7 @@ namespace mpFormats
             {
                 // Открываем как xml
                 var configFile = UserConfigFile.ConfigFileXml;
+
                 // Проверяем есть ли группа Settings
                 // Если нет, то сообщаем об ошибке
                 if (configFile.Element("Settings") == null)
@@ -146,12 +156,16 @@ namespace mpFormats
                     ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err1"), MessageBoxIcon.Close);
                     Close();
                 }
+
                 var element = configFile.Element("Settings");
+
                 // Если есть элемент UserSurnames, то удаляем его!
                 if (element?.Element("UserSurnames") != null)
                     element.Element("UserSurnames")?.Remove();
+
                 // Добавляем текущий
                 element?.Add(_surnamesXml);
+
                 // Сохраняем
                 UserConfigFile.SaveConfigFile();
             }
@@ -160,6 +174,7 @@ namespace mpFormats
                 ExceptionBox.Show(ex);
             }
         }
+
         // Удалить выбранную строчку
         private void BtRemoveSurname_OnClick(object sender, RoutedEventArgs e)
         {
@@ -184,6 +199,7 @@ namespace mpFormats
                 ExceptionBox.Show(ex);
             }
         }
+
         // Закрытие окна
         private void EditUserSurnames_OnClosing(object sender, CancelEventArgs e)
         {
@@ -194,13 +210,15 @@ namespace mpFormats
                 {
                     if (_defvalues.Contains(sn.Attribute("Surname")?.Value))
                     {
-                        ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg1") + " " + sn.Attribute("Surname")?.Value +
-                                      " "+ ModPlusAPI.Language.GetItem(LangItem, "msg2"), MessageBoxIcon.Alert);
+                        ModPlusAPI.Windows.MessageBox.Show(
+                            ModPlusAPI.Language.GetItem(LangItem, "msg1") + " " + sn.Attribute("Surname")?.Value + " " + 
+                            ModPlusAPI.Language.GetItem(LangItem, "msg2"), MessageBoxIcon.Alert);
                         e.Cancel = true;
                         return;
                     }
                 }
-                // Проверяем на наличие одинаковых значенйи
+
+                // Проверяем на наличие одинаковых значений
                 var list = _surnamesXml.Elements("Surname").Select(un => un.Attribute("Surname")?.Value).ToList();
                 var duplicates = list.GroupBy(x => x)
                     .Where(g => g.Count() > 1)
@@ -211,13 +229,17 @@ namespace mpFormats
                     ModPlusAPI.Windows.MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg3"), MessageBoxIcon.Alert);
                     e.Cancel = true;
                 }
-                else SaveToConfig();
+                else
+                {
+                    SaveToConfig();
+                }
             }
             catch (Exception exception)
             {
                 ExceptionBox.Show(exception);
             }
         }
+
         // Выбор позиции в списке
         private void DgSurnames_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {

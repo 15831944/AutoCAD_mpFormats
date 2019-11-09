@@ -28,7 +28,7 @@
             if (_mpFormats == null)
             {
                 _mpFormats = new MpFormats();
-                _mpFormats.Closed += win_Closed;
+                _mpFormats.Closed += (sender, args) => _mpFormats = null;
             }
 
             if (_mpFormats.IsLoaded)
@@ -36,34 +36,48 @@
             else
                 Application.ShowModelessWindow(Application.MainWindow.Handle, _mpFormats, false);
         }
-
-        private void win_Closed(object sender, EventArgs e)
-        {
-            _mpFormats = null;
-        }
-
-        public static bool DrawBlock
-        (
-            string format, // формат
-            string multiplicity, // кратность
-            string side, // Сторона кратности
-            string orientation, // Ориентация
-            bool number, // Номер страницы (да, нет)
-
-            bool copy, // Копировал
-            string bottomFrame, // Нижняя рамка
-            bool hasFpt, // Есть ли начальная точка
-            Point3d insertPt, // Начальная точка (для замены)
-            string txtStyle, // TextStyle name
-            double scale, // масштаб
+        
+        /// <summary>
+        /// Draw block
+        /// </summary>
+        /// <param name="format">формат</param>
+        /// <param name="multiplicity">кратность</param>
+        /// <param name="side">Сторона кратности</param>
+        /// <param name="orientation">Ориентация</param>
+        /// <param name="number">Номер страницы (да, нет)</param>
+        /// <param name="copy">Копировал</param>
+        /// <param name="bottomFrame">Нижняя рамка</param>
+        /// <param name="hasFpt">Есть ли начальная точка</param>
+        /// <param name="insertPt">Начальная точка (для замены)</param>
+        /// <param name="txtStyle">TextStyle name</param>
+        /// <param name="scale">масштаб</param>
+        /// <param name="rotation">Поворот</param>
+        /// <param name="setCurrentLayer">Установить текущий слой</param>
+        /// <param name="bottomLeftPt">Нижняя верхняя точка</param>
+        /// <param name="topLeftPt">Верхняя левая точка</param>
+        /// <param name="bottomRightPt">Нижняя правая точка</param>
+        /// <param name="replaceVector3D">Вектор смещения</param>
+        /// <param name="blockInsertionPoint">Точка вставки блока</param>
+        /// <returns></returns>
+        public static bool DrawBlock(
+            string format, 
+            string multiplicity,
+            string side,
+            string orientation,
+            bool number,
+            bool copy,
+            string bottomFrame,
+            bool hasFpt,
+            Point3d insertPt,
+            string txtStyle,
+            double scale,
             double? rotation,
             bool setCurrentLayer,
             out Point3d bottomLeftPt,
             out Point3d topLeftPt,
             out Point3d bottomRightPt,
             out Vector3d replaceVector3D,
-            out Point3d blockInsertionPoint
-        )
+            out Point3d blockInsertionPoint)
         {
             bottomLeftPt = bottomRightPt = topLeftPt = blockInsertionPoint = new Point3d(0.0, 0.0, 0.0);
             replaceVector3D = new Vector3d(0.0, 0.0, 0.0);
@@ -83,6 +97,7 @@
 
                     var pt1 = new Point3d(0.0, 0.0, 0.0);
                     var pt2 = new Point3d(0.0 + width, 0.0, 0.0);
+
                     // Для форматов А4 и А3 нижняя рамка 10мм (по ГОСТ)
                     Point3d pt11;
                     Point3d pt22;
@@ -113,6 +128,7 @@
                     var ptt2 = new Point3d(pt2.X - 125, pt22.Y - 4, 0.0);
                     var pts1 = new Point3dCollection { pt1, pt2, pt3, pt4 };
                     var pts2 = new Point3dCollection { pt11, pt22, pt33, pt44 };
+
                     // points for stamps
                     bottomLeftPt = pt11;
                     topLeftPt = pt44;
@@ -122,17 +138,22 @@
 
                     #region block name
 
-                    var isnumber = number ? "N" : "NN";
-                    var iscopy = copy ? "C" : "NC";
-                    string blockname;
+                    var isNumber = number ? "N" : "NN";
+                    var isCopy = copy ? "C" : "NC";
+                    string blockName;
                     if (!multiplicity.Equals("1"))
-                        blockname = format + "x" + multiplicity + "_" + orientation + "_"
-                                    + side + "_" + isnumber + "_" + iscopy;
+                    {
+                        blockName = format + "x" + multiplicity + "_" + orientation + "_"
+                                    + side + "_" + isNumber + "_" + isCopy;
+                    }
                     else
-                        blockname = format + "_" + orientation + "_" + side + "_" + isnumber
-                                    + "_" + iscopy;
+                    {
+                        blockName = format + "_" + orientation + "_" + side + "_" + isNumber
+                                    + "_" + isCopy;
+                    }
+
                     if (format.Equals("A4") || format.Equals("A3"))
-                        blockname = blockname + "_" + bottomFrame;
+                        blockName = blockName + "_" + bottomFrame;
 
                     #endregion
 
@@ -142,11 +163,13 @@
                         var blockTable = (BlockTable)tr.GetObject(db.BlockTableId, OpenMode.ForRead);
 
                         // Если в базе есть такой блок - вставляем его
-                        if (blockTable.Has(blockname))
+                        if (blockTable.Has(blockName))
                         {
-                            var blockId = blockTable[blockname];
+                            var blockId = blockTable[blockName];
                             var btr = (BlockTableRecord)tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite, false);
-                            if (!hasFpt) // Если нет начальной точки, то рисуем через джигу
+
+                            // Если нет начальной точки, то рисуем через джигу
+                            if (!hasFpt)
                             {
                                 var pt = new Point3d(0, 0, 0);
                                 var blockReference = new BlockReference(pt, blockId);
@@ -166,7 +189,9 @@
                                     returned = true;
                                 }
                             }
-                            else // Если есть начальная точка - то вставляем в нее
+
+                            // Если есть начальная точка - то вставляем в нее
+                            else 
                             {
                                 var blockReference = new BlockReference(insertPt, blockId);
                                 blockInsertionPoint = blockReference.Position;
@@ -179,19 +204,21 @@
                                 returned = true;
                             }
                         }
+
                         // Если блока нет - создаем и вставляем
                         else
                         {
                             try
                             {
                                 SymbolUtilityServices.ValidateSymbolName(
-                                    blockname, false);
+                                    blockName, false);
                             }
                             catch
                             {
                                 MessageBox.Show(Language.GetItem(LangItem, "err14"));
                             }
-                            var btr = new BlockTableRecord { Name = blockname };
+
+                            var btr = new BlockTableRecord { Name = blockName };
 
                             // Add the new block to the block table
                             blockTable.UpgradeOpen();
@@ -199,10 +226,10 @@
                             tr.AddNewlyCreatedDBObject(btr, true);
 
                             // Рисуем примитивы и добавляем в блок
-                            var ents = new DBObjectCollection();
+                            var objectCollection = new DBObjectCollection();
                             
                             // внешняя рамка
-                            var pline1 = new Polyline
+                            var pLine1 = new Polyline
                             {
                                 LineWeight = LineWeight.LineWeight020,
                                 Layer = "0",
@@ -213,11 +240,11 @@
                             for (var i = 0; i < pts1.Count; i++)
                             {
                                 var pp = new Point2d(pts1[i].X, pts1[i].Y);
-                                pline1.AddVertexAt(i, pp, 0, 0, 0);
+                                pLine1.AddVertexAt(i, pp, 0, 0, 0);
                             }
                             
                             // внутренняя рамка
-                            var pline2 = new Polyline
+                            var pLine2 = new Polyline
                             {
                                 LineWeight = LineWeight.LineWeight050,
                                 Layer = "0",
@@ -228,7 +255,7 @@
                             for (var i = 0; i < pts2.Count; i++)
                             {
                                 var pp = new Point2d(pts2[i].X, pts2[i].Y);
-                                pline2.AddVertexAt(i, pp, 0, 0, 0);
+                                pLine2.AddVertexAt(i, pp, 0, 0, 0);
                             }
                             
                             // Формат
@@ -260,8 +287,9 @@
                                     Color = Color.FromColorIndex(ColorMethod.ByBlock, 0),
                                     TextStyleId = tst[txtStyle]
                                 };
-                                ents.Add(txt2);
+                                objectCollection.Add(txt2);
                             }
+
                             // Номер листа
                             if (number)
                             {
@@ -286,15 +314,15 @@
                                     Linetype = "Continuous",
                                     Color = Color.FromColorIndex(ColorMethod.ByBlock, 0)
                                 };
-                                ents.Add(line1);
-                                ents.Add(line2);
+                                objectCollection.Add(line1);
+                                objectCollection.Add(line2);
                             }
 
-                            ents.Add(pline1);
-                            ents.Add(pline2);
-                            ents.Add(txt1);
+                            objectCollection.Add(pLine1);
+                            objectCollection.Add(pLine2);
+                            objectCollection.Add(txt1);
 
-                            foreach (Entity ent in ents)
+                            foreach (Entity ent in objectCollection)
                             {
                                 btr.AppendEntity(ent);
                                 tr.AddNewlyCreatedDBObject(ent, true);
@@ -309,10 +337,12 @@
                             // annotative state
                             btr.Annotative = AnnotativeStates.False;
 
-                            var blockId = blockTable[blockname];
+                            var blockId = blockTable[blockName];
 
                             var cbtr = (BlockTableRecord)tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite, false);
-                            if (!hasFpt) // Если начальной точки нет - рисуем через джигу
+                            
+                            // Если начальной точки нет - рисуем через джигу
+                            if (!hasFpt) 
                             {
                                 var pt = new Point3d(0, 0, 0);
                                 var blockReference = new BlockReference(pt, blockId);
@@ -363,6 +393,7 @@
                                 returned = true;
                             }
                         }
+
                         tr.Commit();
                     }
                 }
@@ -376,8 +407,7 @@
             }
         }
 
-        public static bool DrawBlockHand
-        (
+        public static bool DrawBlockHand(
             double width,
             double height,
             bool number, // Номер страницы (да, нет)
@@ -406,11 +436,11 @@
                 using (doc.LockDocument())
                 {
                     #region block name
-                    var isnumber = number ? "N" : "NN";
-                    var iscopy = copy ? "C" : "NC";
-                    var blockname = width.ToString(CultureInfo.InvariantCulture) + "x" +
+                    var isNumber = number ? "N" : "NN";
+                    var isCopy = copy ? "C" : "NC";
+                    var blockName = width.ToString(CultureInfo.InvariantCulture) + "x" +
                                     height.ToString(CultureInfo.InvariantCulture) + "_" +
-                                    isnumber + "_" + iscopy;
+                                    isNumber + "_" + isCopy;
                     #endregion
 
                     #region points
@@ -424,11 +454,12 @@
                     var pt44 = new Point3d(pt4.X + 20, pt4.Y - 5, 0.0);
                     var ptt1 = new Point3d(pt2.X - 55, pt22.Y - 4, 0.0);
                     var ptt2 = new Point3d(pt2.X - 125, pt22.Y - 4, 0.0);
+
                     // points for stamps
                     bottomLeftPt = pt11;
                     topLeftPt = pt44;
                     bottomRightPt = pt22;
-                    //
+
                     var pts1 = new Point3dCollection();
                     var pts2 = new Point3dCollection();
                     pts1.Add(pt1);
@@ -447,11 +478,13 @@
                         var bt = (BlockTable)tr.GetObject(db.BlockTableId, OpenMode.ForRead);
 
                         // Если в базе есть такой блок - вставляем его
-                        if (bt.Has(blockname))
+                        if (bt.Has(blockName))
                         {
-                            var blockId = bt[blockname];
+                            var blockId = bt[blockName];
                             var btr = (BlockTableRecord)tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite, false);
-                            if (!hasFpt) // Если нет начальной точки, то рисуем через джигу
+
+                            // Если нет начальной точки, то рисуем через джигу
+                            if (!hasFpt) 
                             {
                                 var pt = new Point3d(0, 0, 0);
                                 var blockReference = new BlockReference(pt, blockId);
@@ -473,7 +506,9 @@
                                     returned = true;
                                 }
                             }
-                            else // Если есть начальная точка - то вставлем в нее
+
+                            // Если есть начальная точка - то вставлем в нее
+                            else 
                             {
                                 var blockReference = new BlockReference(insertPt, blockId);
                                 blockInsertionPoint = blockReference.Position;
@@ -486,19 +521,20 @@
                                 returned = true;
                             }
                         }
+
                         // Если блока нет - создаем и вставляем
                         else
                         {
                             try
                             {
-                                SymbolUtilityServices.ValidateSymbolName(blockname, false);
+                                SymbolUtilityServices.ValidateSymbolName(blockName, false);
                             }
                             catch
                             {
                                 MessageBox.Show(Language.GetItem(LangItem, "err14"));
                             }
 
-                            var btr = new BlockTableRecord { Name = blockname };
+                            var btr = new BlockTableRecord { Name = blockName };
 
                             // Add the new block to the block table
                             bt.UpgradeOpen();
@@ -506,10 +542,10 @@
                             tr.AddNewlyCreatedDBObject(btr, true);
 
                             // Рисуем примитивы и добавляем в блок
-                            var ents = new DBObjectCollection();
+                            var objectCollection = new DBObjectCollection();
 
                             // внешняя рамка
-                            var pline1 = new Polyline
+                            var pLine1 = new Polyline
                             {
                                 LineWeight = LineWeight.LineWeight020,
                                 Layer = "0",
@@ -520,10 +556,11 @@
                             for (var i = 0; i < pts1.Count; i++)
                             {
                                 var pp = new Point2d(pts1[i].X, pts1[i].Y);
-                                pline1.AddVertexAt(i, pp, 0, 0, 0);
+                                pLine1.AddVertexAt(i, pp, 0, 0, 0);
                             }
+
                             // внутренняя рамка
-                            var pline2 = new Polyline
+                            var pLine2 = new Polyline
                             {
                                 LineWeight = LineWeight.LineWeight050,
                                 Layer = "0",
@@ -534,7 +571,7 @@
                             for (var i = 0; i < pts2.Count; i++)
                             {
                                 var pp = new Point2d(pts2[i].X, pts2[i].Y);
-                                pline2.AddVertexAt(i, pp, 0, 0, 0);
+                                pLine2.AddVertexAt(i, pp, 0, 0, 0);
                             }
 
                             // Формат
@@ -564,8 +601,9 @@
                                     Color = Color.FromColorIndex(ColorMethod.ByBlock, 0),
                                     TextStyleId = tst[txtStyle]
                                 };
-                                ents.Add(txt2);
+                                objectCollection.Add(txt2);
                             }
+
                             if (number)
                             {
                                 var ptn1 = new Point3d(pt33.X - 10, pt33.Y, 0.0);
@@ -589,18 +627,20 @@
                                     Linetype = "Continuous",
                                     Color = Color.FromColorIndex(ColorMethod.ByBlock, 0)
                                 };
-                                ents.Add(line1);
-                                ents.Add(line2);
+                                objectCollection.Add(line1);
+                                objectCollection.Add(line2);
                             }
-                            ents.Add(pline1);
-                            ents.Add(pline2);
-                            ents.Add(txt1);
 
-                            foreach (Entity ent in ents)
+                            objectCollection.Add(pLine1);
+                            objectCollection.Add(pLine2);
+                            objectCollection.Add(txt1);
+
+                            foreach (Entity ent in objectCollection)
                             {
                                 btr.AppendEntity(ent);
                                 tr.AddNewlyCreatedDBObject(ent, true);
                             }
+
                             // Добавляем расширенные данные для возможности замены
                             ModPlus.Helpers.XDataHelpers.AddRegAppTableRecord("MP_FORMAT");
                             btr.XData = new ResultBuffer(
@@ -610,10 +650,12 @@
                             // annotative state
                             btr.Annotative = AnnotativeStates.False;
 
-                            var blockId = bt[blockname];
+                            var blockId = bt[blockName];
 
                             var cbtr = (BlockTableRecord)tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite, false);
-                            if (!hasFpt) // Если начальной точки нет - рисуем через джигу
+
+                            // Если начальной точки нет - рисуем через джигу
+                            if (!hasFpt) 
                             {
                                 var pt = new Point3d(0, 0, 0);
                                 var blockReference = new BlockReference(pt, blockId);
@@ -642,14 +684,15 @@
                                     returned = true;
                                 }
                             }
-                            else // Если начальная точка есть - вставляем в нее
+
+                            // Если начальная точка есть - вставляем в нее
+                            else 
                             {
                                 var blockReference = new BlockReference(insertPt, blockId);
                                 blockInsertionPoint = blockReference.Position;
 
                                 SetFormatBlockProperties(blockReference, insertPt, scale, rotation, setCurrentLayer, db);
 
-                                //==================
                                 ModPlus.Helpers.XDataHelpers.AddRegAppTableRecord("MP_FORMAT");
                                 blockReference.XData = new ResultBuffer(
                                     new TypedValue(1001, "MP_FORMAT"),
@@ -660,6 +703,7 @@
                                 returned = true;
                             }
                         }
+
                         tr.Commit();
                     }
                 }
@@ -688,7 +732,8 @@
             // set current layer
             if (setCurrentLayer)
                 blockReference.LayerId = db.Clayer;
-            else blockReference.Layer = "0";
+            else
+                blockReference.Layer = "0";
 
             // rotation
             if (rotation != null)
@@ -719,7 +764,8 @@
                 peo.SetRejectMessage("\n" + Language.GetItem(LangItem, "msg10"));
                 peo.AddAllowedClass(typeof(BlockReference), false);
                 var per = ed.GetEntity(peo);
-                if (per.Status != PromptStatus.OK) return;
+                if (per.Status != PromptStatus.OK)
+                    return;
                 using (doc.LockDocument())
                 {
                     using (var tr = db.TransactionManager.StartTransaction())
@@ -760,9 +806,9 @@
                                         out pt
                                     );
                                 }
-
                             }
                         }
+
                         tr.Commit();
                     }
                 }
@@ -773,8 +819,7 @@
             }
         }
 
-        public static void ReplaceBlockHand
-        (
+        public static void ReplaceBlockHand(
             double width,
             double height,
             bool number, // Номер страницы (да, нет)
@@ -866,12 +911,14 @@
                             width = 1189;
                             height = 841 * int.Parse(multiplicity);
                         }
+
                         if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             width = 841;
                             height = 1189 * int.Parse(multiplicity);
                         }
                     }
+
                     if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         if (side.Equals(Language.GetItem(LangItem, "h11")))
@@ -879,6 +926,7 @@
                             width = 841 * int.Parse(multiplicity);
                             height = 1189;
                         }
+
                         if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             width = 1189 * int.Parse(multiplicity);
@@ -893,6 +941,7 @@
                         width = 841;
                         height = 1189;
                     }
+
                     if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         width = 1189;
@@ -900,6 +949,7 @@
                     }
                 }
             }
+
             if (format.Equals("A1"))
             {
                 if (int.Parse(multiplicity) > 1)
@@ -911,12 +961,14 @@
                             width = 841;
                             height = 594 * int.Parse(multiplicity);
                         }
+
                         if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             width = 594;
                             height = 841 * int.Parse(multiplicity);
                         }
                     }
+
                     if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         if (side.Equals(Language.GetItem(LangItem, "h11")))
@@ -924,6 +976,7 @@
                             width = 594 * int.Parse(multiplicity);
                             height = 841;
                         }
+
                         if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             width = 841 * int.Parse(multiplicity);
@@ -938,6 +991,7 @@
                         width = 594;
                         height = 841;
                     }
+
                     if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         width = 841;
@@ -945,6 +999,7 @@
                     }
                 }
             }
+
             if (format.Equals("A2"))
             {
                 if (int.Parse(multiplicity) > 1)
@@ -956,12 +1011,14 @@
                             width = 594;
                             height = 420 * int.Parse(multiplicity);
                         }
+
                         if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             width = 420;
                             height = 594 * int.Parse(multiplicity);
                         }
                     }
+
                     if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         if (side.Equals(Language.GetItem(LangItem, "h11")))
@@ -969,6 +1026,7 @@
                             width = 420 * int.Parse(multiplicity);
                             height = 594;
                         }
+
                         if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             width = 594 * int.Parse(multiplicity);
@@ -983,6 +1041,7 @@
                         width = 420;
                         height = 594;
                     }
+
                     if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         width = 594;
@@ -990,6 +1049,7 @@
                     }
                 }
             }
+
             if (format.Equals("A3"))
             {
                 if (int.Parse(multiplicity) > 1)
@@ -1001,12 +1061,14 @@
                             width = 420;
                             height = 297 * int.Parse(multiplicity);
                         }
+
                         if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             width = 297;
                             height = 420 * int.Parse(multiplicity);
                         }
                     }
+
                     if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         if (side.Equals(Language.GetItem(LangItem, "h11")))
@@ -1014,6 +1076,7 @@
                             width = 297 * int.Parse(multiplicity);
                             height = 420;
                         }
+
                         if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             width = 420 * int.Parse(multiplicity);
@@ -1028,6 +1091,7 @@
                         width = 297;
                         height = 420;
                     }
+
                     if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         width = 420;
@@ -1035,6 +1099,7 @@
                     }
                 }
             }
+
             if (format.Equals("A4"))
             {
                 if (int.Parse(multiplicity) > 1)
@@ -1046,12 +1111,14 @@
                             width = 297;
                             height = 210 * int.Parse(multiplicity);
                         }
+
                         if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             width = 210;
                             height = 297 * int.Parse(multiplicity);
                         }
                     }
+
                     if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         if (side.Equals(Language.GetItem(LangItem, "h11")))
@@ -1059,6 +1126,7 @@
                             width = 210 * int.Parse(multiplicity);
                             height = 297;
                         }
+
                         if (side.Equals(Language.GetItem(LangItem, "h12")))
                         {
                             width = 297 * int.Parse(multiplicity);
@@ -1073,6 +1141,7 @@
                         width = 210;
                         height = 297;
                     }
+
                     if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                     {
                         width = 297;
@@ -1080,6 +1149,7 @@
                     }
                 }
             }
+
             if (format.Equals("A5"))
             {
                 if (orientation.Equals(Language.GetItem(LangItem, "h9")))
@@ -1087,6 +1157,7 @@
                     width = 148;
                     height = 210;
                 }
+
                 if (orientation.Equals(Language.GetItem(LangItem, "h8")))
                 {
                     width = 210;
