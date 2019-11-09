@@ -38,6 +38,12 @@
                         <TextBlock Margin="10 0" Text="{Binding Source={StaticResource Lang}, XPath=h3}"></TextBlock>
                     </StackPanel>
                 </ComboBoxItem>
+                <ComboBoxItem Tag="ISO">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="Resources/Flags/iso-icon.png" Width="16"></Image>
+                        <TextBlock Margin="10 0" Text="ISO"></TextBlock>
+                    </StackPanel>
+                </ComboBoxItem>
             </ComboBox>
         </mps:WindowCommands>
     </mps:ModPlusWindow.RightWindowCommands>

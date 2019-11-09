@@ -199,26 +199,7 @@
                 {
                     UserConfigFile.SetValue("mpFormats", "CbDocumentsFor",
                         cb.SelectedIndex.ToString(CultureInfo.InvariantCulture), true);
-
-                    switch (cb.SelectedIndex)
-                    {
-                        case 0: // RU
-                            {
-                            }
-
-                            break;
-                        case 1: // UA
-                            {
-                            }
-
-                            break;
-                        case 2: // BY
-                            {
-                            }
-
-                            break;
-                    }
-
+                    
                     FillStamps();
                 }
             }
