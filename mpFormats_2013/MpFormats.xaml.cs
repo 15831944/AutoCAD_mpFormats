@@ -1968,19 +1968,50 @@
             var blockName = string.Empty;
             try
             {
-                if (!string.IsNullOrEmpty(TbLogoFile.Text))
+                var fileName = TbLogoFile.Text;
+                if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
                 {
-                    if (File.Exists(TbLogoFile.Text))
+                    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+                    var sourceDb = new Database(false, true);
+
+                    // read file DB
+                    sourceDb.ReadDwgFile(fileName, FileShare.Read, true, string.Empty);
+
+                    // Create a variable to store the list of block identifiers
+                    var blockIds = new ObjectIdCollection();
+                    var tm = sourceDb.TransactionManager;
+                    using (var t = tm.StartTransaction())
                     {
-                        using (var sourceDb = new Database(false, true))
+                        // Open the block table
+                        var bt = (BlockTable)t.GetObject(sourceDb.BlockTableId, OpenMode.ForRead, false);
+                    
+                        // Check each block in the block table
+                        foreach (var btrId in bt)
                         {
-                            sourceDb.ReadDwgFile(TbLogoFile.Text, FileOpenMode.OpenTryForReadShare, true, string.Empty);
+                            var btr = (BlockTableRecord)tm.GetObject(btrId, OpenMode.ForRead, false);
 
-                            db.Insert(Path.GetFileNameWithoutExtension(TbLogoFile.Text), sourceDb, true);
+                            // Only add named & non-layout blocks to the copy list
+                            if (!btr.IsAnonymous && 
+                                !btr.IsLayout && 
+                                btr.Name == fileNameWithoutExtension)
+                                blockIds.Add(btrId);
+
+                            btr.Dispose();
                         }
-
-                        blockName = Path.GetFileNameWithoutExtension(TbLogoFile.Text);
                     }
+
+                    if (blockIds.Count > 0)
+                    {
+                        // Copy blocks from source to destination database
+                        var mapping = new IdMapping();
+                        sourceDb.WblockCloneObjects(blockIds, db.BlockTableId, mapping, DuplicateRecordCloning.Replace, false);
+                    }
+                    else
+                    {
+                        db.Insert(fileNameWithoutExtension, sourceDb, true);
+                    }
+
+                    blockName = fileNameWithoutExtension;
                 }
 
                 return blockName;
