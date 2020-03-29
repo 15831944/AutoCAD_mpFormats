@@ -17,6 +17,7 @@
     using Autodesk.AutoCAD.Internal;
     using Autodesk.AutoCAD.Runtime;
     using Autodesk.AutoCAD.Windows;
+    using Models;
     using ModPlusAPI;
     using ModPlusAPI.Windows;
     using AcApp = Autodesk.AutoCAD.ApplicationServices.Core.Application;
@@ -1628,90 +1629,105 @@
         {
             try
             {
-                var dbsi = AcApp.DocumentManager.MdiActiveDocument.Database.SummaryInfo;
-                var dbsib = new DatabaseSummaryInfoBuilder(dbsi);
+                var tablesBase = new TablesBase();
+
+                if (tablesBase.Stamps == null) 
+                    return;
+
+                var databaseSummaryInfo = AcApp.DocumentManager.MdiActiveDocument.Database.SummaryInfo;
+                var summaryInfoBuilder = new DatabaseSummaryInfoBuilder(databaseSummaryInfo);
 
                 // База данных штампов
-                var doc = XElement.Parse(GetResourceTextFile("Stamps.xml"));
-                foreach (var xmlTbl in doc.Elements("Stamp"))
+                foreach (var stampInBase in tablesBase.Stamps)
                 {
-                    if (table.TableStyleName.Equals(xmlTbl.Attribute("tablestylename").Value))
+                    if (table.TableStyleName.Equals(stampInBase.TableStyleName))
                     {
                         // Даже если имя табличного стиля сошлось - проверяем по количеству ячеек!
-                        if (int.Parse(xmlTbl.Attribute("cellcount").Value) != table.Cells.Count())
+                        var cellCount = table.Cells.Count();
+                        if (stampInBase.CellCount != cellCount)
                         {
                             MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "err12"));
                             return;
                         }
 
                         // Вставка полей, не содержащих фамилии
-                        if (xmlTbl.Attribute("hasfields").Value.Equals("true"))
+                        if (stampInBase.HasFields)
                         {
-                            var fieldsNames = xmlTbl.Attribute("fieldsnames").Value.Split(',');
-                            var fieldsCoordinates = xmlTbl.Attribute("fieldscoordinates").Value.Split(';');
-                            for (var i = 0; i < fieldsNames.Length; i++)
+                            var fieldsNames = stampInBase.FieldsNames;
+                            var fieldsCoordinates = stampInBase.FieldsCoordinates;
+                            for (var i = 0; i < fieldsNames.Count; i++)
                             {
-                                if (dbsib.CustomPropertyTable.Contains(fieldsNames[i]))
+                                if (summaryInfoBuilder.CustomPropertyTable.Contains(fieldsNames[i]))
                                 {
-                                    var col = int.Parse(fieldsCoordinates[i].Split(',').GetValue(0).ToString());
-                                    var row = int.Parse(fieldsCoordinates[i].Split(',').GetValue(1).ToString());
+                                    var col = fieldsCoordinates[i].Column;
+                                    var row = fieldsCoordinates[i].Row;
                                     var cell = new Cell(table, row, col);
+
+                                    // Если название фирмы и есть блок в ячейке
+                                    if (fieldsNames[i].Equals("zG9") & cell.Contents[0].BlockTableRecordId != ObjectId.Null)
+                                    {
+                                        if (!MessageBox.ShowYesNo(ModPlusAPI.Language.GetItem("mpStamps", "msg22"), MessageBoxIcon.Question))
+                                        {
+                                            continue;
+                                        }
+                                    }
+
                                     table.Cells[row, col].TextString =
-                                        cell.TextString =
-                                            "%<\\AcVar CustomDP." +
-                                            fieldsNames[i] +
-                                            ">%";
+                                        cell.TextString = "%<\\AcVar CustomDP." + fieldsNames[i] + ">%";
                                 }
                             }
                         }
 
                         // Вставка полей, содержащих фамилию
-                        if (xmlTbl.Attribute("hassurenames").Value.Equals("true"))
+                        if (stampInBase.HasSureNames && stampInBase.FirstCell != null)
                         {
-                            var startrow =
-                                int.Parse(xmlTbl.Attribute("firstcell").Value.Split(',').GetValue(1).ToString());
-                            var startcol =
-                                int.Parse(xmlTbl.Attribute("firstcell").Value.Split(',').GetValue(0).ToString());
-                            var n = table.Rows.Count - startrow;
+                            var startRow = stampInBase.FirstCell.Row;
+                            var startCol = stampInBase.FirstCell.Column;
+                            var n = table.Rows.Count - startRow;
 
                             // Стандартные
-                            var surnames = xmlTbl.Attribute("surnames").Value.Split(',').ToList();
-                            var surnameskeys = xmlTbl.Attribute("surnameskeys").Value.Split(',').ToList();
+                            var surnames = stampInBase.Surenames;
+                            var surnamesKeys = stampInBase.SurenamesKeys;
 
                             if (UserConfigFile.ConfigFileXml.Element("Settings") != null)
                             {
-                                if (UserConfigFile.ConfigFileXml?.Element("Settings")?.Element("UserSurnames") != null)
+                                if (UserConfigFile.ConfigFileXml.Element("Settings").Element("UserSurnames") != null)
                                 {
-                                    var xElements = UserConfigFile.ConfigFileXml?.Element("Settings")?.Element("UserSurnames")?.Elements("Surname");
-                                    if (xElements != null)
+                                    foreach (var sn in UserConfigFile.ConfigFileXml.Element("Settings").Element("UserSurnames").Elements("Surname"))
                                     {
-                                        foreach (var sn in xElements)
-                                        {
-                                            surnames.Add(sn.Attribute("Surname").Value);
-                                            surnameskeys.Add(sn.Attribute("Id").Value);
-                                        }
+                                        surnames.Add(sn.Attribute("Surname").Value);
+                                        surnamesKeys.Add(sn.Attribute("Id").Value);
                                     }
                                 }
                             }
 
                             for (var i = 0; i < n; i++)
                             {
-                                if (!table.Cells[startrow + i, startcol].TextString.Equals(string.Empty))
+                                var row = startRow + i;
+                                if (!string.IsNullOrEmpty(table.Cells[row, startCol].TextString))
                                 {
                                     for (var j = 0; j < surnames.Count; j++)
                                     {
-                                        if (table.Cells[startrow + i, startcol].TextString.Equals(surnames[j]))
+                                        if (table.Cells[row, startCol].TextString.Equals(surnames[j]))
                                         {
-                                            if (dbsib.CustomPropertyTable.Contains(surnameskeys[j]))
+                                            if (summaryInfoBuilder.CustomPropertyTable.Contains(surnamesKeys[j]))
                                             {
                                                 var k = 1;
-                                                var isMerged = table.Cells[startrow + i, startcol].IsMerged;
-                                                if (isMerged != null && isMerged.Value)
+                                                var isMerged = table.Cells[row, startCol].IsMerged;
+                                                if (isMerged != null && (bool)isMerged)
                                                     k = 2;
-                                                table.Cells[startrow + i, startcol + k].TextString =
-                                                    "%<\\AcVar CustomDP." +
-                                                    surnameskeys[j] +
-                                                    ">%";
+                                                table.Cells[row, startCol + k].TextString =
+                                                    "%<\\AcVar CustomDP." + surnamesKeys[j] + ">%";
+
+                                                if (stampInBase.DateCoordinates != null &&
+                                                    summaryInfoBuilder.CustomPropertyTable.Contains("Date"))
+                                                {
+                                                    var cc = stampInBase.DateCoordinates.FirstOrDefault(c =>
+                                                        c.Row == row);
+                                                    if (cc != null)
+                                                        table.Cells[row, cc.Column].TextString = "%<\\AcVar CustomDP.Date>%";
+                                                }
+
                                                 break;
                                             }
                                         }
@@ -1728,22 +1744,6 @@
             {
                 ExceptionBox.Show(ex);
             }
-        }
-
-        private static string GetResourceTextFile(string filename)
-        {
-            var result = string.Empty;
-
-            using (var stream = Assembly.GetExecutingAssembly().
-                GetManifestResourceStream("mpFormats.Resources." + filename))
-            {
-                using (var sr = new StreamReader(stream))
-                {
-                    result = sr.ReadToEnd();
-                }
-            }
-
-            return result;
         }
 
         #region checkboxes
@@ -2069,6 +2069,27 @@
                 {
                     if (Math.Abs(d) > max)
                         result = false;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>Чтение текстового внедренного ресурса</summary>
+        /// <param name="filename">File name</param>
+        /// <returns></returns>
+        private static string GetResourceTextFile(string filename)
+        {
+            var result = string.Empty;
+            var assembly = Assembly.GetExecutingAssembly();
+            using (var stream = assembly.GetManifestResourceStream("mpFormats.Resources." + filename))
+            {
+                if (stream != null)
+                {
+                    using (var sr = new StreamReader(stream))
+                    {
+                        result = sr.ReadToEnd();
+                    }
                 }
             }
 

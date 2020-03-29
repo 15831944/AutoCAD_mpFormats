@@ -104,6 +104,9 @@
     <Compile Include="EditUserSurnames.xaml.cs">
       <DependentUpon>EditUserSurnames.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\CellCoordinate.cs" />
+    <Compile Include="Models\TableDocumentInBase.cs" />
+    <Compile Include="Models\TablesBase.cs" />
     <Compile Include="ModPlusConnector.cs" />
     <Compile Include="MpFormats.xaml.cs">
       <DependentUpon>MpFormats.xaml</DependentUpon>
@@ -309,11 +312,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Debug (
-"$(ModPlusPostBuild)" "AutoCAD" "$(TargetPath)"
-)</PostBuildEvent>
+    <PostBuildEvent>if $(ConfigurationName) == Debug ("$(ModPlusPostBuild)" "AutoCAD" "$(TargetPath)")</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

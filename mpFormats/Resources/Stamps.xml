@@ -22,6 +22,7 @@
 		img="img_0"
     bigCells="6,0;7,6;8,6;9,6"
     nullMargin="0,4;1,4;2,4;3,4;4,4;5,4;7,8"
+    dateCoordinates="5,5;5,6;5,7;5,8;5,9;5,10"
 	></Stamp>
   <Stamp
     DocFor="RU"
@@ -45,6 +46,7 @@
 		img="img_1"
     bigCells="6,0;7,4;8,4;10,4"
     nullMargin="0,4;1,4;2,4;3,4;4,4;5,4;7,8"
+    dateCoordinates="5,5;5,6;5,7;5,8;5,9;5,10"
 	></Stamp>
   <Stamp
     DocFor="RU"
@@ -68,6 +70,7 @@
 		img="img_2"
     bigCells="6,0"
     nullMargin="0,2;1,2;2,2;3,2;4,2;5,2;7,5"
+    dateCoordinates="5,3;5,4;5,5;5,6;5,7"
 	></Stamp>
   <Stamp
     DocFor="RU"
@@ -108,6 +111,7 @@
     logo="False"
 		img="img_10"
     bigCells="6,4"
+    dateCoordinates="3,0;3,1;3,2;3,3;3,4"
 	></Stamp>
   <Stamp
     DocFor="RU"
@@ -130,7 +134,8 @@
     lnumbercooridnates="7,6"
 		img="img_12"
     bigCells="5,0;9,4;11,4"
-	nullMargin="0,4;1,4;2,4;3,4;4,4;6,3;6,7;9,3;10,7;11,3"
+    nullMargin="0,4;1,4;2,4;3,4;4,4;6,3;6,7;9,3;10,7;11,3"
+    dateCoordinates="4,5;4,6;4,7;4,8;4,9;4,10"
 	></Stamp>
   <Stamp
     DocFor="RU"
@@ -152,7 +157,8 @@
     lnumbercooridnates="4,7"
 		img="img_14"
     bigCells="5,0"
-	nullMargin="0,2;1,2;2,2;3,2;4,2;6,3;7,3;8,3"
+    nullMargin="0,2;1,2;2,2;3,2;4,2;6,3;7,3;8,3"
+    dateCoordinates="4,3;4,4;4,5;4,6;4,7"
 	></Stamp>
   <Stamp
     DocFor="RU"
@@ -296,6 +302,7 @@
 	img="img_0"
     bigCells="6,0;7,6;8,6;9,6"
     nullMargin="0,4;1,4;2,4;3,4;4,4;5,4;7,8"
+    dateCoordinates="5,5;5,6;5,7;5,8;5,9;5,10"
 	></Stamp>
   <Stamp
     DocFor="UA"
@@ -317,6 +324,7 @@
 	img="img_1"
     bigCells="6,0;7,4;8,4;10,4"
     nullMargin="0,4;1,4;2,4;3,4;4,4;5,4;7,8"
+    dateCoordinates="5,5;5,6;5,7;5,8;5,9;5,10"
 	></Stamp>
   <Stamp
     DocFor="UA"
@@ -338,6 +346,7 @@
 	img="img_2"
     bigCells="6,0;7,3;9,3"
     nullMargin="0,2;1,2;2,2;3,2;4,2;5,2;7,5"
+    dateCoordinates="5,3;5,4;5,5;5,6;5,7"
 	></Stamp>
   <Stamp
     DocFor="UA"
@@ -435,6 +444,7 @@
 	img="img_10"
     bigCells="6,4"
 	nullMargin="6,3"
+    dateCoordinates="3,0;3,1;3,2;3,3;3,4"
 	></Stamp>
 
   <!--BY-->
@@ -458,6 +468,7 @@
 	img="img_0"
     bigCells="6,0;7,6;8,6;9,6"
     nullMargin="0,4;1,4;2,4;3,4;4,4;5,4;7,8"
+    dateCoordinates="5,5;5,6;5,7;5,8;5,9;5,10"
 	></Stamp>
   <Stamp
     DocFor="BY"
@@ -479,6 +490,7 @@
 	img="img_1"
     bigCells="6,0;7,4;8,4;10,4"
     nullMargin="0,4;1,4;2,4;3,4;4,4;5,4;7,8"
+    dateCoordinates="5,5;5,6;5,7;5,8;5,9;5,10"
 	></Stamp>
   <Stamp
     DocFor="BY"
@@ -500,6 +512,7 @@
 	img="img_2"
     bigCells="6,0"
     nullMargin="0,2;1,2;2,2;3,2;4,2;5,2;7,5"
+    dateCoordinates="5,3;5,4;5,5;5,6;5,7"
 	></Stamp>
   <Stamp
     DocFor="BY"
@@ -527,11 +540,11 @@
 	tablestylename="Mp_STB_2255_E5"
 	document="СТБ 2255-2012"
 	description="Приложение Е. Рисунок Е.5"
-	hassurenames="true"
-	surnames="ГИП,Нач.отд.,Вед.инж.,Проверил,Разраб.,Н.контр.,ГАП,Гл.констр."
-	surnameskeys="GIP,Chief,ChiefEngineer,Checked,Author,NormKontrol,GAP,ChiefDesigner"
-	surnamescol="3"
-	firstcell="1,0"
+	hassurenames="false"
+	surnames=""
+	surnameskeys=""
+	surnamescol=""
+	firstcell=""
 	hasfields="true"
 	cellcount="17"
 	fieldsnames="zG9,zG1"
@@ -617,6 +630,7 @@
     logo="False"
 	img="img_10"
     bigCells="6,4"
+    dateCoordinates="3,0;3,1;3,2;3,3;3,4"
 	></Stamp>
   <Stamp
     DocFor="ISO"
