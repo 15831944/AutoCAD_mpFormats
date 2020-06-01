@@ -15,7 +15,7 @@
         private const string LangItem = "mpFormats";
 
         // Список стандартных должностей
-        private readonly List<string> _defvalues = new List<string>
+        private readonly List<string> _defValues = new List<string>
         {
             "Утвердил", "Составил", "Изм. внес", "Проверил", "Нач. отд.", "ГАП",
             "ГИП", "Н.контр.", "Т.контр.", "Разраб.", "Вед.инж.", "Гл.констр."
@@ -208,7 +208,7 @@
                 // Проверяем, что не содержится стандартных значений
                 foreach (var sn in _surnamesXml.Elements("Surname"))
                 {
-                    if (_defvalues.Contains(sn.Attribute("Surname")?.Value))
+                    if (_defValues.Contains(sn.Attribute("Surname")?.Value))
                     {
                         ModPlusAPI.Windows.MessageBox.Show(
                             ModPlusAPI.Language.GetItem(LangItem, "msg1") + " " + sn.Attribute("Surname")?.Value + " " + 

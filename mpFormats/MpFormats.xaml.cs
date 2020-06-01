@@ -210,7 +210,7 @@
                 if (key != null)
                 {
                     // Директория расположения файла
-                    var dir = Path.Combine(key.GetValue("TopDir").ToString(), "Data", "Dwg");
+                    var dir = Path.Combine(Constants.AppDataDirectory, "Data", "Dwg");
 
                     // Имя файла из которого берем таблицу
                     var sourceFileName = Path.Combine(dir, "Stamps.dwg");
@@ -471,7 +471,7 @@
                         {
                             Name = tbl.Attribute("name")?.Value,
                             TableStyle = tbl.Attribute("tablestylename")?.Value,
-                            Description = tbl.Attribute("document")?.Value + " " + tbl.Attribute("description")?.Value
+                            Description = $"{tbl.Attribute("document")?.Value} {tbl.Attribute("description")?.Value}"
                         });
                     }
                 }
@@ -511,8 +511,7 @@
                                 try
                                 {
                                     var uriSource = new Uri(
-                                        @"/mpFormats_" + ModPlusConnector.Instance.AvailProductExternalVersion + ";component/Resources/Preview/" +
-                                        tbl.Attribute("img")?.Value + ".png", UriKind.Relative);
+                                        $@"/mpFormats_{ModPlusConnector.Instance.AvailProductExternalVersion};component/Resources/Preview/{tbl.Attribute("img")?.Value}.png", UriKind.Relative);
                                     Image_stamp.Source = new BitmapImage(uriSource);
                                 }
                                 catch
@@ -681,8 +680,8 @@
                 // Если кол-во пустых равно 0, значит мы достигли предела
                 else
                 {
-                    MessageBox.Show(ModPlusAPI.Language.GetItem(LangItem, "msg5") + " " +
-                        Namecol.ToString(CultureInfo.InvariantCulture) + " " + ModPlusAPI.Language.GetItem(LangItem, "msg6"));
+                    MessageBox.Show(
+                        $"{ModPlusAPI.Language.GetItem(LangItem, "msg5")} {Namecol.ToString(CultureInfo.InvariantCulture)} {ModPlusAPI.Language.GetItem(LangItem, "msg6")}");
                 }
             }
         }
@@ -1391,13 +1390,13 @@
                             if (tableStyleName.Equals(xmltbl.Attribute("tablestylename").Value))
                             {
                                 // Директория расположения файла
-                                var dir = Path.Combine(Constants.CurrentDirectory, "Data", "Dwg");
+                                var dir = Path.Combine(Constants.AppDataDirectory, "Data", "Dwg");
 
                                 // Имя файла из которого берем таблицу
                                 var sourceFileName = Path.Combine(dir, "Stamps.dwg");
 
                                 // Read the DWG into a side database
-                                sourceDb.ReadDwgFile(sourceFileName, FileShare.Read, true, "");
+                                sourceDb.ReadDwgFile(sourceFileName, FileOpenMode.OpenTryForReadShare, true, string.Empty);
                                 var tblIds = new ObjectIdCollection();
 
                                 // Создаем пустую таблицу
@@ -1432,9 +1431,7 @@
                                 if (tbl.ObjectId == ObjectId.Null)
                                 {
                                     MessageBox.Show(
-                                        ModPlusAPI.Language.GetItem(LangItem, "err10") + " " +
-                                        tableStyleName + Environment.NewLine +
-                                        ModPlusAPI.Language.GetItem(LangItem, "err11"));
+                                        $"{ModPlusAPI.Language.GetItem(LangItem, "err10")} {tableStyleName}{Environment.NewLine}{ModPlusAPI.Language.GetItem(LangItem, "err11")}");
                                     return;
                                 }
 
@@ -1606,7 +1603,8 @@
                                                 if (string.IsNullOrEmpty(tbl.Cells[rowN, colN].TextString))
                                                     tbl.Cells[rowN, colN].TextString = _lnumber;
                                                 else
-                                                    tbl.Cells[rowN, colN].TextString = tbl.Cells[rowN, colN].TextString + " " + _lnumber;
+                                                    tbl.Cells[rowN, colN].TextString =
+                                                        $"{tbl.Cells[rowN, colN].TextString} {_lnumber}";
                                             }
                                         }
                                     }
@@ -1673,7 +1671,7 @@
                                     }
 
                                     table.Cells[row, col].TextString =
-                                        cell.TextString = "%<\\AcVar CustomDP." + fieldsNames[i] + ">%";
+                                        cell.TextString = $"%<\\AcVar CustomDP.{fieldsNames[i]}>%";
                                 }
                             }
                         }
@@ -1717,7 +1715,7 @@
                                                 if (isMerged != null && (bool)isMerged)
                                                     k = 2;
                                                 table.Cells[row, startCol + k].TextString =
-                                                    "%<\\AcVar CustomDP." + surnamesKeys[j] + ">%";
+                                                    $"%<\\AcVar CustomDP.{surnamesKeys[j]}>%";
 
                                                 if (stampInBase.DateCoordinates != null &&
                                                     summaryInfoBuilder.CustomPropertyTable.Contains("Date"))
@@ -1765,7 +1763,8 @@
             var index = cb.SelectedIndex;
             if (index == 0)
             {
-                var uriSource = new Uri(@"/mpFormats_" + ModPlusConnector.Instance.AvailProductExternalVersion + ";component/Resources/Preview/F_5.png", UriKind.Relative);
+                var uriSource = new Uri(
+                    $@"/mpFormats_{ModPlusConnector.Instance.AvailProductExternalVersion};component/Resources/Preview/F_5.png", UriKind.Relative);
                 Image_format.Source = new BitmapImage(uriSource);
 
                 Image_b1.Margin = new Thickness(5, 0, 0, 3);
@@ -1774,7 +1773,8 @@
             }
             else
             {
-                var uriSource = new Uri(@"/mpFormats_" + ModPlusConnector.Instance.AvailProductExternalVersion + ";component/Resources/Preview/F_10.png", UriKind.Relative);
+                var uriSource = new Uri(
+                    $@"/mpFormats_{ModPlusConnector.Instance.AvailProductExternalVersion};component/Resources/Preview/F_10.png", UriKind.Relative);
                 Image_format.Source = new BitmapImage(uriSource);
 
                 Image_b1.Margin = new Thickness(5, 0, 0, 5);
@@ -1850,8 +1850,8 @@
                 var accordingToGost = ChkAccordingToGost.IsChecked != null && ChkAccordingToGost.IsChecked.Value;
 
                 var formatSize = MpFormatsAdd.GetFormatSize(format, orientation, side, multiplicity, accordingToGost);
-                TbFormatSize.Text = formatSize.Width.ToString(CultureInfo.InvariantCulture) + " x " +
-                                    formatSize.Height.ToString(CultureInfo.InvariantCulture);
+                TbFormatSize.Text =
+                    $"{formatSize.Width.ToString(CultureInfo.InvariantCulture)} x {formatSize.Height.ToString(CultureInfo.InvariantCulture)}";
             }
             catch
             {
@@ -1975,7 +1975,7 @@
                     var sourceDb = new Database(false, true);
 
                     // read file DB
-                    sourceDb.ReadDwgFile(fileName, FileShare.Read, true, string.Empty);
+                    sourceDb.ReadDwgFile(fileName, FileOpenMode.OpenTryForReadShare, true, string.Empty);
 
                     // Create a variable to store the list of block identifiers
                     var blockIds = new ObjectIdCollection();
@@ -2082,7 +2082,7 @@
         {
             var result = string.Empty;
             var assembly = Assembly.GetExecutingAssembly();
-            using (var stream = assembly.GetManifestResourceStream("mpFormats.Resources." + filename))
+            using (var stream = assembly.GetManifestResourceStream($"mpFormats.Resources.{filename}"))
             {
                 if (stream != null)
                 {
